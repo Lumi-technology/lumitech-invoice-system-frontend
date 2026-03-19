@@ -1,7 +1,15 @@
+// CreateClient.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import { ArrowRight, UserPlus } from "lucide-react";
+import {
+  ArrowLeft,
+  UserPlus,
+  User,
+  Mail,
+  Phone,
+  MapPin
+} from "lucide-react";
 
 function CreateClient() {
   const navigate = useNavigate();
@@ -29,107 +37,112 @@ function CreateClient() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-sm text-slate-600 hover:text-blue-600 transition"
-          >
-            <ArrowRight className="w-4 h-4 rotate-180" />
-            Back
-          </button>
-
-          <h1 className="text-xl font-semibold text-slate-900">
-            Create Customer
-          </h1>
-
-          <div></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+      {/* Sticky Header with glassmorphism */}
+      <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200/60 sticky top-0 z-10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors"
+            >
+              <ArrowLeft size={20} />
+              <span className="text-sm font-medium">Back</span>
+            </button>
+            <h1 className="text-xl font-semibold text-slate-900">
+              Create New Customer
+            </h1>
+            <div className="w-20" /> {/* spacer for alignment */}
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Main */}
-      <div className="max-w-3xl mx-auto px-6 py-10">
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-
+      {/* Main Form Card */}
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
             {/* Name */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Customer Name *
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <User className="w-4 h-4 text-slate-400" />
+                Customer Name <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
                 value={form.name}
-                onChange={(e) =>
-                  setForm({ ...form, name: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
                 required
-                className="w-full border rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                placeholder="e.g., John Doe or Company Ltd"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
               />
             </div>
 
             {/* Email */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Email
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <Mail className="w-4 h-4 text-slate-400" />
+                Email Address
               </label>
               <input
                 type="email"
                 value={form.email}
-                onChange={(e) =>
-                  setForm({ ...form, email: e.target.value })
-                }
-                className="w-full border rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="client@example.com"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
               />
             </div>
 
             {/* Phone */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Phone
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <Phone className="w-4 h-4 text-slate-400" />
+                Phone Number
               </label>
               <input
                 type="text"
                 value={form.phone}
-                onChange={(e) =>
-                  setForm({ ...form, phone: e.target.value })
-                }
-                className="w-full border rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                placeholder="+234 123 456 7890"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
               />
             </div>
 
             {/* Address */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <MapPin className="w-4 h-4 text-slate-400" />
                 Address
               </label>
               <textarea
                 value={form.address}
-                onChange={(e) =>
-                  setForm({ ...form, address: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
                 rows="3"
-                className="w-full border rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                placeholder="Street, city, postal code..."
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition resize-none"
               />
             </div>
 
-            {/* Submit */}
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 transition shadow-md flex items-center justify-center gap-2"
+              className="w-full inline-flex justify-center items-center gap-2 px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-medium rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <UserPlus size={18} />
-              {isLoading ? "Creating..." : "Create Customer"}
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Creating Customer...
+                </>
+              ) : (
+                <>
+                  <UserPlus size={18} />
+                  Create Customer
+                </>
+              )}
             </button>
-
           </form>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
