@@ -1,57 +1,93 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+import Dashboard from "./pages/Dashboard";
 import CreateInvoice from "./pages/CreateInvoice";
 import InvoiceList from "./pages/InvoiceList";
 import CreateClient from "./pages/CreateClient";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Layout from "./components/Layout";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* Public Route */}
+        {/* PUBLIC */}
         <Route path="/login" element={<Login />} />
 
-        {/* Protected Routes */}
+        {/* DEFAULT → DASHBOARD */}
         <Route
           path="/"
           element={
             <ProtectedRoute>
-              <InvoiceList />
+              <Navigate to="/dashboard" />
             </ProtectedRoute>
           }
         />
 
+        {/* DASHBOARD */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* INVOICE LIST */}
+        <Route
+          path="/invoices"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <InvoiceList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* CREATE INVOICE */}
         <Route
           path="/create"
           element={
             <ProtectedRoute>
-              <CreateInvoice />
+              <Layout>
+                <CreateInvoice />
+              </Layout>
             </ProtectedRoute>
           }
         />
 
+        {/* INVOICE DETAILS */}
         <Route
           path="/invoices/:id"
           element={
             <ProtectedRoute>
-              <InvoiceDetail />
+              <Layout>
+                <InvoiceDetail />
+              </Layout>
             </ProtectedRoute>
           }
         />
 
+        {/* CREATE CLIENT */}
         <Route
           path="/clients/create"
           element={
             <ProtectedRoute>
-              <CreateClient />
+              <Layout>
+                <CreateClient />
+              </Layout>
             </ProtectedRoute>
           }
         />
 
-        {/* Fallback */}
+        {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/login" />} />
 
       </Routes>

@@ -8,14 +8,13 @@ import {
   Trash2,
   Calendar,
   User,
-  DollarSign,
-  Save,
-  X
+  Save
 } from "lucide-react";
 
 function CreateInvoice() {
   const [clients, setClients] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(""); // validation error message
   const navigate = useNavigate();
 
   const today = new Date().toISOString().split("T")[0];
@@ -33,6 +32,20 @@ function CreateInvoice() {
       .then(res => setClients(res.data))
       .catch(err => console.error(err));
   }, []);
+
+  // Calculate subtotal and total
+  const subtotal = form.items.reduce(
+    (sum, item) => sum + item.quantity * item.unitPrice,
+    0
+  );
+  const total = subtotal + Number(form.tax || 0);
+
+  // Clear error when total becomes valid
+  useEffect(() => {
+    if (total > 0 && error) {
+      setError("");
+    }
+  }, [total, error]);
 
   const handleItemChange = (index, field, value) => {
     const updatedItems = [...form.items];
@@ -52,22 +65,24 @@ function CreateInvoice() {
     setForm({ ...form, items: updatedItems });
   };
 
-  const subtotal = form.items.reduce(
-    (sum, item) => sum + item.quantity * item.unitPrice,
-    0
-  );
-
-  const total = subtotal + Number(form.tax || 0);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation: total must be greater than zero
+    if (total <= 0) {
+      setError("Invoice total must be greater than zero.");
+      return;
+    }
+
     setIsLoading(true);
+    setError("");
 
     try {
       await api.post("api/invoices", form);
       navigate("/");
     } catch (err) {
       console.error("CREATE INVOICE ERROR:", err.response?.data || err);
+      setError("Failed to create invoice. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +90,7 @@ function CreateInvoice() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      {/* Sticky Header with glassmorphism */}
+      {/* Sticky Header */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200/60 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -89,7 +104,7 @@ function CreateInvoice() {
             <h1 className="text-xl font-semibold text-slate-900">
               Create New Invoice
             </h1>
-            <div className="w-20" /> {/* spacer for alignment */}
+            <div className="w-20" />
           </div>
         </div>
       </header>
@@ -290,10 +305,17 @@ function CreateInvoice() {
               </div>
             </div>
 
+            {/* Error message */}
+            {error && (
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-600 text-sm text-center">
+                {error}
+              </div>
+            )}
+
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || total <= 0}
               className="w-full inline-flex justify-center items-center gap-2 px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-medium rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (

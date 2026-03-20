@@ -1,0 +1,111 @@
+// Navbar.jsx
+import { Link, useLocation } from "react-router-dom";
+import {
+  LayoutDashboard,
+  FileText,
+  PlusCircle,
+  Users,
+  LogOut,
+  ChevronLeft,
+  ChevronRight
+} from "lucide-react";
+import { useState } from "react";
+import { getUserFromToken } from "../services/api";
+
+function Navbar() {
+  const location = useLocation();
+  const [collapsed, setCollapsed] = useState(false);
+  const user = getUserFromToken();
+  const role = user?.role || (Array.isArray(user?.roles) ? user.roles[0] : null);
+
+  const isActive = (path) => location.pathname === path;
+
+  const navItems = [
+    { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/invoices", label: "Invoices", icon: FileText },
+    { path: "/create", label: "New Invoice", icon: PlusCircle },
+    { path: "/clients/create", label: "New Customer", icon: Users }, // ✅ fixed
+  ];
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+  };
+
+  return (
+    <aside
+      className={`h-screen sticky top-0 bg-white/80 backdrop-blur-xl border-r border-slate-200/60 flex flex-col transition-all duration-300 ${
+        collapsed ? "w-20" : "w-64"
+      }`}
+    >
+      {/* Logo & Toggle */}
+      <div className="flex items-center justify-between p-4 border-b border-slate-200/60">
+        <div className={`flex items-center gap-2 ${collapsed ? "justify-center w-full" : ""}`}>
+          <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg shadow-blue-600/20">
+            <FileText className="w-5 h-5 text-white" />
+          </div>
+          {!collapsed && (
+            <span className="font-bold text-lg text-slate-900">
+              Lumitech<span className="text-blue-600">.</span>
+            </span>
+          )}
+        </div>
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="p-1.5 rounded-lg hover:bg-slate-100 transition"
+        >
+          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+        </button>
+      </div>
+
+      {/* Navigation Links */}
+      <nav className="flex-1 py-6 px-3">
+        <ul className="space-y-2">
+          {navItems.map((item) => (
+            <li key={item.path}>
+              <Link
+                to={item.path}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
+                  isActive(item.path)
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <item.icon size={20} />
+                {!collapsed && <span className="text-sm font-medium">{item.label}</span>}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* User Profile & Logout */}
+      <div className="p-4 border-t border-slate-200/60">
+        {user && (
+          <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-medium">
+              {user.username?.charAt(0).toUpperCase() || "U"}
+            </div>
+            {!collapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-slate-700 truncate">{user.username}</p>
+                <p className="text-xs text-slate-500 truncate">{role || "Member"}</p>
+              </div>
+            )}
+          </div>
+        )}
+        <button
+          onClick={handleLogout}
+          className={`mt-3 flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-slate-600 hover:bg-rose-50 hover:text-rose-600 transition ${
+            collapsed ? "justify-center" : ""
+          }`}
+        >
+          <LogOut size={20} />
+          {!collapsed && <span className="text-sm font-medium">Logout</span>}
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+export default Navbar;
