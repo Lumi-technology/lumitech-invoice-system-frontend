@@ -101,7 +101,7 @@ const Dashboard = () => {
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="text-2xl font-bold text-slate-900 mt-2">{value}</p>
+          <p className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">{value}</p>
         </div>
         <div className={`p-3 rounded-xl ${color} shadow-sm`}>
           <Icon className="w-5 h-5 text-white" />
@@ -135,16 +135,16 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8 px-4 sm:px-0">
       {/* Header with title and action button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900">Dashboard</h1>
           <p className="text-sm text-slate-500 mt-1">Overview of your business finances</p>
         </div>
         <button
           onClick={() => setShowLoanModal(true)}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-medium rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 hover:scale-[1.02] transition-all duration-200 self-start"
+          className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-medium rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 hover:scale-[1.02] transition-all duration-200 self-start sm:self-auto w-full sm:w-auto"
         >
           <Plus size={18} />
           Fund Company
@@ -152,7 +152,7 @@ const Dashboard = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <StatCard
           title="Total Loaned"
           value={formatCurrency(dashboard.summary.totalLoaned)}
@@ -174,19 +174,23 @@ const Dashboard = () => {
       </div>
 
       {/* Chart */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-6">
-        <div className="flex items-center gap-2 mb-6">
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
+        <div className="flex items-center gap-2 mb-4 sm:mb-6">
           <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg shadow-md">
-            <BarChart3 className="w-5 h-5 text-white" />
+            <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900">Financial Overview</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900">Financial Overview</h3>
         </div>
 
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="name" stroke="#64748b" />
-            <YAxis stroke="#64748b" tickFormatter={(value) => `₦${value.toLocaleString()}`} />
+            <XAxis dataKey="name" stroke="#64748b" tick={{ fontSize: 12 }} />
+            <YAxis
+              stroke="#64748b"
+              tickFormatter={(value) => `₦${(value / 1000).toFixed(0)}k`}
+              tick={{ fontSize: 12 }}
+            />
             <Tooltip
               formatter={(value) => [`₦${value.toLocaleString()}`, "Amount"]}
               contentStyle={{
@@ -194,10 +198,10 @@ const Dashboard = () => {
                 backdropFilter: "blur(4px)",
                 border: "1px solid #e2e8f0",
                 borderRadius: "0.75rem",
-                boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                fontSize: "12px",
               }}
             />
-            <Legend />
+            <Legend wrapperStyle={{ fontSize: "12px" }} />
             <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
@@ -207,12 +211,12 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Payments */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-emerald-500" />
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 flex items-center justify-between">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
               Recent Payments
             </h3>
-            <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+            <span className="text-xs sm:text-sm text-slate-500 bg-slate-100 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full">
               {dashboard.recentPayments.length}
             </span>
           </div>
@@ -226,16 +230,16 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[400px]">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Date
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Invoice
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Amount
                     </th>
                   </tr>
@@ -243,13 +247,13 @@ const Dashboard = () => {
                 <tbody className="divide-y divide-slate-100">
                   {dashboard.recentPayments.map((payment, index) => (
                     <tr key={index} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-slate-600">
+                      <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap text-slate-600 text-xs sm:text-sm">
                         {formatDate(payment.date)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap font-mono text-slate-700">
+                      <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap font-mono text-slate-700 text-xs sm:text-sm">
                         {payment.invoiceNumber}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap font-medium text-emerald-600">
+                      <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap font-medium text-emerald-600 text-xs sm:text-sm">
                         {formatCurrency(payment.amount)}
                       </td>
                     </tr>
@@ -262,12 +266,12 @@ const Dashboard = () => {
 
         {/* Outstanding Invoices */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-              <Clock className="w-5 h-5 text-amber-500" />
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 flex items-center justify-between">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
               Outstanding Invoices
             </h3>
-            <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+            <span className="text-xs sm:text-sm text-slate-500 bg-slate-100 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full">
               {dashboard.outstandingInvoices.length}
             </span>
           </div>
@@ -281,16 +285,16 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[400px]">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Invoice
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Amount
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Due Date
                     </th>
                   </tr>
@@ -300,15 +304,15 @@ const Dashboard = () => {
                     const overdue = isOverdue(inv.dueDate);
                     return (
                       <tr key={index} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap font-mono text-slate-700">
+                        <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap font-mono text-slate-700 text-xs sm:text-sm">
                           {inv.invoiceNumber}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap font-medium text-amber-600">
+                        <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap font-medium text-amber-600 text-xs sm:text-sm">
                           {formatCurrency(inv.amount)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium ${
                               overdue
                                 ? "bg-rose-50 text-rose-700 border border-rose-200"
                                 : "text-slate-600"
@@ -331,7 +335,7 @@ const Dashboard = () => {
       {/* Loan Modal */}
       {showLoanModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-4 sm:p-6 animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                 <Wallet className="w-5 h-5 text-blue-600" />
