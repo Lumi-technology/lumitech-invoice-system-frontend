@@ -1,5 +1,5 @@
 // InvoiceDetail.jsx
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
 import {
@@ -18,7 +18,10 @@ import {
   FileText,
   DollarSign,
   CreditCard,
-  Wallet
+  Wallet,
+  RefreshCw,
+  ExternalLink,
+  AlertCircle,
 } from "lucide-react";
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
@@ -39,6 +42,12 @@ function InvoiceDetail() {
   const [paymentMethod, setPaymentMethod] = useState("TRANSFER");
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
 
+  // Paystack online payment state
+  const [isPayingOnline, setIsPayingOnline] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
+  const pollRef = useRef(null);
+  const pollCountRef = useRef(0);
+
   const user = getUserFromToken();
   const isAdmin =
     user &&
@@ -58,6 +67,45 @@ function InvoiceDetail() {
   useEffect(() => {
     fetchInvoice();
   }, [fetchInvoice]);
+
+  // Stop polling when invoice becomes PAID or on unmount
+  useEffect(() => {
+    if (invoice?.status === "PAID" && isPolling) {
+      clearInterval(pollRef.current);
+      setIsPolling(false);
+    }
+  }, [invoice?.status, isPolling]);
+
+  useEffect(() => {
+    return () => clearInterval(pollRef.current);
+  }, []);
+
+  // Paystack Pay Now handler
+  const handlePayNow = async () => {
+    try {
+      setIsPayingOnline(true);
+      const res = await api.get(`/api/invoices/${id}/pay`);
+      window.open(res.data.paymentUrl, "_blank");
+      // Start polling every 5s for up to 30s
+      pollCountRef.current = 0;
+      setIsPolling(true);
+      pollRef.current = setInterval(async () => {
+        pollCountRef.current += 1;
+        await fetchInvoice();
+        if (pollCountRef.current >= 6) {
+          clearInterval(pollRef.current);
+          setIsPolling(false);
+        }
+      }, 5000);
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        "Failed to initiate payment. Ensure the client has an email address.";
+      setToast({ visible: true, message: msg, type: "error" });
+    } finally {
+      setIsPayingOnline(false);
+    }
+  };
 
   const formatCurrency = (amount) =>
     new Intl.NumberFormat("en-NG", {
@@ -172,6 +220,14 @@ function InvoiceDetail() {
         </button>
         <div className="flex items-center gap-2">
           <button
+            onClick={fetchInvoice}
+            title="Refresh status"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition shadow-sm"
+          >
+            <RefreshCw size={16} className={isPolling ? "animate-spin" : ""} />
+            {isPolling ? "Checking..." : "Refresh"}
+          </button>
+          <button
             onClick={downloadPdf}
             disabled={isDownloading}
             className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition shadow-sm disabled:opacity-50"
@@ -179,6 +235,16 @@ function InvoiceDetail() {
             <Download size={16} />
             {isDownloading ? "Downloading..." : "PDF"}
           </button>
+          {invoice.status !== "PAID" && (
+            <button
+              onClick={handlePayNow}
+              disabled={isPayingOnline}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <CreditCard size={16} />
+              {isPayingOnline ? "Opening..." : "Pay Now"}
+            </button>
+          )}
           {isAdmin && (
             <button
               onClick={() => setShowDeleteModal(true)}
@@ -205,7 +271,7 @@ function InvoiceDetail() {
                 <h1 className="text-xl font-semibold text-slate-900">
                   Invoice <span className="text-blue-600">#{invoice.invoiceNumber}</span>
                 </h1>
-                <div className="flex items-center gap-3 mt-1 text-sm text-slate-500">
+                <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-slate-500">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" />
                     Issued: {formatDate(invoice.issueDate)}
@@ -214,6 +280,17 @@ function InvoiceDetail() {
                     <Calendar className="w-3.5 h-3.5" />
                     Due: {formatDate(invoice.dueDate)}
                   </span>
+                  {invoice.paystackPaymentUrl && (
+                    <a
+                      href={invoice.paystackPaymentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      Pay Online
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
