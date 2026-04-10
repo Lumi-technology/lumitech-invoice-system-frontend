@@ -8,6 +8,7 @@ import InvoiceDetail from "./pages/InvoiceDetail";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
+import ClientList from "./pages/ClientList"; 
 
 function App() {
   return (
@@ -86,6 +87,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+  path="/clients"
+  element={
+    <ProtectedRoute>
+      <Layout>
+        <ClientList />
+      </Layout>
+    </ProtectedRoute>
+  }
+/>
 
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/login" />} />

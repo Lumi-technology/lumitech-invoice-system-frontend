@@ -24,7 +24,8 @@ function Navbar() {
     { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { path: "/invoices", label: "Invoices", icon: FileText },
     { path: "/create", label: "New Invoice", icon: PlusCircle },
-    { path: "/clients/create", label: "New Customer", icon: Users }, // ✅ fixed
+    { path: "/clients/create", label: "New Customer", icon: Users },
+    { path: "/clients", label: "Customers", icon: Users },
   ];
 
   const handleLogout = () => {
