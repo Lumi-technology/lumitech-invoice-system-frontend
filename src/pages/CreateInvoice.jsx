@@ -28,8 +28,8 @@ function CreateInvoice() {
   });
 
   useEffect(() => {
-    api.get("api/clients")
-      .then(res => setClients(res.data))
+    api.get("api/clients", { params: { page: 0, size: 100 } })
+      .then(res => setClients(res.data.content))
       .catch(err => console.error(err));
   }, []);
 

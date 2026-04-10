@@ -23,19 +23,25 @@ function ClientList() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [page, setPage] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const PAGE_SIZE = 20;
   const navigate = useNavigate();
   const user = getUserFromToken();
   const isAdmin = user && (user.role === "ADMIN" || (Array.isArray(user.roles) && user.roles.includes("ADMIN")));
 
   useEffect(() => {
-    fetchClients();
-  }, []);
+    fetchClients(page);
+  }, [page]);
 
-  const fetchClients = async () => {
+  const fetchClients = async (currentPage) => {
     try {
       setLoading(true);
-      const res = await api.get("/api/clients");
-      setClients(res.data);
+      const res = await api.get("/api/clients", { params: { page: currentPage, size: PAGE_SIZE } });
+      setClients(res.data.content);
+      setTotalElements(res.data.totalElements);
+      setTotalPages(res.data.totalPages);
     } catch (err) {
       console.error("Fetch clients error:", err);
       setToast({ visible: true, message: "Failed to load clients", type: "error" });
@@ -55,7 +61,7 @@ function ClientList() {
       setIsDeleting(true);
       await api.delete(`/api/clients/${selectedClient.id}`);
       setToast({ visible: true, message: "Client deleted successfully", type: "success" });
-      fetchClients(); // refresh list
+      fetchClients(page);
     } catch (err) {
       console.error("Delete client error:", err);
       setToast({ visible: true, message: "Failed to delete client", type: "error" });
@@ -94,6 +100,12 @@ function ClientList() {
 
       {/* Clients Table */}
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <h2 className="text-base font-semibold text-slate-900">All Customers</h2>
+          <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+            Showing {clients.length} of {totalElements} clients
+          </span>
+        </div>
         {loading ? (
           <div className="p-12 text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600 mb-4" />
@@ -179,6 +191,31 @@ function ClientList() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+            <span className="text-sm text-slate-500">
+              Page {page + 1} of {totalPages}
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage(p => p - 1)}
+                disabled={page === 0}
+                className="px-4 py-2 text-sm font-medium border border-slate-200 rounded-lg bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setPage(p => p + 1)}
+                disabled={page + 1 >= totalPages}
+                className="px-4 py-2 text-sm font-medium border border-slate-200 rounded-lg bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>
