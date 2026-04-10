@@ -8,7 +8,9 @@ import {
   Trash2,
   Calendar,
   User,
-  Save
+  Save,
+  Mail,
+  X,
 } from "lucide-react";
 
 function CreateInvoice() {
@@ -19,13 +21,27 @@ function CreateInvoice() {
 
   const today = new Date().toISOString().split("T")[0];
 
+  const [ccInput, setCcInput] = useState("");
   const [form, setForm] = useState({
     clientId: "",
     issueDate: today,
     dueDate: "",
     tax: 0,
+    ccEmails: [],
     items: [{ description: "", quantity: 1, unitPrice: 0 }]
   });
+
+  const addCcEmail = () => {
+    const email = ccInput.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    if (form.ccEmails.includes(email)) return;
+    setForm({ ...form, ccEmails: [...form.ccEmails, email] });
+    setCcInput("");
+  };
+
+  const removeCcEmail = (email) => {
+    setForm({ ...form, ccEmails: form.ccEmails.filter(e => e !== email) });
+  };
 
   useEffect(() => {
     api.get("api/clients", { params: { page: 0, size: 100 } })
@@ -168,6 +184,55 @@ function CreateInvoice() {
                     className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* CC Emails Section */}
+            <div>
+              <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
+                CC Recipients <span className="normal-case font-normal text-slate-400">(optional)</span>
+              </h2>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="email"
+                      placeholder="Enter email and press Enter"
+                      value={ccInput}
+                      onChange={(e) => setCcInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCcEmail(); } }}
+                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addCcEmail}
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-xl transition"
+                  >
+                    <Plus size={16} />
+                    Add
+                  </button>
+                </div>
+                {form.ccEmails.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {form.ccEmails.map((email) => (
+                      <span
+                        key={email}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-sm font-medium"
+                      >
+                        {email}
+                        <button
+                          type="button"
+                          onClick={() => removeCcEmail(email)}
+                          className="hover:text-blue-900 transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
