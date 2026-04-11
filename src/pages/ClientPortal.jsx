@@ -10,6 +10,8 @@ import {
   Clock,
   XCircle,
   AlertCircle,
+  TrendingUp,
+  Wallet,
 } from "lucide-react";
 
 const baseURL =
@@ -21,7 +23,7 @@ const baseURL =
 function ClientPortal() {
   const { token } = useParams();
   const [invoices, setInvoices] = useState([]);
-  const [clientName, setClientName] = useState("");
+  const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [downloadingId, setDownloadingId] = useState(null);
@@ -31,8 +33,13 @@ function ClientPortal() {
       .get(`${baseURL}/api/public/clients/${token}/invoices`)
       .then((res) => {
         const data = res.data;
-        if (data.length > 0) setClientName(data[0].client.name);
-        setInvoices(data);
+        setSummary({
+          clientName: data.clientName,
+          totalInvoiced: data.totalInvoiced,
+          totalPaid: data.totalPaid,
+          totalOutstanding: data.totalOutstanding,
+        });
+        setInvoices(data.invoices);
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
@@ -132,7 +139,7 @@ function ClientPortal() {
             </div>
             <div>
               <h1 className="text-xl font-semibold text-slate-900">
-                {clientName} —{" "}
+                {summary?.clientName} —{" "}
                 <span className="text-blue-600">Invoices</span>
               </h1>
               <p className="text-xs text-slate-500">
@@ -143,7 +150,55 @@ function ClientPortal() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+        {/* Summary Cards */}
+        {summary && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Total Invoiced */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Invoiced</p>
+                  <p className="text-2xl font-bold text-slate-900 mt-1">{formatCurrency(summary.totalInvoiced)}</p>
+                </div>
+                <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-sm">
+                  <TrendingUp className="w-4 h-4 text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* Total Paid */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Paid</p>
+                  <p className="text-2xl font-bold text-emerald-600 mt-1">{formatCurrency(summary.totalPaid)}</p>
+                </div>
+                <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-sm">
+                  <CheckCircle className="w-4 h-4 text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* Outstanding Balance */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Outstanding Balance</p>
+                  <p className={`text-2xl font-bold mt-1 ${summary.totalOutstanding > 0 ? "text-rose-600" : "text-emerald-600"}`}>
+                    {formatCurrency(summary.totalOutstanding)}
+                  </p>
+                </div>
+                <div className={`p-2.5 rounded-xl shadow-sm ${summary.totalOutstanding > 0 ? "bg-gradient-to-br from-rose-500 to-pink-500" : "bg-gradient-to-br from-emerald-500 to-teal-500"}`}>
+                  <Wallet className="w-4 h-4 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Invoices Table */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           {invoices.length === 0 ? (
             <div className="p-16 text-center">
@@ -157,27 +212,13 @@ function ClientPortal() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/50">
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Invoice #
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Issue Date
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Due Date
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Total
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Balance Due
-                    </th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Invoice #</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Issue Date</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Due Date</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Total</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Balance Due</th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -186,29 +227,23 @@ function ClientPortal() {
                       <td className="px-6 py-4 whitespace-nowrap font-mono font-medium text-slate-900">
                         #{inv.invoiceNumber}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-slate-600">
-                        {formatDate(inv.issueDate)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-slate-600">
-                        {formatDate(inv.dueDate)}
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-slate-600">{formatDate(inv.issueDate)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-slate-600">{formatDate(inv.dueDate)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(inv.status)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-900">{formatCurrency(inv.total)}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(inv.status)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-900">
-                        {formatCurrency(inv.total)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap font-semibold text-blue-600">
-                        {formatCurrency(inv.balanceDue)}
+                        <span className={`font-semibold ${inv.balanceDue > 0 ? "text-rose-600" : "text-emerald-600"}`}>
+                          {formatCurrency(inv.balanceDue)}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">
-                          {inv.paystackPaymentUrl && inv.status !== "PAID" && (
+                          {inv.balanceDue > 0 && inv.paystackPaymentUrl && (
                             <a
                               href={inv.paystackPaymentUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-xs font-medium rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all"
+                              className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-xs font-semibold rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all"
                             >
                               <CreditCard className="w-3.5 h-3.5" />
                               Pay Now
