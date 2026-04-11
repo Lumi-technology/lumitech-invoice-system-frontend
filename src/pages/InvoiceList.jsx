@@ -17,6 +17,8 @@ import {
   Clock,
   CheckCircle,
   XCircle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 function InvoiceList() {
@@ -24,26 +26,24 @@ function InvoiceList() {
   const [stats, setStats] = useState({ total: 0, paid: 0, pending: 0, overdue: 0 });
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const PAGE_SIZE = 20;
+  const [showAll, setShowAll] = useState(false);
+  const PREVIEW_SIZE = 5;
   const navigate = useNavigate();
   const user = getUserFromToken();
   const role = user?.role || (Array.isArray(user?.roles) ? user.roles[0] : null);
 
   useEffect(() => {
-    fetchInvoices(page);
-  }, [page]);
+    fetchInvoices();
+  }, []);
 
-  const fetchInvoices = async (currentPage) => {
+  const fetchInvoices = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/api/invoices", { params: { page: currentPage, size: PAGE_SIZE } });
+      const res = await api.get("/api/invoices", { params: { page: 0, size: 1000 } });
       const items = res.data.content;
       setInvoices(items);
       setTotalElements(res.data.totalElements);
-      setTotalPages(res.data.totalPages);
 
       const total = items.reduce((sum, inv) => sum + inv.total, 0);
       const paid = items.filter(inv => inv.status === "PAID").length;
@@ -83,6 +83,7 @@ function InvoiceList() {
     inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
     inv.client.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const visibleInvoices = showAll ? filteredInvoices : filteredInvoices.slice(0, PREVIEW_SIZE);
 
   const StatCard = ({ title, value, icon: Icon, color, trend }) => (
     <div className="group relative bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
@@ -227,7 +228,7 @@ function InvoiceList() {
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-slate-900">Recent Invoices</h2>
             <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-              Showing {invoices.length} of {totalElements} invoices
+              {totalElements} invoices
             </span>
           </div>
 
@@ -282,7 +283,7 @@ function InvoiceList() {
                       </td>
                     </tr>
                   ) : (
-                    filteredInvoices.map(inv => (
+                    visibleInvoices.map(inv => (
                       <tr
                         key={inv.id}
                         onClick={() => navigate(`/invoices/${inv.id}`)}
@@ -323,28 +324,19 @@ function InvoiceList() {
             )}
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-sm text-slate-500">
-                Page {page + 1} of {totalPages}
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setPage(p => p - 1)}
-                  disabled={page === 0}
-                  className="px-4 py-2 text-sm font-medium border border-slate-200 rounded-lg bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={() => setPage(p => p + 1)}
-                  disabled={page + 1 >= totalPages}
-                  className="px-4 py-2 text-sm font-medium border border-slate-200 rounded-lg bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
-                >
-                  Next
-                </button>
-              </div>
+          {/* Show more / collapse */}
+          {filteredInvoices.length > PREVIEW_SIZE && (
+            <div className="border-t border-slate-100">
+              <button
+                onClick={() => setShowAll(s => !s)}
+                className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-blue-600 hover:bg-blue-50 transition"
+              >
+                {showAll ? (
+                  <>Show less <ChevronUp className="w-4 h-4" /></>
+                ) : (
+                  <>Show all {filteredInvoices.length} invoices <ChevronDown className="w-4 h-4" /></>
+                )}
+              </button>
             </div>
           )}
         </div>
