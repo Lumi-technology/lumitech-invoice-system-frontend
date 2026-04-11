@@ -149,7 +149,7 @@ function ClientList() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {clients.map((client) => (
-                  <tr key={client.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={client.id} onClick={() => navigate(`/clients/${client.id}`)} className="hover:bg-slate-50 transition-colors cursor-pointer">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-medium">

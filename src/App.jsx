@@ -8,7 +8,9 @@ import InvoiceDetail from "./pages/InvoiceDetail";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
-import ClientList from "./pages/ClientList"; 
+import ClientList from "./pages/ClientList";
+import ClientDetail from "./pages/ClientDetail";
+import ClientPortal from "./pages/ClientPortal";
 
 function App() {
   return (
@@ -98,6 +100,21 @@ function App() {
     </ProtectedRoute>
   }
 />
+
+        {/* CLIENT DETAIL */}
+        <Route
+          path="/clients/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ClientDetail />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* CLIENT PORTAL — public, no auth */}
+        <Route path="/portal/:token" element={<ClientPortal />} />
 
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/login" />} />
