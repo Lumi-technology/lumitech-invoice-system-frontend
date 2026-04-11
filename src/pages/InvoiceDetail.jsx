@@ -42,6 +42,9 @@ function InvoiceDetail() {
   const [paymentMethod, setPaymentMethod] = useState("TRANSFER");
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
 
+  // Send reminder state
+  const [isSendingReminder, setIsSendingReminder] = useState(false);
+
   // Paystack online payment state
   const [isPayingOnline, setIsPayingOnline] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
@@ -79,6 +82,20 @@ function InvoiceDetail() {
   useEffect(() => {
     return () => clearInterval(pollRef.current);
   }, []);
+
+  // Send reminder handler
+  const handleSendReminder = async () => {
+    try {
+      setIsSendingReminder(true);
+      await api.post(`/api/invoices/${id}/remind`);
+      setToast({ visible: true, message: "Reminder sent to client", type: "success" });
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to send reminder.";
+      setToast({ visible: true, message: msg, type: "error" });
+    } finally {
+      setIsSendingReminder(false);
+    }
+  };
 
   // Paystack Pay Now handler
   const handlePayNow = async () => {
@@ -235,6 +252,16 @@ function InvoiceDetail() {
             <Download size={16} />
             {isDownloading ? "Downloading..." : "PDF"}
           </button>
+          {invoice.status !== "PAID" && (
+            <button
+              onClick={handleSendReminder}
+              disabled={isSendingReminder}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Mail size={16} />
+              {isSendingReminder ? "Sending..." : "Send Reminder"}
+            </button>
+          )}
           {invoice.status !== "PAID" && (
             <button
               onClick={handlePayNow}
