@@ -17,8 +17,8 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  ChevronDown,
-  ChevronUp,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 function InvoiceList() {
@@ -27,8 +27,8 @@ function InvoiceList() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [totalElements, setTotalElements] = useState(0);
-  const [showAll, setShowAll] = useState(false);
-  const PREVIEW_SIZE = 5;
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 5;
   const navigate = useNavigate();
   const user = getUserFromToken();
   const role = user?.role || (Array.isArray(user?.roles) ? user.roles[0] : null);
@@ -83,7 +83,8 @@ function InvoiceList() {
     inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
     inv.client.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const visibleInvoices = showAll ? filteredInvoices : filteredInvoices.slice(0, PREVIEW_SIZE);
+  const totalPages = Math.ceil(filteredInvoices.length / PAGE_SIZE);
+  const visibleInvoices = filteredInvoices.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   const StatCard = ({ title, value, icon: Icon, color, trend }) => (
     <div className="group relative bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
@@ -324,19 +325,28 @@ function InvoiceList() {
             )}
           </div>
 
-          {/* Show more / collapse */}
-          {filteredInvoices.length > PREVIEW_SIZE && (
-            <div className="border-t border-slate-100">
-              <button
-                onClick={() => setShowAll(s => !s)}
-                className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-blue-600 hover:bg-blue-50 transition"
-              >
-                {showAll ? (
-                  <>Show less <ChevronUp className="w-4 h-4" /></>
-                ) : (
-                  <>Show all {filteredInvoices.length} invoices <ChevronDown className="w-4 h-4" /></>
-                )}
-              </button>
+          {/* Prev / Next navigation */}
+          {totalPages > 1 && (
+            <div className="px-6 py-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-sm text-slate-500">
+                {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filteredInvoices.length)} of {filteredInvoices.length}
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage(p => p - 1)}
+                  disabled={page === 0}
+                  className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setPage(p => p + 1)}
+                  disabled={page + 1 >= totalPages}
+                  className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
         </div>
