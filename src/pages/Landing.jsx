@@ -308,18 +308,18 @@ export default function Landing() {
           <h2 className="text-3xl font-bold text-slate-900 mb-3">Simple pricing. No surprises.</h2>
           <p className="text-slate-500 max-w-md mx-auto">Start free. Upgrade when you're ready. Your data is always safe.</p>
         </div>
-        <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
 
-          {/* Free Trial */}
-          <div className="bg-white rounded-2xl border-2 border-slate-200 p-8 hover:border-slate-300 hover:shadow-lg transition-all">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-100 mb-5">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              Free Trial
+        <div className="grid md:grid-cols-3 gap-6">
+
+          {/* FREE */}
+          <div className="bg-white rounded-2xl border-2 border-slate-200 p-8 hover:border-slate-300 hover:shadow-lg transition-all flex flex-col">
+            <div className="inline-flex items-center px-3 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded-full mb-5 self-start">
+              FREE
             </div>
             <p className="text-3xl font-bold text-slate-900 mb-1">₦0</p>
-            <p className="text-slate-500 text-sm mb-6">Full access for 30 days</p>
-            <ul className="space-y-3 mb-8">
-              {["30 days full access", "Unlimited invoices", "Project tracking", "Payment tracking", "Client portal links"].map(f => (
+            <p className="text-slate-500 text-sm mb-6">Forever</p>
+            <ul className="space-y-3 mb-8 flex-1">
+              {["5 clients", "10 invoices/month", "Basic PDF export", "Client portal"].map(f => (
                 <li key={f} className="flex items-center gap-2.5 text-sm text-slate-700">
                   <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                   {f}
@@ -327,27 +327,27 @@ export default function Landing() {
               ))}
             </ul>
             <Link
-              to="/login"
+              to="/register"
               className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-slate-900 text-white font-semibold rounded-xl hover:bg-slate-800 transition shadow-md"
             >
-              Start Free Trial <ArrowRight className="w-4 h-4" />
+              Get Started Free <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
-          {/* Pro */}
-          <div className="relative bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl p-8 shadow-2xl shadow-blue-600/30">
+          {/* STARTER — highlighted */}
+          <div className="relative bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl p-8 shadow-2xl shadow-blue-600/30 flex flex-col">
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
               <span className="inline-flex items-center px-4 py-1 bg-white text-blue-600 text-xs font-bold rounded-full shadow-md border border-blue-100">
-                RECOMMENDED
+                MOST POPULAR
               </span>
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 text-white text-xs font-semibold rounded-full mb-5">
-              Pro Plan
+            <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-xs font-semibold rounded-full mb-5 self-start">
+              STARTER
             </div>
-            <p className="text-3xl font-bold text-white mb-1">Contact us</p>
-            <p className="text-blue-200 text-sm mb-6">After your 30-day trial</p>
-            <ul className="space-y-3 mb-8">
-              {["Unlimited invoices", "Full project tracking", "Payment & balance tracking", "Reports & insights", "Priority support", "Client portal"].map(f => (
+            <p className="text-3xl font-bold text-white mb-1">₦9,900</p>
+            <p className="text-blue-200 text-sm mb-6">/month</p>
+            <ul className="space-y-3 mb-8 flex-1">
+              {["50 clients", "Unlimited invoices", "Project tracking", "Email reminders", "Paystack payments"].map(f => (
                 <li key={f} className="flex items-center gap-2.5 text-sm text-white">
                   <CheckCircle className="w-4 h-4 text-blue-200 flex-shrink-0" />
                   {f}
@@ -355,22 +355,45 @@ export default function Landing() {
               ))}
             </ul>
             <Link
-              to="/login"
+              to="/register"
               className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition shadow-md"
             >
-              Subscribe Now <ArrowRight className="w-4 h-4" />
+              Start with Starter <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* GROWTH */}
+          <div className="bg-white rounded-2xl border-2 border-indigo-200 p-8 hover:border-indigo-300 hover:shadow-lg transition-all flex flex-col">
+            <div className="inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full mb-5 self-start">
+              GROWTH
+            </div>
+            <p className="text-3xl font-bold text-slate-900 mb-1">₦24,900</p>
+            <p className="text-slate-500 text-sm mb-6">/month</p>
+            <ul className="space-y-3 mb-8 flex-1">
+              {["Unlimited clients", "Unlimited invoices", "All Starter features", "Priority support", "Multi-user access"].map(f => (
+                <li key={f} className="flex items-center gap-2.5 text-sm text-slate-700">
+                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <Link
+              to="/register"
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition shadow-md"
+            >
+              Start with Growth <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
 
-        {/* trial notice */}
-        <div className="mt-10 max-w-3xl mx-auto bg-amber-50 border border-amber-200 rounded-2xl px-6 py-5">
+        {/* notice */}
+        <div className="mt-10 max-w-4xl mx-auto bg-amber-50 border border-amber-200 rounded-2xl px-6 py-5">
           <div className="flex items-start gap-3">
             <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-amber-900 mb-1">What happens after your trial?</p>
+              <p className="text-sm font-semibold text-amber-900 mb-1">Start free, upgrade anytime</p>
               <p className="text-sm text-amber-800 leading-relaxed">
-                Your 30-day free trial gives you full access to every feature. After the trial ends, your account will be temporarily locked until you subscribe — ensuring your data stays safe and intact. Nothing is deleted. You pick up exactly where you left off.
+                Sign up on the FREE plan with no credit card required. When you hit your limits, upgrade instantly from your billing settings — your data, invoices, and clients are always preserved.
               </p>
             </div>
           </div>
