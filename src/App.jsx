@@ -44,23 +44,59 @@ function App() {
     <>
       {/* Account Suspended — full-screen block */}
       {isSuspended && (
-        <div className="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-6">
-          <div className="text-center max-w-md">
-            <div className="inline-flex p-4 bg-rose-600/20 rounded-full mb-6">
-              <svg className="w-12 h-12 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-              </svg>
+        <div className="fixed inset-0 z-[9999] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
+          <div className="text-center max-w-lg w-full">
+            {/* Icon */}
+            <div className="relative inline-flex mb-8">
+              <div className="w-24 h-24 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-rose-500/20 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                  </svg>
+                </div>
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-white mb-3">Account Suspended</h1>
-            <p className="text-slate-400 mb-8">
-              Your organisation has been suspended. Please contact support to restore access.
+
+            {/* Heading */}
+            <h1 className="text-3xl font-bold text-white mb-3">Account Suspended</h1>
+            <p className="text-slate-400 text-base leading-relaxed mb-10 max-w-sm mx-auto">
+              Your organisation's access has been suspended. Upgrade your plan or contact our support team to restore access immediately.
             </p>
-            <a
-              href="mailto:support@lumitechsystems.com"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition"
-            >
-              Contact Support
-            </a>
+
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
+              <a
+                href="/settings/billing"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition-all"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                Upgrade Plan
+              </a>
+              <a
+                href="mailto:support@lumitechsystems.com"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/15 border border-white/10 text-white font-medium rounded-xl transition backdrop-blur-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Contact Support
+              </a>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-white/10 pt-6">
+              <p className="text-xs text-slate-500">
+                Already resolved?{" "}
+                <button
+                  onClick={() => { localStorage.removeItem("token"); window.location.href = "/login"; }}
+                  className="text-slate-400 hover:text-white underline underline-offset-2 transition"
+                >
+                  Sign in again
+                </button>
+              </p>
+            </div>
           </div>
         </div>
       )}
