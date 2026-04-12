@@ -1,6 +1,7 @@
 // Layout.jsx
 import { useState } from "react";
 import Navbar from "./Navbar";
+import OnboardingBanner from "./OnboardingBanner";
 import { Menu } from "lucide-react";
 
 function Layout({ children }) {
@@ -47,6 +48,7 @@ function Layout({ children }) {
           </div>
         </div>
 
+        <OnboardingBanner />
         <main className="flex-1 p-4 md:p-6">
           {children}
         </main>
