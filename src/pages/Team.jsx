@@ -186,7 +186,10 @@ function Team() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchMembers(); }, []);
+  useEffect(() => {
+    if (!canAccess) return;
+    fetchMembers();
+  }, []);
 
   if (!canAccess) return <Navigate to="/dashboard" replace />;
 

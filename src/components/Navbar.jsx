@@ -44,6 +44,8 @@ function Navbar() {
       .catch(() => {});
   }, []);
 
+  const isStaff = role === "STAFF";
+
   const navItems = [
     { path: "/dashboard",    label: "Dashboard",    icon: LayoutDashboard },
     { path: "/invoices",     label: "Invoices",     icon: FileText },
@@ -52,7 +54,7 @@ function Navbar() {
     { path: "/clients/create", label: "New Customer", icon: Users },
     { path: "/clients",      label: "Customers",    icon: Users },
     { path: "/finance",      label: "Finance",      icon: Wallet },
-    { path: "/team",         label: "Team",         icon: UsersRound },
+    ...(!isStaff ? [{ path: "/team", label: "Team", icon: UsersRound }] : []),
     { path: "/settings/org", label: "Org Settings", icon: Building2 },
     { path: "/settings/billing", label: "Billing",  icon: CreditCard },
     ...(isPlatformAdmin ? [{ path: "/admin", label: "Platform Admin", icon: ShieldCheck }] : []),
