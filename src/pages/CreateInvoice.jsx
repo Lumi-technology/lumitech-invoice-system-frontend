@@ -104,7 +104,7 @@ function CreateInvoice() {
         ...form,
         projectId: form.projectId || null,
       });
-      navigate("/");
+      navigate("/invoices");
     } catch (err) {
       console.error("CREATE INVOICE ERROR:", err.response?.data || err);
       setError("Failed to create invoice. Please try again.");
