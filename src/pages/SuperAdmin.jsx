@@ -90,6 +90,7 @@ function SuperAdmin() {
   const [loading, setLoading] = useState(true);
   const [suspendTarget, setSuspendTarget] = useState(null);  // org being suspended
   const [suspending, setSuspending] = useState(false);
+  const [currentOrgId, setCurrentOrgId] = useState(null);
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
 
   const showToast = (message, type = "success") =>
@@ -97,6 +98,9 @@ function SuperAdmin() {
 
   const fetchAll = () => {
     setLoading(true);
+    // Fetch current user's org ID so we can block self-suspension
+    api.get("/api/org").then(res => setCurrentOrgId(res.data.id ?? null)).catch(() => {});
+
     Promise.all([
       api.get("/api/superadmin/stats"),
       api.get("/api/superadmin/organisations"),
@@ -233,6 +237,7 @@ function SuperAdmin() {
               <tbody className="divide-y divide-slate-100">
                 {orgs.map(org => {
                   const isSuspended = org.suspended === true;
+                  const isOwnOrg = currentOrgId && org.id === currentOrgId;
                   return (
                     <tr key={org.id} className={`hover:bg-slate-50 transition-colors ${isSuspended ? "opacity-60" : ""}`}>
                       {/* Name + email */}
@@ -288,6 +293,8 @@ function SuperAdmin() {
                             <CheckCircle size={13} />
                             Unsuspend
                           </button>
+                        ) : isOwnOrg ? (
+                          <span className="text-xs text-slate-400 italic px-2">Your org</span>
                         ) : (
                           <button
                             onClick={() => setSuspendTarget(org)}
