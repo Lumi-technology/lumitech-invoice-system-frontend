@@ -303,100 +303,189 @@ export default function Landing() {
       </section>
 
       {/* ── PRICING ── */}
-      <section id="pricing" className="py-24 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl font-bold text-slate-900 mb-3">Simple pricing. No surprises.</h2>
-          <p className="text-slate-500 max-w-md mx-auto">Start free. Upgrade when you're ready. Your data is always safe.</p>
-        </div>
+      <section id="pricing" className="py-24 bg-slate-50 border-y border-slate-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <div className="grid md:grid-cols-3 gap-6">
-
-          {/* FREE */}
-          <div className="bg-white rounded-2xl border-2 border-slate-200 p-8 hover:border-slate-300 hover:shadow-lg transition-all flex flex-col">
-            <div className="inline-flex items-center px-3 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded-full mb-5 self-start">
-              FREE
-            </div>
-            <p className="text-3xl font-bold text-slate-900 mb-1">₦0</p>
-            <p className="text-slate-500 text-sm mb-6">Forever</p>
-            <ul className="space-y-3 mb-8 flex-1">
-              {["5 clients", "10 invoices/month", "Basic PDF export", "Client portal"].map(f => (
-                <li key={f} className="flex items-center gap-2.5 text-sm text-slate-700">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link
-              to="/register"
-              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-slate-900 text-white font-semibold rounded-xl hover:bg-slate-800 transition shadow-md"
-            >
-              Get Started Free <ArrowRight className="w-4 h-4" />
-            </Link>
+          {/* Header */}
+          <div className="text-center mb-16">
+            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-blue-50 border border-blue-100 text-blue-700 text-xs font-semibold rounded-full mb-4">
+              <Zap className="w-3.5 h-3.5" /> 30-Day Free Trial — No Credit Card Required
+            </span>
+            <h2 className="text-4xl font-bold text-slate-900 mb-4 leading-tight">
+              Simple pricing.<br className="hidden sm:block" /> Start free, pay only when you're ready.
+            </h2>
+            <p className="text-slate-500 max-w-xl mx-auto text-base">
+              Full access for 30 days. After that, subscribe to continue using LumiCash.
+            </p>
           </div>
 
-          {/* STARTER — highlighted */}
-          <div className="relative bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl p-8 shadow-2xl shadow-blue-600/30 flex flex-col">
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-              <span className="inline-flex items-center px-4 py-1 bg-white text-blue-600 text-xs font-bold rounded-full shadow-md border border-blue-100">
-                MOST POPULAR
-              </span>
+          {/* Cards */}
+          <div className="grid md:grid-cols-3 gap-6 items-stretch">
+
+            {/* 30-Day Trial — subtle, informational */}
+            <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-8 flex flex-col">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full mb-6 self-start border border-emerald-100">
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                Free Trial
+              </div>
+              <p className="text-4xl font-bold text-slate-900 mb-1">₦0</p>
+              <p className="text-slate-500 text-sm mb-2">for 30 days</p>
+              <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+                Full access to every feature. No restrictions. No card needed.
+              </p>
+              <ul className="space-y-3 mb-8 flex-1">
+                {[
+                  "Everything in Starter — free",
+                  "Unlimited invoices & clients",
+                  "Project & cashflow tracking",
+                  "Client payment portal",
+                  "PDF export & email reminders",
+                ].map(f => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-slate-600">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-auto">
+                <Link
+                  to="/register"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-slate-900 text-white font-semibold rounded-xl hover:bg-slate-800 transition-all shadow-md text-sm"
+                >
+                  Start Free Trial <ArrowRight className="w-4 h-4" />
+                </Link>
+                <p className="text-center text-xs text-slate-400 mt-3">
+                  Trial ends → account locks until you subscribe
+                </p>
+              </div>
             </div>
-            <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-xs font-semibold rounded-full mb-5 self-start">
-              STARTER
+
+            {/* STARTER — hero card */}
+            <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 rounded-2xl p-8 shadow-2xl shadow-blue-600/40 flex flex-col md:-mt-4 md:-mb-4">
+              {/* Most Popular badge */}
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-white text-blue-600 text-xs font-bold rounded-full shadow-lg border border-blue-100">
+                  ⭐ Most Popular
+                </span>
+              </div>
+
+              <div className="inline-flex items-center px-3 py-1 bg-white/15 text-white text-xs font-bold rounded-full mb-6 self-start tracking-widest uppercase">
+                Starter
+              </div>
+              <div className="mb-2">
+                <span className="text-5xl font-extrabold text-white">₦9,900</span>
+                <span className="text-blue-200 text-base ml-1">/month</span>
+              </div>
+              <p className="text-blue-200 text-sm mb-6">
+                Best for individuals and small teams managing client work
+              </p>
+              <ul className="space-y-3 mb-8 flex-1">
+                {[
+                  "Up to 50 clients",
+                  "Unlimited invoices",
+                  "Project tracking",
+                  "Partial payment tracking",
+                  "Email reminders",
+                  "Paystack online payments",
+                ].map(f => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-white">
+                    <CheckCircle className="w-4 h-4 text-blue-200 flex-shrink-0 mt-0.5" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-auto">
+                <Link
+                  to="/register"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-white text-blue-700 font-bold rounded-xl hover:bg-blue-50 transition-all shadow-lg text-sm"
+                >
+                  Start 30-Day Free Trial <ArrowRight className="w-4 h-4" />
+                </Link>
+                <p className="text-center text-xs text-blue-300 mt-3">
+                  Then ₦9,900/month. Cancel anytime.
+                </p>
+              </div>
             </div>
-            <p className="text-3xl font-bold text-white mb-1">₦9,900</p>
-            <p className="text-blue-200 text-sm mb-6">/month</p>
-            <ul className="space-y-3 mb-8 flex-1">
-              {["50 clients", "Unlimited invoices", "Project tracking", "Email reminders", "Paystack payments"].map(f => (
-                <li key={f} className="flex items-center gap-2.5 text-sm text-white">
-                  <CheckCircle className="w-4 h-4 text-blue-200 flex-shrink-0" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link
-              to="/register"
-              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition shadow-md"
-            >
-              Start with Starter <ArrowRight className="w-4 h-4" />
-            </Link>
+
+            {/* GROWTH — premium */}
+            <div className="bg-slate-900 rounded-2xl border-2 border-slate-700 p-8 flex flex-col">
+              <div className="inline-flex items-center px-3 py-1 bg-indigo-500/20 text-indigo-300 text-xs font-bold rounded-full mb-6 self-start border border-indigo-500/30 tracking-widest uppercase">
+                Growth
+              </div>
+              <div className="mb-2">
+                <span className="text-4xl font-extrabold text-white">₦24,900</span>
+                <span className="text-slate-400 text-base ml-1">/month</span>
+              </div>
+              <p className="text-slate-400 text-sm mb-6">
+                For growing businesses that need more control and team collaboration
+              </p>
+              <ul className="space-y-3 mb-8 flex-1">
+                {[
+                  "Unlimited clients",
+                  "Unlimited invoices",
+                  "Everything in Starter",
+                  "Multi-user access",
+                  "Team roles (Admin, Staff)",
+                  "Advanced reports (profit per project)",
+                  "Activity logs",
+                  "Priority support",
+                ].map(f => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-slate-300">
+                    <CheckCircle className="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-auto">
+                <Link
+                  to="/register"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-sm"
+                >
+                  Start 30-Day Free Trial <ArrowRight className="w-4 h-4" />
+                </Link>
+                <p className="text-center text-xs text-slate-500 mt-3">
+                  Then ₦24,900/month. Cancel anytime.
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* GROWTH */}
-          <div className="bg-white rounded-2xl border-2 border-indigo-200 p-8 hover:border-indigo-300 hover:shadow-lg transition-all flex flex-col">
-            <div className="inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full mb-5 self-start">
-              GROWTH
-            </div>
-            <p className="text-3xl font-bold text-slate-900 mb-1">₦24,900</p>
-            <p className="text-slate-500 text-sm mb-6">/month</p>
-            <ul className="space-y-3 mb-8 flex-1">
-              {["Unlimited clients", "Unlimited invoices", "All Starter features", "Priority support", "Multi-user access"].map(f => (
-                <li key={f} className="flex items-center gap-2.5 text-sm text-slate-700">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link
-              to="/register"
-              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition shadow-md"
-            >
-              Start with Growth <ArrowRight className="w-4 h-4" />
-            </Link>
+          {/* Conversion tagline */}
+          <div className="mt-14 text-center">
+            <p className="text-lg font-semibold text-slate-800 max-w-2xl mx-auto leading-relaxed">
+              Stop guessing your finances. Know exactly what you've earned and what's still coming in.
+            </p>
           </div>
-        </div>
 
-        {/* notice */}
-        <div className="mt-10 max-w-4xl mx-auto bg-amber-50 border border-amber-200 rounded-2xl px-6 py-5">
-          <div className="flex items-start gap-3">
-            <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-amber-900 mb-1">Start free, upgrade anytime</p>
+          {/* Trust row */}
+          <div className="mt-8 flex flex-wrap justify-center gap-6 md:gap-10">
+            {[
+              { icon: <Shield className="w-4 h-4 text-emerald-600" />, text: "No hidden fees" },
+              { icon: <CheckCircle className="w-4 h-4 text-emerald-600" />, text: "Cancel anytime" },
+              { icon: <Layers className="w-4 h-4 text-emerald-600" />, text: "Your data is preserved, even if your account is locked" },
+            ].map(t => (
+              <div key={t.text} className="flex items-center gap-2 text-sm text-slate-600">
+                {t.icon}
+                {t.text}
+              </div>
+            ))}
+          </div>
+
+          {/* Urgency strip */}
+          <div className="mt-10 max-w-3xl mx-auto">
+            <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-6 py-4">
+              <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-amber-800 leading-relaxed">
-                Sign up on the FREE plan with no credit card required. When you hit your limits, upgrade instantly from your billing settings — your data, invoices, and clients are always preserved.
+                <span className="font-semibold text-amber-900">Your trial ends in 30 days</span> — continue only if it's valuable to you. Nothing is deleted. Just subscribe and pick up exactly where you left off.
               </p>
             </div>
           </div>
+
+          {/* Brand footer line */}
+          <p className="text-center text-sm text-slate-400 mt-10 font-medium tracking-wide">
+            LumiCash — Your business money, simplified.
+          </p>
+
         </div>
       </section>
 
