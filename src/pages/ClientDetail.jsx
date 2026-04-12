@@ -14,6 +14,7 @@ import {
   Edit2,
   X,
   Save,
+  FolderOpen,
 } from "lucide-react";
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
@@ -28,6 +29,9 @@ function ClientDetail() {
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [activeTab, setActiveTab] = useState("details");
+  const [projects, setProjects] = useState([]);
+  const [projectsLoading, setProjectsLoading] = useState(false);
 
   const user = getUserFromToken();
   const isAdmin =
@@ -55,6 +59,15 @@ function ClientDetail() {
       )
       .finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    if (activeTab !== "projects") return;
+    setProjectsLoading(true);
+    api.get(`/api/projects/client/${id}`)
+      .then(res => setProjects(res.data.content ?? res.data ?? []))
+      .catch(() => setToast({ visible: true, message: "Failed to load projects", type: "error" }))
+      .finally(() => setProjectsLoading(false));
+  }, [activeTab, id]);
 
   const openEditModal = () => {
     setEditForm({ name: client.name || "", email: client.email || "", phone: client.phone || "", address: client.address || "" });
@@ -179,8 +192,80 @@ function ClientDetail() {
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-slate-200">
+        {[
+          { key: "details", label: "Details" },
+          { key: "projects", label: "Projects", icon: FolderOpen },
+        ].map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === tab.key
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            {tab.icon && <tab.icon size={15} />}
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Projects Tab */}
+      {activeTab === "projects" && (
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          {projectsLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="inline-block animate-spin rounded-full h-6 w-6 border-4 border-slate-200 border-t-blue-600" />
+            </div>
+          ) : projects.length === 0 ? (
+            <div className="text-center py-16 text-slate-400">
+              <FolderOpen className="mx-auto w-8 h-8 mb-2 opacity-30" />
+              <p className="text-sm">No projects for this client.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/50">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Project</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Category</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Contract Value</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {projects.map(p => (
+                    <tr
+                      key={p.id}
+                      onClick={() => navigate(`/projects/${p.id}`)}
+                      className="hover:bg-slate-50 cursor-pointer transition-colors"
+                    >
+                      <td className="px-6 py-4 font-medium text-slate-900">{p.name}</td>
+                      <td className="px-6 py-4 text-slate-500">{p.category ?? "—"}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                          { ACTIVE: "bg-emerald-100 text-emerald-700", ON_HOLD: "bg-amber-100 text-amber-700", SUSPENDED: "bg-orange-100 text-orange-700", CANCELLED: "bg-rose-100 text-rose-700", COMPLETED: "bg-blue-100 text-blue-700" }[p.status] ?? "bg-slate-100 text-slate-600"
+                        }`}>
+                          {p.status?.replace("_", " ")}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right font-medium text-slate-900">
+                        {new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(p.revisedContractValue ?? p.contractValue ?? 0)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Portal Link Section */}
-      {client.portalUrl && (
+      {activeTab === "details" && client.portalUrl && (
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-6">
           <div className="flex items-center gap-2 mb-1">
             <Link2 className="w-4 h-4 text-blue-600" />

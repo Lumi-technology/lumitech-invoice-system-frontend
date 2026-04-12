@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Building2,
+  FolderOpen,
 } from "lucide-react";
 import { useState } from "react";
 import { getUserFromToken } from "../services/api";
@@ -25,6 +26,7 @@ function Navbar() {
     { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { path: "/invoices", label: "Invoices", icon: FileText },
     { path: "/create", label: "New Invoice", icon: PlusCircle },
+    { path: "/projects", label: "Projects", icon: FolderOpen },
     { path: "/clients/create", label: "New Customer", icon: Users },
     { path: "/clients", label: "Customers", icon: Users },
     { path: "/settings/org", label: "Org Settings", icon: Building2 },

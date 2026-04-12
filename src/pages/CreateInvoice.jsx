@@ -11,6 +11,7 @@ import {
   Save,
   Mail,
   X,
+  FolderOpen,
 } from "lucide-react";
 
 function CreateInvoice() {
@@ -21,9 +22,11 @@ function CreateInvoice() {
 
   const today = new Date().toISOString().split("T")[0];
 
+  const [projects, setProjects] = useState([]);
   const [ccInput, setCcInput] = useState("");
   const [form, setForm] = useState({
     clientId: "",
+    projectId: "",
     issueDate: today,
     dueDate: "",
     tax: 0,
@@ -47,6 +50,9 @@ function CreateInvoice() {
     api.get("api/clients", { params: { page: 0, size: 100 } })
       .then(res => setClients(res.data.content))
       .catch(err => console.error(err));
+    api.get("/api/projects", { params: { page: 0, size: 100 } })
+      .then(res => setProjects(res.data.content ?? res.data ?? []))
+      .catch(() => {});
   }, []);
 
   // Calculate subtotal and total
@@ -94,7 +100,10 @@ function CreateInvoice() {
     setError("");
 
     try {
-      await api.post("api/invoices", form);
+      await api.post("api/invoices", {
+        ...form,
+        projectId: form.projectId || null,
+      });
       navigate("/");
     } catch (err) {
       console.error("CREATE INVOICE ERROR:", err.response?.data || err);
@@ -134,7 +143,7 @@ function CreateInvoice() {
               <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
                 Invoice Details
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Client Select */}
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
@@ -155,6 +164,27 @@ function CreateInvoice() {
                     ))}
                   </select>
                 </div>
+
+                {/* Project Select (optional) */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <FolderOpen className="w-4 h-4 text-slate-400" />
+                    Project <span className="text-slate-400 font-normal">(optional)</span>
+                  </label>
+                  <select
+                    value={form.projectId}
+                    onChange={(e) => setForm({ ...form, projectId: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                  >
+                    <option value="">No project</option>
+                    {projects.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {/* Issue Date */}
                 <div className="space-y-2">

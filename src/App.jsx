@@ -14,6 +14,8 @@ import ClientPortal from "./pages/ClientPortal";
 import Landing from "./pages/Landing";
 import OrgSettings from "./pages/OrgSettings";
 import Register from "./pages/Register";
+import ProjectList from "./pages/ProjectList";
+import ProjectDetail from "./pages/ProjectDetail";
 
 function App() {
   return (
@@ -115,6 +117,28 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <OrgSettings />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* PROJECTS */}
+        <Route
+          path="/projects"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ProjectList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/projects/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ProjectDetail />
               </Layout>
             </ProtectedRoute>
           }
