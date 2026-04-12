@@ -2,6 +2,16 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
+
+const exportCsv = async (endpoint, filename) => {
+  const res = await api.get(endpoint, { responseType: "blob" });
+  const url = URL.createObjectURL(new Blob([res.data]));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+};
 import {
   Plus,
   FileText,
@@ -25,6 +35,7 @@ function InvoiceList() {
   const [invoices, setInvoices] = useState([]);
   const [stats, setStats] = useState({ total: 0, paid: 0, pending: 0, overdue: 0 });
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [totalElements, setTotalElements] = useState(0);
   const [page, setPage] = useState(0);
@@ -217,9 +228,18 @@ function InvoiceList() {
               <Filter className="w-4 h-4" />
               <span className="hidden sm:inline">Filter</span>
             </button>
-            <button className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white rounded-xl text-slate-600 hover:bg-slate-50 transition">
+            <button
+              onClick={async () => {
+                setExporting(true);
+                try { await exportCsv("/api/export/invoices", "invoices.csv"); }
+                catch { /* silent */ }
+                finally { setExporting(false); }
+              }}
+              disabled={exporting}
+              className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white rounded-xl text-slate-600 hover:bg-slate-50 transition disabled:opacity-50"
+            >
               <Download className="w-4 h-4" />
-              <span className="hidden sm:inline">Export</span>
+              <span className="hidden sm:inline">{exporting ? "Exporting..." : "Export CSV"}</span>
             </button>
           </div>
         </div>

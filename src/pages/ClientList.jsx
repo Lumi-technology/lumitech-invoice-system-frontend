@@ -11,8 +11,19 @@ import {
   MapPin,
   MoreVertical,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Download,
 } from "lucide-react";
+
+const exportCsv = async (endpoint, filename) => {
+  const res = await api.get(endpoint, { responseType: "blob" });
+  const url = URL.createObjectURL(new Blob([res.data]));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+};
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
 
@@ -23,6 +34,7 @@ function ClientList() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [page, setPage] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -102,9 +114,24 @@ function ClientList() {
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
           <h2 className="text-base font-semibold text-slate-900">All Customers</h2>
-          <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-            Showing {clients.length} of {totalElements} clients
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+              Showing {clients.length} of {totalElements} clients
+            </span>
+            <button
+              onClick={async () => {
+                setExporting(true);
+                try { await exportCsv("/api/export/clients", "clients.csv"); }
+                catch { /* silent */ }
+                finally { setExporting(false); }
+              }}
+              disabled={exporting}
+              className="inline-flex items-center gap-2 px-3 py-1.5 border border-slate-200 bg-white rounded-lg text-slate-600 hover:bg-slate-50 transition text-sm disabled:opacity-50"
+            >
+              <Download className="w-4 h-4" />
+              {exporting ? "Exporting..." : "Export CSV"}
+            </button>
+          </div>
         </div>
         {loading ? (
           <div className="p-12 text-center">

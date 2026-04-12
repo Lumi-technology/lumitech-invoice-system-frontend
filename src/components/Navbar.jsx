@@ -12,6 +12,7 @@ import {
   FolderOpen,
   ShieldCheck,
   CreditCard,
+  Wallet,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
@@ -50,6 +51,7 @@ function Navbar() {
     { path: "/projects",     label: "Projects",     icon: FolderOpen },
     { path: "/clients/create", label: "New Customer", icon: Users },
     { path: "/clients",      label: "Customers",    icon: Users },
+    { path: "/finance",      label: "Finance",      icon: Wallet },
     { path: "/settings/org", label: "Org Settings", icon: Building2 },
     { path: "/settings/billing", label: "Billing",  icon: CreditCard },
     ...(isPlatformAdmin ? [{ path: "/superadmin", label: "Platform Admin", icon: ShieldCheck }] : []),

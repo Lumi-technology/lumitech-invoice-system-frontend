@@ -22,6 +22,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import Billing from "./pages/Billing";
+import Finance from "./pages/Finance";
 
 function App() {
   const [planLimitMessage, setPlanLimitMessage] = useState(null);
@@ -215,6 +216,18 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <ProjectDetail />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* FINANCE */}
+          <Route
+            path="/finance"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Finance />
                 </Layout>
               </ProtectedRoute>
             }
