@@ -13,7 +13,7 @@ import {
 import Toast from "../components/Toast";
 
 const FIELDS = [
-  { key: "name",    label: "Organisation Name", type: "text",  icon: Building2, placeholder: "Lumitech Systems" },
+  { key: "name",    label: "Organisation Name", type: "text",  icon: Building2, placeholder: "e.g. Phoenix Plus Ltd" },
   { key: "email",   label: "Email",              type: "email", icon: Mail,      placeholder: "hello@company.com" },
   { key: "phone",   label: "Phone",              type: "text",  icon: Phone,     placeholder: "+234 800 000 0000" },
   { key: "address", label: "Address",            type: "text",  icon: MapPin,    placeholder: "123 Victoria Island, Lagos" },

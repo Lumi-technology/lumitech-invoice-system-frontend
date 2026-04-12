@@ -49,7 +49,7 @@ function Navbar() {
           </div>
           {!collapsed && (
             <span className="font-bold text-lg text-slate-900">
-              Lumitech<span className="text-blue-600">.</span>
+              LumiCash<span className="text-blue-600">.</span>
             </span>
           )}
         </div>

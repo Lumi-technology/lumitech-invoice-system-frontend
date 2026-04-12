@@ -30,7 +30,7 @@ function MockDashboard() {
           <div className="w-3 h-3 rounded-full bg-rose-400" />
           <div className="w-3 h-3 rounded-full bg-amber-400" />
           <div className="w-3 h-3 rounded-full bg-emerald-400" />
-          <span className="ml-2 text-xs text-slate-400 font-medium">Ledger — Dashboard</span>
+          <span className="ml-2 text-xs text-slate-400 font-medium">LumiCash — Dashboard</span>
         </div>
         {/* stat row */}
         <div className="grid grid-cols-3 divide-x divide-slate-100 border-b border-slate-100">
@@ -128,7 +128,7 @@ export default function Landing() {
             <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl">
               <FileText className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold text-slate-900 text-lg">Ledger</span>
+            <span className="font-semibold text-slate-900 text-lg">LumiCash</span>
           </div>
           <div className="flex items-center gap-3">
             <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition">
@@ -408,7 +408,7 @@ export default function Landing() {
               Stop guessing your finances.<br />Start tracking them.
             </h2>
             <p className="text-blue-200 text-lg mb-10 max-w-lg mx-auto">
-              Join businesses already using Ledger to stay on top of every invoice, every project, and every naira.
+              Join businesses already using LumiCash to stay on top of every invoice, every project, and every naira.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -436,9 +436,9 @@ export default function Landing() {
             <div className="p-1.5 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg">
               <FileText className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="font-semibold text-slate-900 text-sm">Ledger</span>
+            <span className="font-semibold text-slate-900 text-sm">LumiCash</span>
           </div>
-          <p className="text-xs text-slate-400">© {new Date().getFullYear()} Lumitech Systems. All rights reserved.</p>
+          <p className="text-xs text-slate-400">© {new Date().getFullYear()} LumiCash by Lumitech Systems. All rights reserved.</p>
           <Link to="/login" className="text-xs text-slate-500 hover:text-blue-600 transition">Sign In →</Link>
         </div>
       </footer>
