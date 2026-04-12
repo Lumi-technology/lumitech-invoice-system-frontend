@@ -7,7 +7,8 @@ import {
   Users,
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Building2,
 } from "lucide-react";
 import { useState } from "react";
 import { getUserFromToken } from "../services/api";
@@ -26,6 +27,7 @@ function Navbar() {
     { path: "/create", label: "New Invoice", icon: PlusCircle },
     { path: "/clients/create", label: "New Customer", icon: Users },
     { path: "/clients", label: "Customers", icon: Users },
+    { path: "/settings/org", label: "Org Settings", icon: Building2 },
   ];
 
   const handleLogout = () => {

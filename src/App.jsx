@@ -12,6 +12,7 @@ import ClientList from "./pages/ClientList";
 import ClientDetail from "./pages/ClientDetail";
 import ClientPortal from "./pages/ClientPortal";
 import Landing from "./pages/Landing";
+import OrgSettings from "./pages/OrgSettings";
 
 function App() {
   return (
@@ -100,6 +101,18 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <ClientDetail />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ORG SETTINGS */}
+        <Route
+          path="/settings/org"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <OrgSettings />
               </Layout>
             </ProtectedRoute>
           }
