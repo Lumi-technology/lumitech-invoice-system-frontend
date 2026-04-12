@@ -18,6 +18,10 @@ import Register from "./pages/Register";
 import ProjectList from "./pages/ProjectList";
 import ProjectDetail from "./pages/ProjectDetail";
 import SuperAdmin from "./pages/SuperAdmin";
+import VerifyEmail from "./pages/VerifyEmail";
+import ResetPassword from "./pages/ResetPassword";
+import ForgotPassword from "./pages/ForgotPassword";
+import Billing from "./pages/Billing";
 
 function App() {
   const [planLimitMessage, setPlanLimitMessage] = useState(null);
@@ -77,12 +81,12 @@ function App() {
               >
                 Dismiss
               </button>
-              <a
-                href="mailto:support@lumitechsystems.com?subject=Upgrade%20Plan"
+              <button
+                onClick={() => { setPlanLimitMessage(null); window.location.href = "/settings/billing"; }}
                 className="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition-all"
               >
                 Upgrade Plan
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -95,6 +99,9 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* DASHBOARD */}
           <Route
@@ -208,6 +215,18 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <ProjectDetail />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* BILLING */}
+          <Route
+            path="/settings/billing"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Billing />
                 </Layout>
               </ProtectedRoute>
             }

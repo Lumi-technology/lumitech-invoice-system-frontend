@@ -11,13 +11,22 @@ import {
   Building2,
   FolderOpen,
   ShieldCheck,
+  CreditCard,
 } from "lucide-react";
-import { useState } from "react";
-import { getUserFromToken } from "../services/api";
+import { useState, useEffect } from "react";
+import api, { getUserFromToken } from "../services/api";
+
+const PLAN_BADGE = {
+  FREE:       "bg-slate-100 text-slate-500",
+  STARTER:    "bg-blue-100 text-blue-700",
+  GROWTH:     "bg-indigo-100 text-indigo-700",
+  ENTERPRISE: "bg-purple-100 text-purple-700",
+};
 
 function Navbar() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const [plan, setPlan] = useState(null);
   const user = getUserFromToken();
   const role = user?.role || (Array.isArray(user?.roles) ? user.roles[0] : null);
 
@@ -27,14 +36,22 @@ function Navbar() {
     role === "PLATFORM_ADMIN" ||
     (Array.isArray(user?.roles) && user.roles.includes("PLATFORM_ADMIN"));
 
+  useEffect(() => {
+    if (!user) return;
+    api.get("/api/billing/status")
+      .then(res => setPlan(res.data.plan ?? null))
+      .catch(() => {});
+  }, []);
+
   const navItems = [
-    { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/invoices", label: "Invoices", icon: FileText },
-    { path: "/create", label: "New Invoice", icon: PlusCircle },
-    { path: "/projects", label: "Projects", icon: FolderOpen },
+    { path: "/dashboard",    label: "Dashboard",    icon: LayoutDashboard },
+    { path: "/invoices",     label: "Invoices",     icon: FileText },
+    { path: "/create",       label: "New Invoice",  icon: PlusCircle },
+    { path: "/projects",     label: "Projects",     icon: FolderOpen },
     { path: "/clients/create", label: "New Customer", icon: Users },
-    { path: "/clients", label: "Customers", icon: Users },
+    { path: "/clients",      label: "Customers",    icon: Users },
     { path: "/settings/org", label: "Org Settings", icon: Building2 },
+    { path: "/settings/billing", label: "Billing",  icon: CreditCard },
     ...(isPlatformAdmin ? [{ path: "/superadmin", label: "Platform Admin", icon: ShieldCheck }] : []),
   ];
 
@@ -70,8 +87,8 @@ function Navbar() {
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 py-6 px-3">
-        <ul className="space-y-2">
+      <nav className="flex-1 py-6 px-3 overflow-y-auto">
+        <ul className="space-y-1">
           {navItems.map((item) => (
             <li key={item.path}>
               <Link
@@ -82,8 +99,18 @@ function Navbar() {
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
-                <item.icon size={20} />
-                {!collapsed && <span className="text-sm font-medium">{item.label}</span>}
+                <item.icon size={20} className="flex-shrink-0" />
+                {!collapsed && (
+                  <span className="text-sm font-medium flex-1">{item.label}</span>
+                )}
+                {/* Plan badge next to Billing link */}
+                {!collapsed && item.path === "/settings/billing" && plan && (
+                  <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
+                    isActive(item.path) ? "bg-white/20 text-white" : PLAN_BADGE[plan] ?? PLAN_BADGE.FREE
+                  }`}>
+                    {plan}
+                  </span>
+                )}
               </Link>
             </li>
           ))}
@@ -94,7 +121,7 @@ function Navbar() {
       <div className="p-4 border-t border-slate-200/60">
         {user && (
           <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-medium">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
               {user.username?.charAt(0).toUpperCase() || "U"}
             </div>
             {!collapsed && (

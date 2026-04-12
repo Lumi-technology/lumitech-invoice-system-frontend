@@ -2,18 +2,26 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
-import { LogIn, User, Lock } from "lucide-react";
+import axios from "axios";
+import { LogIn, User, Lock, Mail } from "lucide-react";
+
+const BASE_URL = import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? "http://localhost:8081" : "https://ledgerapi.lumitechsystems.com");
 
 function Login() {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendDone, setResendDone] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setNeedsVerification(false);
     setIsLoading(true);
 
     try {
@@ -21,9 +29,28 @@ function Login() {
       localStorage.setItem("token", res.data.token);
       navigate("/dashboard");
     } catch (err) {
-      setError("Invalid username or password");
+      const status = err.response?.status;
+      const message = err.response?.data?.message || "";
+
+      if (status === 403 && message.toLowerCase().includes("verify")) {
+        setNeedsVerification(true);
+      } else {
+        setError("Invalid username or password");
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setIsResending(true);
+    try {
+      await axios.post(`${BASE_URL}/api/auth/resend-verification`, { username: form.username });
+    } catch {
+      // always show success
+    } finally {
+      setIsResending(false);
+      setResendDone(true);
     }
   };
 
@@ -45,9 +72,31 @@ function Login() {
 
         {/* Login Card */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-6">
+
+          {/* Error banner */}
           {error && (
             <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-600 text-sm text-center">
               {error}
+            </div>
+          )}
+
+          {/* Email not verified banner */}
+          {needsVerification && (
+            <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
+              <p className="font-medium mb-1">Email not verified</p>
+              <p className="text-amber-700 mb-3">Please verify your email before logging in.</p>
+              {resendDone ? (
+                <p className="text-emerald-700 font-medium">Verification email sent — check your inbox.</p>
+              ) : (
+                <button
+                  onClick={handleResend}
+                  disabled={isResending || !form.username}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium rounded-lg transition disabled:opacity-50"
+                >
+                  <Mail size={14} />
+                  {isResending ? "Sending..." : "Resend Verification Email"}
+                </button>
+              )}
             </div>
           )}
 
@@ -70,10 +119,15 @@ function Login() {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <Lock className="w-4 h-4 text-slate-400" />
-                Password
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <Lock className="w-4 h-4 text-slate-400" />
+                  Password
+                </label>
+                <Link to="/forgot-password" className="text-xs text-blue-600 hover:text-blue-700 transition">
+                  Forgot your password?
+                </Link>
+              </div>
               <input
                 type="password"
                 placeholder="••••••••"
