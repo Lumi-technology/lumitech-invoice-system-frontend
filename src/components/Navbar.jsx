@@ -134,7 +134,14 @@ function Navbar() {
             {!collapsed && (
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-700 truncate">{user.username}</p>
-                <p className="text-xs text-slate-500 truncate">{role || "Member"}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <p className="text-xs text-slate-500 truncate">{role || "Member"}</p>
+                  {plan && (
+                    <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${PLAN_BADGE[plan] ?? PLAN_BADGE.FREE}`}>
+                      {plan}
+                    </span>
+                  )}
+                </div>
               </div>
             )}
           </div>
