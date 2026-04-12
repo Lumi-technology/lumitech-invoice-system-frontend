@@ -135,7 +135,7 @@ export default function Landing() {
               Sign In
             </Link>
             <Link
-              to="/login"
+              to="/register"
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-blue-600/25 hover:shadow-xl hover:scale-[1.02] transition-all"
             >
               Start Free Trial <ChevronRight className="w-3.5 h-3.5" />
@@ -164,7 +164,7 @@ export default function Landing() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                to="/login"
+                to="/register"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-xl shadow-blue-600/30 hover:shadow-2xl hover:scale-[1.02] transition-all"
               >
                 Start Free 30-Day Trial <ArrowRight className="w-4 h-4" />
@@ -524,13 +524,13 @@ export default function Landing() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                to="/login"
+                to="/register"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-600 font-bold rounded-xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all text-base"
               >
                 Start Free Trial <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                to="/login"
+                to="/register"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all text-base backdrop-blur-sm"
               >
                 Get Started Now
