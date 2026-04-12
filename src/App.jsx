@@ -11,6 +11,7 @@ import Layout from "./components/Layout";
 import ClientList from "./pages/ClientList";
 import ClientDetail from "./pages/ClientDetail";
 import ClientPortal from "./pages/ClientPortal";
+import Landing from "./pages/Landing";
 
 function App() {
   return (
@@ -18,17 +19,8 @@ function App() {
       <Routes>
 
         {/* PUBLIC */}
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
-
-        {/* DEFAULT → DASHBOARD */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Navigate to="/dashboard" />
-            </ProtectedRoute>
-          }
-        />
 
         {/* DASHBOARD */}
         <Route
