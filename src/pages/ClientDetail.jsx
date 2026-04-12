@@ -11,6 +11,9 @@ import {
   Copy,
   CheckCircle,
   Trash2,
+  Edit2,
+  X,
+  Save,
 } from "lucide-react";
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
@@ -33,6 +36,15 @@ function ClientDetail() {
       user.role === "SUPER_ADMIN" ||
       (Array.isArray(user.roles) &&
         (user.roles.includes("ADMIN") || user.roles.includes("SUPER_ADMIN"))));
+  const isSuperAdmin =
+    user &&
+    (user.role === "SUPER_ADMIN" ||
+      (Array.isArray(user.roles) && user.roles.includes("SUPER_ADMIN")));
+
+  // Edit state
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({ name: "", email: "", phone: "", address: "" });
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   useEffect(() => {
     api
@@ -43,6 +55,26 @@ function ClientDetail() {
       )
       .finally(() => setLoading(false));
   }, [id]);
+
+  const openEditModal = () => {
+    setEditForm({ name: client.name || "", email: client.email || "", phone: client.phone || "", address: client.address || "" });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      setIsSavingEdit(true);
+      const res = await api.put(`/api/clients/${id}`, editForm);
+      setClient(res.data);
+      setShowEditModal(false);
+      setToast({ visible: true, message: "Client updated successfully", type: "success" });
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to update client.";
+      setToast({ visible: true, message: msg, type: "error" });
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
 
   const deleteClient = async () => {
     try {
@@ -89,15 +121,26 @@ function ClientDetail() {
           <ArrowLeft size={20} />
           <span className="text-sm font-medium">Back</span>
         </button>
-        {isAdmin && (
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition shadow-sm text-sm font-medium"
-          >
-            <Trash2 size={16} />
-            Delete Client
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <button
+              onClick={openEditModal}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition shadow-sm text-sm font-medium"
+            >
+              <Edit2 size={16} />
+              Edit
+            </button>
+          )}
+          {isSuperAdmin && (
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition shadow-sm text-sm font-medium"
+            >
+              <Trash2 size={16} />
+              Delete Client
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Client Info Card */}
@@ -164,6 +207,60 @@ function ClientDetail() {
               {copied ? <CheckCircle size={16} /> : <Copy size={16} />}
               {copied ? "Copied!" : "Copy Link"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Client Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <Edit2 className="w-5 h-5 text-blue-600" />
+                Edit Client
+              </h3>
+              <button onClick={() => setShowEditModal(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                { label: "Name", field: "name", type: "text", icon: <Edit2 className="w-4 h-4 text-slate-400" /> },
+                { label: "Email", field: "email", type: "email", icon: <Mail className="w-4 h-4 text-slate-400" /> },
+                { label: "Phone", field: "phone", type: "text", icon: <Phone className="w-4 h-4 text-slate-400" /> },
+                { label: "Address", field: "address", type: "text", icon: <MapPin className="w-4 h-4 text-slate-400" /> },
+              ].map(({ label, field, type, icon }) => (
+                <div key={field}>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</span>
+                    <input
+                      type={type}
+                      value={editForm[field]}
+                      onChange={e => setEditForm({ ...editForm, [field]: e.target.value })}
+                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                      placeholder={label}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowEditModal(false)} className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={isSavingEdit || !editForm.name.trim()}
+                className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition disabled:opacity-50"
+              >
+                <Save size={15} />
+                {isSavingEdit ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
           </div>
         </div>
       )}
