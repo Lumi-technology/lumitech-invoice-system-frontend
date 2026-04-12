@@ -46,8 +46,10 @@ function Navbar() {
 
   const isStaff = role === "STAFF";
 
+  const isAdminOrStaff = role === "STAFF" || role === "ADMIN";
+
   const navItems = [
-    { path: "/dashboard",    label: "Dashboard",    icon: LayoutDashboard },
+    ...(!isAdminOrStaff ? [{ path: "/dashboard", label: "Dashboard", icon: LayoutDashboard }] : []),
     { path: "/invoices",     label: "Invoices",     icon: FileText },
     { path: "/create",       label: "New Invoice",  icon: PlusCircle },
     { path: "/projects",     label: "Projects",     icon: FolderOpen },

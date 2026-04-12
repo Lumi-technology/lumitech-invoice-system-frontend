@@ -1,7 +1,7 @@
 // Login.jsx
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../services/api";
+import api, { getUserFromToken } from "../services/api";
 import axios from "axios";
 import { LogIn, User, Lock, Mail } from "lucide-react";
 
@@ -27,7 +27,13 @@ function Login() {
     try {
       const res = await api.post("/api/auth/login", form);
       localStorage.setItem("token", res.data.token);
-      navigate("/dashboard");
+      const user = getUserFromToken();
+      const role = user?.role || (Array.isArray(user?.roles) ? user.roles[0] : null);
+      if (role === "STAFF" || role === "ADMIN") {
+        navigate("/invoices");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       const status = err.response?.status;
       const message = err.response?.data?.message || "";

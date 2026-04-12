@@ -1,5 +1,7 @@
 // Dashboard.jsx
 import { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { getUserFromToken } from "../services/api";
 import api from "../services/api";
 import {
   TrendingUp,
@@ -24,6 +26,10 @@ import {
 } from "recharts";
 
 const Dashboard = () => {
+  const user = getUserFromToken();
+  const role = user?.role || (Array.isArray(user?.roles) ? user.roles[0] : null);
+  if (role === "STAFF" || role === "ADMIN") return <Navigate to="/invoices" replace />;
+
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [orgName, setOrgName] = useState("");
