@@ -57,8 +57,9 @@ function InvoiceDetail() {
     user &&
     (user.role === "ADMIN" ||
       user.role === "SUPER_ADMIN" ||
+      user.role === "PLATFORM_ADMIN" ||
       (Array.isArray(user.roles) &&
-        (user.roles.includes("ADMIN") || user.roles.includes("SUPER_ADMIN"))));
+        (user.roles.includes("ADMIN") || user.roles.includes("SUPER_ADMIN") || user.roles.includes("PLATFORM_ADMIN"))));
 
   // Edit invoice state
   const [showEditModal, setShowEditModal] = useState(false);

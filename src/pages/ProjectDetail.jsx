@@ -42,12 +42,12 @@ function ProjectDetail() {
 
   const user = getUserFromToken();
   const isAdmin = user && (
-    user.role === "ADMIN" || user.role === "SUPER_ADMIN" ||
-    (Array.isArray(user.roles) && (user.roles.includes("ADMIN") || user.roles.includes("SUPER_ADMIN")))
+    user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role === "PLATFORM_ADMIN" ||
+    (Array.isArray(user.roles) && (user.roles.includes("ADMIN") || user.roles.includes("SUPER_ADMIN") || user.roles.includes("PLATFORM_ADMIN")))
   );
   const isSuperAdmin = user && (
-    user.role === "SUPER_ADMIN" ||
-    (Array.isArray(user.roles) && user.roles.includes("SUPER_ADMIN"))
+    user.role === "SUPER_ADMIN" || user.role === "PLATFORM_ADMIN" ||
+    (Array.isArray(user.roles) && (user.roles.includes("SUPER_ADMIN") || user.roles.includes("PLATFORM_ADMIN")))
   );
 
   const [project, setProject] = useState(null);

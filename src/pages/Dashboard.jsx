@@ -26,6 +26,7 @@ import {
 const Dashboard = () => {
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [orgName, setOrgName] = useState("");
 
   // Loan state
   const [showLoanModal, setShowLoanModal] = useState(false);
@@ -35,6 +36,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboard();
+    api.get("/api/org").then(res => setOrgName(res.data.name || "")).catch(() => {});
   }, []);
 
   const fetchDashboard = async () => {
@@ -139,7 +141,9 @@ const Dashboard = () => {
       {/* Header with title and action button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900">Dashboard</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900">
+            {orgName ? orgName : "Dashboard"}
+          </h1>
           <p className="text-sm text-slate-500 mt-1">Overview of your business finances</p>
         </div>
         <button

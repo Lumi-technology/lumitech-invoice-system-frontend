@@ -36,6 +36,14 @@ api.interceptors.response.use(
       window.dispatchEvent(new CustomEvent("account-suspended"));
     }
 
+    // Only treat 401 as "token expired/invalid" — redirect to login
+    if (status === 401) {
+      localStorage.removeItem("token");
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    }
+
     return Promise.reject(error);
   }
 );

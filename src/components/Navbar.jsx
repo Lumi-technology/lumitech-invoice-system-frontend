@@ -13,15 +13,15 @@ import {
   ShieldCheck,
   CreditCard,
   Wallet,
+  UsersRound,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
 
 const PLAN_BADGE = {
-  FREE:       "bg-slate-100 text-slate-500",
-  STARTER:    "bg-blue-100 text-blue-700",
-  GROWTH:     "bg-indigo-100 text-indigo-700",
-  ENTERPRISE: "bg-purple-100 text-purple-700",
+  FREE:    "bg-slate-100 text-slate-500",
+  STARTER: "bg-blue-100 text-blue-700",
+  PRO:     "bg-indigo-100 text-indigo-700",
 };
 
 function Navbar() {
@@ -52,9 +52,10 @@ function Navbar() {
     { path: "/clients/create", label: "New Customer", icon: Users },
     { path: "/clients",      label: "Customers",    icon: Users },
     { path: "/finance",      label: "Finance",      icon: Wallet },
+    { path: "/team",         label: "Team",         icon: UsersRound },
     { path: "/settings/org", label: "Org Settings", icon: Building2 },
     { path: "/settings/billing", label: "Billing",  icon: CreditCard },
-    ...(isPlatformAdmin ? [{ path: "/superadmin", label: "Platform Admin", icon: ShieldCheck }] : []),
+    ...(isPlatformAdmin ? [{ path: "/admin", label: "Platform Admin", icon: ShieldCheck }] : []),
   ];
 
   const handleLogout = () => {

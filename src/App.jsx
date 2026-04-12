@@ -23,6 +23,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import Billing from "./pages/Billing";
 import Finance from "./pages/Finance";
+import Team from "./pages/Team";
 
 function App() {
   const [planLimitMessage, setPlanLimitMessage] = useState(null);
@@ -245,9 +246,31 @@ function App() {
             }
           />
 
-          {/* SUPER ADMIN */}
+          {/* TEAM */}
+          <Route
+            path="/team"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Team />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* PLATFORM ADMIN */}
           <Route
             path="/superadmin"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <SuperAdmin />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
             element={
               <ProtectedRoute>
                 <Layout>
