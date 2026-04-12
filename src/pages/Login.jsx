@@ -1,6 +1,6 @@
 // Login.jsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 import { LogIn, User, Lock } from "lucide-react";
 
@@ -104,9 +104,11 @@ function Login() {
             </button>
           </form>
 
-          {/* Optional footer */}
-          <p className="text-xs text-center text-slate-400 mt-6">
-            Secure login • All rights reserved
+          <p className="text-sm text-center text-slate-500 mt-6">
+            Don't have an account?{" "}
+            <Link to="/register" className="text-blue-600 font-medium hover:text-blue-700 transition">
+              Sign up
+            </Link>
           </p>
         </div>
       </div>

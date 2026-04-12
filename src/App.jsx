@@ -13,6 +13,7 @@ import ClientDetail from "./pages/ClientDetail";
 import ClientPortal from "./pages/ClientPortal";
 import Landing from "./pages/Landing";
 import OrgSettings from "./pages/OrgSettings";
+import Register from "./pages/Register";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         {/* PUBLIC */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* DASHBOARD */}
         <Route
