@@ -22,6 +22,7 @@ import {
   RefreshCw,
   ExternalLink,
   AlertCircle,
+  Plus,
 } from "lucide-react";
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
@@ -55,7 +56,15 @@ function InvoiceDetail() {
   const isAdmin =
     user &&
     (user.role === "ADMIN" ||
-      (Array.isArray(user.roles) && user.roles.includes("ADMIN")));
+      user.role === "SUPER_ADMIN" ||
+      (Array.isArray(user.roles) &&
+        (user.roles.includes("ADMIN") || user.roles.includes("SUPER_ADMIN"))));
+
+  // Edit invoice state
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editItems, setEditItems] = useState([]);
+  const [editTax, setEditTax] = useState(0);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   // Fetch invoice
   const fetchInvoice = useCallback(async () => {
@@ -82,6 +91,34 @@ function InvoiceDetail() {
   useEffect(() => {
     return () => clearInterval(pollRef.current);
   }, []);
+
+  // Open edit modal pre-filled with current invoice data
+  const openEditModal = () => {
+    setEditItems(invoice.items?.map(i => ({ description: i.description, quantity: i.quantity, unitPrice: i.unitPrice })) || []);
+    setEditTax(invoice.tax || 0);
+    setShowEditModal(true);
+  };
+
+  const handleEditItemChange = (index, field, value) => {
+    const updated = [...editItems];
+    updated[index][field] = value;
+    setEditItems(updated);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      setIsSavingEdit(true);
+      await api.put(`/api/invoices/${id}/prices`, { tax: Number(editTax), items: editItems });
+      await fetchInvoice();
+      setShowEditModal(false);
+      setToast({ visible: true, message: "Invoice updated successfully", type: "success" });
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to update invoice.";
+      setToast({ visible: true, message: msg, type: "error" });
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
 
   // Send reminder handler
   const handleSendReminder = async () => {
@@ -270,6 +307,15 @@ function InvoiceDetail() {
             >
               <CreditCard size={16} />
               {isPayingOnline ? "Opening..." : "Pay Now"}
+            </button>
+          )}
+          {isAdmin && (
+            <button
+              onClick={openEditModal}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition shadow-sm"
+            >
+              <Edit2 size={16} />
+              Edit
             </button>
           )}
           {isAdmin && (
@@ -511,6 +557,107 @@ function InvoiceDetail() {
                 className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-br from-emerald-600 to-teal-600 rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition disabled:opacity-50"
               >
                 {isSubmittingPayment ? "Processing..." : "Submit Payment"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Invoice Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200 w-full max-w-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <Edit2 className="w-5 h-5 text-blue-600" />
+                Edit Invoice
+              </h3>
+              <button onClick={() => setShowEditModal(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Items */}
+            <div className="space-y-3 mb-4">
+              <div className="hidden sm:grid grid-cols-12 gap-2 px-1 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <div className="col-span-5">Description</div>
+                <div className="col-span-2">Qty</div>
+                <div className="col-span-3">Unit Price (₦)</div>
+                <div className="col-span-2" />
+              </div>
+              {editItems.map((item, i) => (
+                <div key={i} className="grid grid-cols-12 gap-2 items-center">
+                  <input
+                    type="text"
+                    value={item.description}
+                    onChange={e => handleEditItemChange(i, "description", e.target.value)}
+                    placeholder="Description"
+                    className="col-span-5 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  />
+                  <input
+                    type="number"
+                    min="1"
+                    value={item.quantity}
+                    onChange={e => handleEditItemChange(i, "quantity", Number(e.target.value))}
+                    className="col-span-2 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  />
+                  <div className="col-span-3 relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₦</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={item.unitPrice}
+                      onChange={e => handleEditItemChange(i, "unitPrice", Number(e.target.value))}
+                      className="w-full pl-7 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    />
+                  </div>
+                  <div className="col-span-2 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setEditItems(editItems.filter((_, idx) => idx !== i))}
+                      disabled={editItems.length === 1}
+                      className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition disabled:opacity-30"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => setEditItems([...editItems, { description: "", quantity: 1, unitPrice: 0 }])}
+                className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition"
+              >
+                <Plus size={15} /> Add Item
+              </button>
+            </div>
+
+            {/* Tax */}
+            <div className="flex items-center gap-3 border-t border-slate-100 pt-4 mb-6">
+              <label className="text-sm font-medium text-slate-700 w-16">Tax (₦)</label>
+              <div className="relative w-44">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₦</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={editTax}
+                  onChange={e => setEditTax(e.target.value)}
+                  className="w-full pl-7 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setShowEditModal(false)} className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={isSavingEdit}
+                className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition disabled:opacity-50"
+              >
+                <Save size={15} />
+                {isSavingEdit ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>

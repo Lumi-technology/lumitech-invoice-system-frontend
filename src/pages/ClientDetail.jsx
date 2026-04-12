@@ -10,8 +10,11 @@ import {
   Link2,
   Copy,
   CheckCircle,
+  Trash2,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import ConfirmModal from "../components/ConfirmModal";
+import { getUserFromToken } from "../services/api";
 
 function ClientDetail() {
   const { id } = useParams();
@@ -20,6 +23,16 @@ function ClientDetail() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const user = getUserFromToken();
+  const isAdmin =
+    user &&
+    (user.role === "ADMIN" ||
+      user.role === "SUPER_ADMIN" ||
+      (Array.isArray(user.roles) &&
+        (user.roles.includes("ADMIN") || user.roles.includes("SUPER_ADMIN"))));
 
   useEffect(() => {
     api
@@ -30,6 +43,20 @@ function ClientDetail() {
       )
       .finally(() => setLoading(false));
   }, [id]);
+
+  const deleteClient = async () => {
+    try {
+      setIsDeleting(true);
+      await api.delete(`/api/clients/${id}`);
+      navigate("/clients");
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to delete client.";
+      setToast({ visible: true, message: msg, type: "error" });
+      setShowDeleteModal(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const copyPortalLink = () => {
     navigator.clipboard.writeText(client.portalUrl).then(() => {
@@ -53,14 +80,25 @@ function ClientDetail() {
 
   return (
     <div className="space-y-6">
-      {/* Back */}
-      <button
-        onClick={() => navigate(-1)}
-        className="inline-flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors"
-      >
-        <ArrowLeft size={20} />
-        <span className="text-sm font-medium">Back</span>
-      </button>
+      {/* Back + actions */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors"
+        >
+          <ArrowLeft size={20} />
+          <span className="text-sm font-medium">Back</span>
+        </button>
+        {isAdmin && (
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition shadow-sm text-sm font-medium"
+          >
+            <Trash2 size={16} />
+            Delete Client
+          </button>
+        )}
+      </div>
 
       {/* Client Info Card */}
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
@@ -131,6 +169,15 @@ function ClientDetail() {
       )}
 
       <Toast {...toast} onClose={() => setToast({ ...toast, visible: false })} />
+
+      <ConfirmModal
+        visible={showDeleteModal}
+        title="Delete Client"
+        message={`Are you sure you want to delete "${client.name}"? This cannot be undone. Clients with existing invoices cannot be deleted.`}
+        onConfirm={deleteClient}
+        onCancel={() => setShowDeleteModal(false)}
+        loading={isDeleting}
+      />
     </div>
   );
 }
