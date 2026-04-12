@@ -18,6 +18,28 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+    const body = error.response?.data;
+    const message =
+      (typeof body === "string" ? body : body?.message) || "";
+
+    if (status === 402) {
+      window.dispatchEvent(
+        new CustomEvent("plan-limit", { detail: message || "You've reached your plan limit." })
+      );
+    }
+
+    if (status === 403 && message.toLowerCase().includes("suspended")) {
+      window.dispatchEvent(new CustomEvent("account-suspended"));
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default api;
 
 // Utility: Parse JWT payload safely and return parsed object (or null)

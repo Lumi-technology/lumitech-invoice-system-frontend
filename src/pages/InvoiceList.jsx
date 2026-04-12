@@ -255,6 +255,9 @@ function InvoiceList() {
                     <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Total
                     </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">
+                      Project
+                    </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Status
                     </th>
@@ -308,6 +311,15 @@ function InvoiceList() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-900">
                           ₦ {inv.total.toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                          {inv.projectName ? (
+                            <span className="inline-flex items-center gap-1 text-xs text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-full">
+                              {inv.projectName}
+                            </span>
+                          ) : (
+                            <span className="text-slate-300">—</span>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {getStatusBadge(inv.status)}

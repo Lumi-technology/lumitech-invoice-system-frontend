@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Building2,
   FolderOpen,
+  ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
 import { getUserFromToken } from "../services/api";
@@ -22,6 +23,10 @@ function Navbar() {
 
   const isActive = (path) => location.pathname === path;
 
+  const isPlatformAdmin =
+    role === "PLATFORM_ADMIN" ||
+    (Array.isArray(user?.roles) && user.roles.includes("PLATFORM_ADMIN"));
+
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { path: "/invoices", label: "Invoices", icon: FileText },
@@ -30,6 +35,7 @@ function Navbar() {
     { path: "/clients/create", label: "New Customer", icon: Users },
     { path: "/clients", label: "Customers", icon: Users },
     { path: "/settings/org", label: "Org Settings", icon: Building2 },
+    ...(isPlatformAdmin ? [{ path: "/superadmin", label: "Platform Admin", icon: ShieldCheck }] : []),
   ];
 
   const handleLogout = () => {

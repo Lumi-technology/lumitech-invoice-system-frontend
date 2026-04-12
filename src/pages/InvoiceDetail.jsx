@@ -353,6 +353,12 @@ function InvoiceDetail() {
                     <Calendar className="w-3.5 h-3.5" />
                     Due: {formatDate(invoice.dueDate)}
                   </span>
+                  {invoice.projectName && (
+                    <span className="flex items-center gap-1 text-indigo-600 font-medium">
+                      <FileText className="w-3.5 h-3.5" />
+                      {invoice.projectName}
+                    </span>
+                  )}
                   {invoice.paystackPaymentUrl && (
                     <a
                       href={invoice.paystackPaymentUrl}
