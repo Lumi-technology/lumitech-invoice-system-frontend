@@ -19,7 +19,7 @@ function Login() {
     try {
       const res = await api.post("/api/auth/login", form);
       localStorage.setItem("token", res.data.token);
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       setError("Invalid username or password");
     } finally {
