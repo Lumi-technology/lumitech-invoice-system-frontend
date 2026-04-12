@@ -6,7 +6,9 @@ import { UserPlus, Building2, Mail, User, Lock, Eye, EyeOff } from "lucide-react
 
 function Register() {
   const [form, setForm] = useState({ orgName: "", email: "", username: "", password: "" });
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -14,6 +16,10 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    if (form.password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
     setIsLoading(true);
     try {
       const res = await api.post("/api/auth/register", form);
@@ -95,6 +101,38 @@ function Register() {
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+            </div>
+
+            {/* Confirm Password */}
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <Lock className="w-4 h-4 text-slate-400" />
+                Confirm Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  required
+                  className={`w-full px-4 py-2.5 pr-11 border rounded-xl bg-white/50 focus:outline-none focus:ring-2 transition ${
+                    confirmPassword && form.password !== confirmPassword
+                      ? "border-rose-300 focus:ring-rose-500/20 focus:border-rose-500"
+                      : "border-slate-200 focus:ring-blue-500/20 focus:border-blue-500"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(s => !s)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                >
+                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              {confirmPassword && form.password !== confirmPassword && (
+                <p className="text-xs text-rose-500">Passwords do not match</p>
+              )}
             </div>
 
             <button
