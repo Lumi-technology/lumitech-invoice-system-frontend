@@ -1,7 +1,7 @@
 // TrialBalance.jsx — Accounting > Reports > Trial Balance
 import { useEffect, useState } from "react";
 import api from "../services/api";
-import { Scale, CheckCircle, AlertTriangle, RefreshCw } from "lucide-react";
+import { Scale, CheckCircle, AlertTriangle, RefreshCw, Download } from "lucide-react";
 
 const ACCOUNT_TYPES = ["ASSET", "LIABILITY", "EQUITY", "INCOME", "EXPENSE"];
 
@@ -25,6 +25,21 @@ function TrialBalance() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [downloading, setDownloading] = useState(null);
+
+  const exportReport = async (format) => {
+    setDownloading(format);
+    try {
+      const res = await api.get(`/api/accounting/reports/trial-balance/export?format=${format}`, { responseType: "blob" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(res.data);
+      link.download = `trial-balance.${format}`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   const fetchReport = () => {
     setLoading(true);
@@ -59,14 +74,36 @@ function TrialBalance() {
             </p>
           )}
         </div>
-        <button
-          onClick={fetchReport}
-          disabled={loading}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm disabled:opacity-60"
-        >
-          <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
-          Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => exportReport("pdf")}
+            disabled={!data || downloading !== null}
+            className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm disabled:opacity-50"
+          >
+            {downloading === "pdf"
+              ? <div className="w-3.5 h-3.5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
+              : <Download size={14} />}
+            PDF
+          </button>
+          <button
+            onClick={() => exportReport("csv")}
+            disabled={!data || downloading !== null}
+            className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm disabled:opacity-50"
+          >
+            {downloading === "csv"
+              ? <div className="w-3.5 h-3.5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
+              : <Download size={14} />}
+            CSV
+          </button>
+          <button
+            onClick={fetchReport}
+            disabled={loading}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm disabled:opacity-60"
+          >
+            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Balance status banner */}

@@ -1,7 +1,7 @@
 // ProfitLoss.jsx — Accounting > Reports > Profit & Loss
 import { useState } from "react";
 import api from "../services/api";
-import { TrendingUp, TrendingDown, RefreshCw, AlertTriangle } from "lucide-react";
+import { TrendingUp, TrendingDown, RefreshCw, AlertTriangle, Download } from "lucide-react";
 
 const fmt = (n) =>
   new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(n ?? 0);
@@ -49,6 +49,21 @@ function ProfitLoss() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [downloading, setDownloading] = useState(null);
+
+  const exportReport = async (format) => {
+    setDownloading(format);
+    try {
+      const res = await api.get(`/api/accounting/reports/profit-loss/export?format=${format}&from=${from}&to=${to}`, { responseType: "blob" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(res.data);
+      link.download = `profit-loss.${format}`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   const generate = () => {
     setError("");
@@ -93,14 +108,40 @@ function ProfitLoss() {
               className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
             />
           </div>
-          <button
-            onClick={generate}
-            disabled={loading || !from || !to}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-60 whitespace-nowrap"
-          >
-            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
-            Generate Report
-          </button>
+          <div className="flex items-center gap-2">
+            {data && (
+              <>
+                <button
+                  onClick={() => exportReport("pdf")}
+                  disabled={downloading !== null}
+                  className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition shadow-sm disabled:opacity-50"
+                >
+                  {downloading === "pdf"
+                    ? <div className="w-3.5 h-3.5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
+                    : <Download size={14} />}
+                  PDF
+                </button>
+                <button
+                  onClick={() => exportReport("csv")}
+                  disabled={downloading !== null}
+                  className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition shadow-sm disabled:opacity-50"
+                >
+                  {downloading === "csv"
+                    ? <div className="w-3.5 h-3.5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
+                    : <Download size={14} />}
+                  CSV
+                </button>
+              </>
+            )}
+            <button
+              onClick={generate}
+              disabled={loading || !from || !to}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-60 whitespace-nowrap"
+            >
+              <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+              Generate Report
+            </button>
+          </div>
         </div>
       </div>
 
