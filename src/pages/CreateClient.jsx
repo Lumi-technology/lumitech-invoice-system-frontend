@@ -37,19 +37,19 @@ function CreateClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Sticky Header with glassmorphism */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200/60 sticky top-0 z-10">
+      <header className="bg-white/80 backdrop-blur-xl dark:bg-slate-800/80 border-b border-slate-200/60 dark:border-slate-700 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors"
+              className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-colors"
             >
               <ArrowLeft size={20} />
               <span className="text-sm font-medium">Back</span>
             </button>
-            <h1 className="text-xl font-semibold text-slate-900">
+            <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
               Create New Customer
             </h1>
             <div className="w-20" /> {/* spacer for alignment */}
@@ -59,11 +59,11 @@ function CreateClient() {
 
       {/* Main Form Card */}
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-white/80 backdrop-blur-sm dark:bg-slate-800/80 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             {/* Name */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                 <User className="w-4 h-4 text-slate-400" />
                 Customer Name <span className="text-rose-500">*</span>
               </label>
@@ -73,13 +73,13 @@ function CreateClient() {
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 required
                 placeholder="e.g., John Doe or Company Ltd"
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
               />
             </div>
 
             {/* Email */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                 <Mail className="w-4 h-4 text-slate-400" />
                 Email Address
               </label>
@@ -88,13 +88,13 @@ function CreateClient() {
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 placeholder="client@example.com"
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
               />
             </div>
 
             {/* Phone */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                 <Phone className="w-4 h-4 text-slate-400" />
                 Phone Number
               </label>
@@ -103,13 +103,13 @@ function CreateClient() {
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 placeholder="+234 123 456 7890"
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
               />
             </div>
 
             {/* Address */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                 <MapPin className="w-4 h-4 text-slate-400" />
                 Address
               </label>
@@ -118,7 +118,7 @@ function CreateClient() {
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
                 rows="3"
                 placeholder="Street, city, postal code..."
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition resize-none"
+                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition resize-none"
               />
             </div>
 

@@ -112,7 +112,7 @@ function AddMemberModal({ onClose, onSuccess }) {
               onChange={e => setForm(f => ({ ...f, username: e.target.value }))}
               required
               placeholder="e.g. john_doe"
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+              className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
             />
           </div>
 
@@ -126,7 +126,7 @@ function AddMemberModal({ onClose, onSuccess }) {
                 onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
                 required
                 placeholder="Min. 6 characters"
-                className="w-full px-4 py-2.5 pr-11 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                className="w-full px-4 py-2.5 pr-11 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
               />
               <button
                 type="button"
@@ -212,11 +212,11 @@ function Team() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900 flex items-center gap-2">
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
             <Users className="w-6 h-6 text-blue-600" />
             Team
           </h1>
-          <p className="text-sm text-slate-500 mt-1">Manage who has access to your organisation.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage who has access to your organisation.</p>
         </div>
         {isSuperAdmin && (
           <button
@@ -230,10 +230,10 @@ function Team() {
       </div>
 
       {/* Table */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-700">Team Members</h2>
-          <span className="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full">{members.length} total</span>
+      <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Team Members</h2>
+          <span className="text-xs text-slate-500 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full">{members.length} total</span>
         </div>
 
         {loading ? (
@@ -261,21 +261,21 @@ function Team() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100">
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Member</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th>
-                  <th className="text-center px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Verified</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Member</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Role</th>
+                  <th className="text-center px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Verified</th>
                   {isSuperAdmin && (
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
                   )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {members.map(member => {
                   const RoleIcon = ROLE_ICON[member.role] ?? User;
                   const isSelf = member.username === user?.username;
                   const isProtected = member.role === "SUPER_ADMIN";
                   return (
-                    <tr key={member.id} className="hover:bg-slate-50 transition-colors">
+                    <tr key={member.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                       {/* Username */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">

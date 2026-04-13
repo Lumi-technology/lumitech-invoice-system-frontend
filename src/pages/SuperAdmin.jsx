@@ -175,11 +175,11 @@ function SuperAdmin() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900 flex items-center gap-2">
+        <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
           <ShieldCheck className="w-6 h-6 text-blue-600" />
           Platform Admin
         </h1>
-        <p className="text-sm text-slate-500 mt-1">Manage all organisations on LumiCash.</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage all organisations on LumiCash.</p>
       </div>
 
       {/* Stats row */}
@@ -207,10 +207,10 @@ function SuperAdmin() {
       </div>
 
       {/* Orgs table */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-700">All Organisations</h2>
-          <span className="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full">{orgs.length} total</span>
+      <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">All Organisations</h2>
+          <span className="text-xs text-slate-500 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full">{orgs.length} total</span>
         </div>
 
         {loading ? (
@@ -224,22 +224,22 @@ function SuperAdmin() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/30">
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Organisation</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Plan</th>
-                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Users</th>
-                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Clients</th>
-                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Invoices</th>
-                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Projects</th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Organisation</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Plan</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Users</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Clients</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Invoices</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Projects</th>
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {orgs.map(org => {
                   const isSuspended = org.suspended === true;
                   const isOwnOrg = currentOrgId && org.id === currentOrgId;
                   return (
-                    <tr key={org.id} className={`hover:bg-slate-50 transition-colors ${isSuspended ? "opacity-60" : ""}`}>
+                    <tr key={org.id} className={`hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${isSuspended ? "opacity-60" : ""}`}>
                       {/* Name + email */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">

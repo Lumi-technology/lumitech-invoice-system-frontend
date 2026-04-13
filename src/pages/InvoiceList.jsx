@@ -98,11 +98,11 @@ function InvoiceList() {
   const visibleInvoices = filteredInvoices.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   const StatCard = ({ title, value, icon: Icon, color, trend }) => (
-    <div className="group relative bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
+    <div className="group relative bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="text-3xl font-bold text-slate-900 mt-2">{value}</p>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
+          <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{value}</p>
           {trend && (
             <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1">
               <TrendingUp className="w-3 h-3" /> +{trend}% from last month
@@ -119,9 +119,9 @@ function InvoiceList() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200/60 sticky top-0 z-20">
+      <header className="bg-white/80 backdrop-blur-xl dark:bg-slate-800/80 border-b border-slate-200/60 dark:border-slate-700 sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             {/* Logo & Title */}
@@ -130,10 +130,10 @@ function InvoiceList() {
                 <FileText className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-slate-900">
+                <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
                   Lumitech <span className="text-blue-600">Invoices</span>
                 </h1>
-                <p className="text-xs text-slate-500">Professional billing dashboard</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Professional billing dashboard</p>
               </div>
             </div>
 
@@ -141,20 +141,20 @@ function InvoiceList() {
             <div className="flex items-center gap-3">
               {/* User info */}
               {user && (
-                <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-slate-100 rounded-lg">
+                <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-medium">
                     {user.username?.charAt(0).toUpperCase() || 'U'}
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium text-slate-700 leading-tight">{user.username || user.sub}</p>
-                    <p className="text-xs text-slate-500">{role || 'Member'}</p>
+                    <p className="font-medium text-slate-700 dark:text-slate-200 leading-tight">{user.username || user.sub}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{role || 'Member'}</p>
                   </div>
                 </div>
               )}
 
               <Link
                 to="/clients/create"
-                className="hidden md:inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white text-slate-700 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
+                className="hidden md:inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 transition-all shadow-sm"
               >
                 <Users className="w-4 h-4" />
                 <span>Add Customer</span>
@@ -170,7 +170,7 @@ function InvoiceList() {
 
               <button
                 onClick={handleLogout}
-                className="p-2.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                className="p-2.5 text-slate-600 dark:text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
                 title="Logout"
               >
                 <LogOut className="w-5 h-5" />
@@ -214,17 +214,17 @@ function InvoiceList() {
         {/* Search & Filter Bar */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="relative w-full sm:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
             <input
               type="text"
               placeholder="Search by invoice # or client..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white/70 backdrop-blur-sm"
+              className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white/70 dark:bg-slate-700/50 dark:text-white dark:placeholder:text-slate-500 backdrop-blur-sm"
             />
           </div>
           <div className="flex items-center gap-3 self-end">
-            <button className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white rounded-xl text-slate-600 hover:bg-slate-50 transition">
+            <button className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
               <Filter className="w-4 h-4" />
               <span className="hidden sm:inline">Filter</span>
             </button>
@@ -236,7 +236,7 @@ function InvoiceList() {
                 finally { setExporting(false); }
               }}
               disabled={exporting}
-              className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white rounded-xl text-slate-600 hover:bg-slate-50 transition disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition disabled:opacity-50"
             >
               <Download className="w-4 h-4" />
               <span className="hidden sm:inline">{exporting ? "Exporting..." : "Export CSV"}</span>
@@ -245,10 +245,10 @@ function InvoiceList() {
         </div>
 
         {/* Invoices Table */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">Recent Invoices</h2>
-            <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+        <div className="bg-white/80 backdrop-blur-sm dark:bg-slate-800/80 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Recent Invoices</h2>
+            <span className="text-sm text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full">
               {totalElements} invoices
             </span>
           </div>
@@ -257,45 +257,45 @@ function InvoiceList() {
             {loading ? (
               <div className="p-12 text-center">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600" />
-                <p className="mt-4 text-slate-500">Loading invoices...</p>
+                <p className="mt-4 text-slate-500 dark:text-slate-400">Loading invoices...</p>
               </div>
             ) : (
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/50">
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       Invoice No
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       Client
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       Date
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       Total
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">
                       Project
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                   {filteredInvoices.length === 0 ? (
                     <tr>
                       <td colSpan="6" className="px-6 py-16 text-center">
                         <div className="flex flex-col items-center gap-3">
-                          <div className="p-4 bg-slate-100 rounded-full">
-                            <FileText className="w-8 h-8 text-slate-400" />
+                          <div className="p-4 bg-slate-100 dark:bg-slate-700 rounded-full">
+                            <FileText className="w-8 h-8 text-slate-400 dark:text-slate-500" />
                           </div>
-                          <p className="text-slate-500 font-medium">No invoices found</p>
-                          <p className="text-sm text-slate-400">Try adjusting your search or create a new invoice</p>
+                          <p className="text-slate-500 dark:text-slate-400 font-medium">No invoices found</p>
+                          <p className="text-sm text-slate-400 dark:text-slate-500">Try adjusting your search or create a new invoice</p>
                           <Link
                             to="/create"
                             className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition"
@@ -311,10 +311,10 @@ function InvoiceList() {
                       <tr
                         key={inv.id}
                         onClick={() => navigate(`/invoices/${inv.id}`)}
-                        className="group hover:bg-slate-50 transition-colors cursor-pointer"
+                        className="group hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="font-mono font-medium text-slate-900">
+                          <span className="font-mono font-medium text-slate-900 dark:text-white">
                             #{inv.invoiceNumber}
                           </span>
                         </td>
@@ -323,13 +323,13 @@ function InvoiceList() {
                             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-slate-600 text-xs font-medium">
                               {inv.client.name.charAt(0)}
                             </div>
-                            <span className="text-slate-700">{inv.client.name}</span>
+                            <span className="text-slate-700 dark:text-slate-200">{inv.client.name}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-slate-600">
+                        <td className="px-6 py-4 whitespace-nowrap text-slate-600 dark:text-slate-300">
                           {inv.issueDate ? new Date(inv.issueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "—"}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-900">
+                        <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-900 dark:text-white">
                           ₦ {inv.total.toLocaleString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
@@ -338,14 +338,14 @@ function InvoiceList() {
                               {inv.projectName}
                             </span>
                           ) : (
-                            <span className="text-slate-300">—</span>
+                            <span className="text-slate-300 dark:text-slate-600">—</span>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {getStatusBadge(inv.status)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <button className="p-2 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition">
+                          <button className="p-2 text-slate-400 dark:text-slate-500 hover:text-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition">
                             <MoreVertical className="w-4 h-4" />
                           </button>
                         </td>
@@ -359,22 +359,22 @@ function InvoiceList() {
 
           {/* Prev / Next navigation */}
           {totalPages > 1 && (
-            <div className="px-6 py-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-sm text-slate-500">
+            <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+              <span className="text-sm text-slate-500 dark:text-slate-400">
                 {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filteredInvoices.length)} of {filteredInvoices.length}
               </span>
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setPage(p => p - 1)}
                   disabled={page === 0}
-                  className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setPage(p => p + 1)}
                   disabled={page + 1 >= totalPages}
-                  className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>

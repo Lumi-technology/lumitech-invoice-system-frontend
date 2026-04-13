@@ -61,23 +61,23 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo / Branding */}
         <div className="text-center mb-8">
           <div className="inline-flex p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg shadow-blue-600/20 mb-4">
             <LogIn className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
             Lumi<span className="text-blue-600">Cash</span>
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Sign in to your account
           </p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-6">
+        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
 
           {/* Error banner */}
           {error && (
@@ -109,7 +109,7 @@ function Login() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Username Field */}
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                 <User className="w-4 h-4 text-slate-400" />
                 Username
               </label>
@@ -118,7 +118,7 @@ function Login() {
                 placeholder="Enter your username"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
                 required
               />
             </div>
@@ -126,7 +126,7 @@ function Login() {
             {/* Password Field */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                   <Lock className="w-4 h-4 text-slate-400" />
                   Password
                 </label>
@@ -139,7 +139,7 @@ function Login() {
                 placeholder="••••••••"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
                 required
               />
             </div>

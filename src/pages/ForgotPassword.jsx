@@ -26,19 +26,19 @@ function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg shadow-blue-600/20 mb-4">
             <Mail className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
             Lumi<span className="text-blue-600">Cash</span>
           </h1>
-          <p className="text-sm text-slate-500 mt-1">Reset your password</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Reset your password</p>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-6">
+        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
           {sent ? (
             <div className="text-center py-4">
               <div className="inline-flex p-4 bg-emerald-50 rounded-full mb-5">
@@ -46,7 +46,7 @@ function ForgotPassword() {
               </div>
               <h2 className="text-lg font-semibold text-slate-900 mb-2">Check your inbox</h2>
               <p className="text-sm text-slate-500 mb-6">
-                If <span className="font-medium text-slate-700">{email}</span> is registered, a password reset link has been sent.
+                If <span className="font-medium text-slate-700 dark:text-slate-200">{email}</span> is registered, a password reset link has been sent.
               </p>
               <Link
                 to="/login"
@@ -63,7 +63,7 @@ function ForgotPassword() {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                     <Mail className="w-4 h-4 text-slate-400" />
                     Email address
                   </label>
@@ -73,7 +73,7 @@ function ForgotPassword() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     required
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                    className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
                   />
                 </div>
 

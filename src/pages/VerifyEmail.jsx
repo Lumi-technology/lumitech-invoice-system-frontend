@@ -34,14 +34,14 @@ function VerifyEmail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md text-center">
         {/* Branding */}
         <h1 className="text-2xl font-bold text-slate-900 mb-8">
           Lumi<span className="text-blue-600">Cash</span>
         </h1>
 
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-8">
+        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8">
           {status === "loading" && (
             <>
               <div className="inline-flex p-4 bg-blue-50 rounded-full mb-5">

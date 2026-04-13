@@ -87,14 +87,14 @@ function OnboardingBanner() {
   if (!activeStep) return null;
 
   return (
-    <div className="mx-4 md:mx-6 mt-4 bg-white/90 backdrop-blur-sm border border-blue-200 rounded-2xl shadow-sm overflow-hidden">
+    <div className="mx-4 md:mx-6 mt-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-blue-200 dark:border-blue-800 rounded-2xl shadow-sm overflow-hidden">
 
       {/* Header + progress bar */}
-      <div className="px-5 pt-4 pb-3 border-b border-slate-100">
+      <div className="px-5 pt-4 pb-3 border-b border-slate-100 dark:border-slate-700">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            <p className="text-sm font-semibold text-slate-800">Get started with LumiCash</p>
+            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Get started with LumiCash</p>
             <span className="text-xs text-slate-400 font-medium">{percent}% complete</span>
           </div>
           <button
@@ -106,7 +106,7 @@ function OnboardingBanner() {
             <X size={15} />
           </button>
         </div>
-        <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+        <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500"
             style={{ width: `${percent}%` }}
@@ -124,10 +124,10 @@ function OnboardingBanner() {
               key={step.key}
               className={`flex-1 flex items-start gap-3 p-3 rounded-xl border transition-all ${
                 isActive
-                  ? "bg-blue-50 border-blue-200"
+                  ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700"
                   : done
-                  ? "bg-emerald-50/60 border-emerald-100"
-                  : "bg-slate-50 border-slate-100"
+                  ? "bg-emerald-50/60 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800"
+                  : "bg-slate-50 dark:bg-slate-700/50 border-slate-100 dark:border-slate-600"
               }`}
             >
               {/* Icon */}

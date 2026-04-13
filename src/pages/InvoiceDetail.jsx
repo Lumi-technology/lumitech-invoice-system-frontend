@@ -253,7 +253,7 @@ function InvoiceDetail() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600 mb-4" />
-          <p className="text-slate-500">Loading invoice...</p>
+          <p className="text-slate-500 dark:text-slate-400">Loading invoice...</p>
         </div>
       </div>
     );
@@ -265,19 +265,19 @@ function InvoiceDetail() {
   return (
     <div className="space-y-6">
       {/* Header with back button and actions */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors"
+          className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-colors"
         >
           <ArrowLeft size={20} />
           <span className="text-sm font-medium">Back</span>
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={fetchInvoice}
             title="Refresh status"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 transition shadow-sm"
           >
             <RefreshCw size={16} className={isPolling ? "animate-spin" : ""} />
             {isPolling ? "Checking..." : "Refresh"}
@@ -285,7 +285,7 @@ function InvoiceDetail() {
           <button
             onClick={downloadPdf}
             disabled={isDownloading}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition shadow-sm disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 transition shadow-sm disabled:opacity-50"
           >
             <Download size={16} />
             {isDownloading ? "Downloading..." : "PDF"}
@@ -294,7 +294,7 @@ function InvoiceDetail() {
             <button
               onClick={handleSendReminder}
               disabled={isSendingReminder}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Mail size={16} />
               {isSendingReminder ? "Sending..." : "Send Reminder"}
@@ -313,7 +313,7 @@ function InvoiceDetail() {
           {isAdmin && (
             <button
               onClick={openEditModal}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 transition shadow-sm"
             >
               <Edit2 size={16} />
               Edit
@@ -333,19 +333,19 @@ function InvoiceDetail() {
       </div>
 
       {/* Main Invoice Card */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white/80 backdrop-blur-sm dark:bg-slate-800/80 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         {/* Invoice Header */}
-        <div className="px-6 py-5 border-b border-slate-100 bg-slate-50/50">
+        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="p-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg shadow-blue-600/20">
                 <FileText className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-slate-900">
+                <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
                   Invoice <span className="text-blue-600">#{invoice.invoiceNumber}</span>
                 </h1>
-                <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-slate-500">
+                <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-slate-500 dark:text-slate-400">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" />
                     Issued: {formatDate(invoice.issueDate)}
@@ -379,27 +379,27 @@ function InvoiceDetail() {
         </div>
 
         {/* Client Info Card */}
-        <div className="p-6 border-b border-slate-100">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-700">
+          <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
             Client Details
           </h2>
-          <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+          <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-medium">
                 {invoice.client?.name?.charAt(0) || "C"}
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-slate-900">{invoice.client?.name}</p>
+                <p className="font-semibold text-slate-900 dark:text-white">{invoice.client?.name}</p>
                 <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                   {invoice.client?.email && (
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <Mail className="w-4 h-4 text-slate-400" />
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                      <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                       <span>{invoice.client.email}</span>
                     </div>
                   )}
                   {invoice.client?.phone && (
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <Phone className="w-4 h-4 text-slate-400" />
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                      <Phone className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                       <span>{invoice.client.phone}</span>
                     </div>
                   )}
@@ -410,27 +410,27 @@ function InvoiceDetail() {
         </div>
 
         {/* Items Section */}
-        <div className="p-6 border-b border-slate-100">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-700">
+          <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">
             Invoice Items
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200">
-                  <th className="py-3 text-left font-medium text-slate-500">Description</th>
-                  <th className="py-3 text-left font-medium text-slate-500">Qty</th>
-                  <th className="py-3 text-left font-medium text-slate-500">Unit Price</th>
-                  <th className="py-3 text-right font-medium text-slate-500">Total</th>
+                <tr className="border-b border-slate-200 dark:border-slate-700">
+                  <th className="py-3 text-left font-medium text-slate-500 dark:text-slate-400">Description</th>
+                  <th className="py-3 text-left font-medium text-slate-500 dark:text-slate-400">Qty</th>
+                  <th className="py-3 text-left font-medium text-slate-500 dark:text-slate-400">Unit Price</th>
+                  <th className="py-3 text-right font-medium text-slate-500 dark:text-slate-400">Total</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {invoice.items?.map((item, index) => (
-                  <tr key={index} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="py-3 text-slate-900">{item.description}</td>
-                    <td className="py-3 text-slate-700">{item.quantity}</td>
-                    <td className="py-3 text-slate-700">{formatCurrency(item.unitPrice)}</td>
-                    <td className="py-3 text-right font-medium text-slate-900">
+                  <tr key={index} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors">
+                    <td className="py-3 text-slate-900 dark:text-white">{item.description}</td>
+                    <td className="py-3 text-slate-700 dark:text-slate-200">{item.quantity}</td>
+                    <td className="py-3 text-slate-700 dark:text-slate-200">{formatCurrency(item.unitPrice)}</td>
+                    <td className="py-3 text-right font-medium text-slate-900 dark:text-white">
                       {formatCurrency(item.total)}
                     </td>
                   </tr>
@@ -446,23 +446,23 @@ function InvoiceDetail() {
             {/* Payment Summary */}
             <div className="space-y-3 w-full sm:w-72">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Subtotal</span>
-                <span className="text-slate-900 font-medium">{formatCurrency(invoice.subtotal || invoice.total)}</span>
+                <span className="text-slate-500 dark:text-slate-400">Subtotal</span>
+                <span className="text-slate-900 dark:text-white font-medium">{formatCurrency(invoice.subtotal || invoice.total)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Tax</span>
-                <span className="text-slate-900 font-medium">{formatCurrency(invoice.tax || 0)}</span>
+                <span className="text-slate-500 dark:text-slate-400">Tax</span>
+                <span className="text-slate-900 dark:text-white font-medium">{formatCurrency(invoice.tax || 0)}</span>
               </div>
-              <div className="flex justify-between text-sm border-t border-slate-100 pt-3">
-                <span className="text-slate-500">Total</span>
-                <span className="text-slate-900 font-semibold">{formatCurrency(invoice.total)}</span>
+              <div className="flex justify-between text-sm border-t border-slate-100 dark:border-slate-700 pt-3">
+                <span className="text-slate-500 dark:text-slate-400">Total</span>
+                <span className="text-slate-900 dark:text-white font-semibold">{formatCurrency(invoice.total)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Paid</span>
+                <span className="text-slate-500 dark:text-slate-400">Paid</span>
                 <span className="text-emerald-600 font-medium">{formatCurrency(totalPaid)}</span>
               </div>
-              <div className="flex justify-between text-sm border-t border-slate-100 pt-3">
-                <span className="text-slate-700 font-medium">Balance Due</span>
+              <div className="flex justify-between text-sm border-t border-slate-100 dark:border-slate-700 pt-3">
+                <span className="text-slate-700 dark:text-slate-200 font-medium">Balance Due</span>
                 <span className="text-blue-600 font-bold text-lg">{formatCurrency(balanceDue)}</span>
               </div>
             </div>
@@ -489,15 +489,15 @@ function InvoiceDetail() {
       {/* Payment Modal */}
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
+          <div className="bg-white/90 backdrop-blur-xl dark:bg-slate-800/80 dark:border-slate-700 rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <DollarSign className="w-5 h-5 text-emerald-600" />
                 Record Payment
               </h3>
               <button
                 onClick={() => setShowPaymentModal(false)}
-                className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition"
+                className="p-2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"
               >
                 <X size={18} />
               </button>
@@ -505,23 +505,23 @@ function InvoiceDetail() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Amount (₦)</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Amount (₦)</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₦</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">₦</span>
                   <input
                     type="number"
                     min="0.01"
                     step="0.01"
                     value={paymentAmount}
                     onChange={(e) => setPaymentAmount(e.target.value)}
-                    className="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                    className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white/50 dark:bg-slate-700/50 dark:text-white dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
                     placeholder="0.00"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Payment Method</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Payment Method</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -529,7 +529,7 @@ function InvoiceDetail() {
                     className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border transition ${
                       paymentMethod === "TRANSFER"
                         ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                        : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600"
                     }`}
                   >
                     <CreditCard size={16} />
@@ -541,7 +541,7 @@ function InvoiceDetail() {
                     className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border transition ${
                       paymentMethod === "CASH"
                         ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                        : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600"
                     }`}
                   >
                     <Wallet size={16} />
@@ -554,7 +554,7 @@ function InvoiceDetail() {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowPaymentModal(false)}
-                className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition"
+                className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition"
               >
                 Cancel
               </button>
@@ -573,20 +573,20 @@ function InvoiceDetail() {
       {/* Edit Invoice Modal */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200 w-full max-w-2xl p-6">
+          <div className="bg-white/90 backdrop-blur-xl dark:bg-slate-800/80 dark:border-slate-700 rounded-2xl shadow-xl border border-slate-200 w-full max-w-2xl p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <Edit2 className="w-5 h-5 text-blue-600" />
                 Edit Invoice
               </h3>
-              <button onClick={() => setShowEditModal(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+              <button onClick={() => setShowEditModal(false)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
                 <X size={18} />
               </button>
             </div>
 
             {/* Items */}
             <div className="space-y-3 mb-4">
-              <div className="hidden sm:grid grid-cols-12 gap-2 px-1 text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <div className="hidden sm:grid grid-cols-12 gap-2 px-1 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 <div className="col-span-5">Description</div>
                 <div className="col-span-2">Qty</div>
                 <div className="col-span-3">Unit Price (₦)</div>
@@ -599,23 +599,23 @@ function InvoiceDetail() {
                     value={item.description}
                     onChange={e => handleEditItemChange(i, "description", e.target.value)}
                     placeholder="Description"
-                    className="col-span-5 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="col-span-5 px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg dark:bg-slate-700/50 dark:text-white dark:placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   />
                   <input
                     type="number"
                     min="1"
                     value={item.quantity}
                     onChange={e => handleEditItemChange(i, "quantity", Number(e.target.value))}
-                    className="col-span-2 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="col-span-2 px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   />
                   <div className="col-span-3 relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₦</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm">₦</span>
                     <input
                       type="number"
                       min="0"
                       value={item.unitPrice}
                       onChange={e => handleEditItemChange(i, "unitPrice", Number(e.target.value))}
-                      className="w-full pl-7 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                      className="w-full pl-7 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                     />
                   </div>
                   <div className="col-span-2 flex justify-end">
@@ -640,22 +640,22 @@ function InvoiceDetail() {
             </div>
 
             {/* Tax */}
-            <div className="flex items-center gap-3 border-t border-slate-100 pt-4 mb-6">
-              <label className="text-sm font-medium text-slate-700 w-16">Tax (₦)</label>
+            <div className="flex items-center gap-3 border-t border-slate-100 dark:border-slate-700 pt-4 mb-6">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200 w-16">Tax (₦)</label>
               <div className="relative w-44">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₦</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm">₦</span>
                 <input
                   type="number"
                   min="0"
                   value={editTax}
                   onChange={e => setEditTax(e.target.value)}
-                  className="w-full pl-7 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="w-full pl-7 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                 />
               </div>
             </div>
 
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowEditModal(false)} className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+              <button onClick={() => setShowEditModal(false)} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition">
                 Cancel
               </button>
               <button

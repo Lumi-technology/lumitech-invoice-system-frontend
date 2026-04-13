@@ -105,11 +105,11 @@ const Dashboard = () => {
     : [];
 
   const StatCard = ({ title, value, icon: Icon, color }) => (
-    <div className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
+    <div className="group relative bg-white/80 backdrop-blur-sm dark:bg-slate-800/80 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">{value}</p>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
+          <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-2">{value}</p>
         </div>
         <div className={`p-3 rounded-xl ${color} shadow-sm`}>
           <Icon className="w-5 h-5 text-white" />
@@ -123,7 +123,7 @@ const Dashboard = () => {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600 mb-4" />
-          <p className="text-slate-500">Loading dashboard...</p>
+          <p className="text-slate-500 dark:text-slate-400">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -133,10 +133,10 @@ const Dashboard = () => {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="p-4 bg-slate-100 rounded-full inline-block mb-4">
-            <AlertCircle className="w-8 h-8 text-slate-400" />
+          <div className="p-4 bg-slate-100 dark:bg-slate-700 rounded-full inline-block mb-4">
+            <AlertCircle className="w-8 h-8 text-slate-400 dark:text-slate-500" />
           </div>
-          <p className="text-slate-500">No dashboard data available</p>
+          <p className="text-slate-500 dark:text-slate-400">No dashboard data available</p>
         </div>
       </div>
     );
@@ -147,10 +147,10 @@ const Dashboard = () => {
       {/* Header with title and action button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 dark:text-white">
             {orgName ? orgName : "Dashboard"}
           </h1>
-          <p className="text-sm text-slate-500 mt-1">Overview of your business finances</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Overview of your business finances</p>
         </div>
         <button
           onClick={() => setShowLoanModal(true)}
@@ -184,12 +184,12 @@ const Dashboard = () => {
       </div>
 
       {/* Chart */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
+      <div className="bg-white/80 backdrop-blur-sm dark:bg-slate-800/80 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
         <div className="flex items-center gap-2 mb-4 sm:mb-6">
           <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg shadow-md">
             <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
-          <h3 className="text-base sm:text-lg font-semibold text-slate-900">Financial Overview</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">Financial Overview</h3>
         </div>
 
         <ResponsiveContainer width="100%" height={280}>
@@ -220,47 +220,47 @@ const Dashboard = () => {
       {/* Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Payments */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-2">
+        <div className="bg-white/80 backdrop-blur-sm dark:bg-slate-800/80 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
               <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
               Recent Payments
             </h3>
-            <span className="text-xs sm:text-sm text-slate-500 bg-slate-100 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full">
+            <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full">
               {dashboard.recentPayments.length}
             </span>
           </div>
 
           {dashboard.recentPayments.length === 0 ? (
             <div className="p-8 text-center">
-              <div className="p-4 bg-slate-100 rounded-full inline-block mb-3">
-                <DollarSign className="w-6 h-6 text-slate-400" />
+              <div className="p-4 bg-slate-100 dark:bg-slate-700 rounded-full inline-block mb-3">
+                <DollarSign className="w-6 h-6 text-slate-400 dark:text-slate-500" />
               </div>
-              <p className="text-slate-500">No payments yet</p>
+              <p className="text-slate-500 dark:text-slate-400">No payments yet</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[400px]">
-                <thead className="bg-slate-50">
+                <thead className="bg-slate-50 dark:bg-slate-800/50">
                   <tr>
-                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       Date
                     </th>
-                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       Invoice
                     </th>
-                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       Amount
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                   {dashboard.recentPayments.map((payment, index) => (
-                    <tr key={index} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap text-slate-600 text-xs sm:text-sm">
+                    <tr key={index} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                      <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap text-slate-600 dark:text-slate-300 text-xs sm:text-sm">
                         {formatDate(payment.date)}
                       </td>
-                      <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap font-mono text-slate-700 text-xs sm:text-sm">
+                      <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap font-mono text-slate-700 dark:text-slate-200 text-xs sm:text-sm">
                         {payment.invoiceNumber}
                       </td>
                       <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap font-medium text-emerald-600 text-xs sm:text-sm">
@@ -275,46 +275,46 @@ const Dashboard = () => {
         </div>
 
         {/* Outstanding Invoices */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-2">
+        <div className="bg-white/80 backdrop-blur-sm dark:bg-slate-800/80 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
               <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
               Outstanding Invoices
             </h3>
-            <span className="text-xs sm:text-sm text-slate-500 bg-slate-100 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full">
+            <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full">
               {dashboard.outstandingInvoices.length}
             </span>
           </div>
 
           {dashboard.outstandingInvoices.length === 0 ? (
             <div className="p-8 text-center">
-              <div className="p-4 bg-slate-100 rounded-full inline-block mb-3">
+              <div className="p-4 bg-slate-100 dark:bg-slate-700 rounded-full inline-block mb-3">
                 <CheckCircle className="w-6 h-6 text-emerald-500" />
               </div>
-              <p className="text-slate-500">No outstanding invoices 🎉</p>
+              <p className="text-slate-500 dark:text-slate-400">No outstanding invoices 🎉</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[400px]">
-                <thead className="bg-slate-50">
+                <thead className="bg-slate-50 dark:bg-slate-800/50">
                   <tr>
-                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       Invoice
                     </th>
-                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       Amount
                     </th>
-                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       Due Date
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                   {dashboard.outstandingInvoices.map((inv, index) => {
                     const overdue = isOverdue(inv.dueDate);
                     return (
-                      <tr key={index} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap font-mono text-slate-700 text-xs sm:text-sm">
+                      <tr key={index} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                        <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap font-mono text-slate-700 dark:text-slate-200 text-xs sm:text-sm">
                           {inv.invoiceNumber}
                         </td>
                         <td className="px-4 sm:px-6 py-2 sm:py-3 whitespace-nowrap font-medium text-amber-600 text-xs sm:text-sm">
@@ -325,7 +325,7 @@ const Dashboard = () => {
                             className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium ${
                               overdue
                                 ? "bg-rose-50 text-rose-700 border border-rose-200"
-                                : "text-slate-600"
+                                : "text-slate-600 dark:text-slate-300"
                             }`}
                           >
                             {overdue && <AlertCircle className="w-3 h-3" />}
@@ -345,15 +345,15 @@ const Dashboard = () => {
       {/* Loan Modal */}
       {showLoanModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-4 sm:p-6 animate-in fade-in zoom-in duration-200">
+          <div className="bg-white/90 backdrop-blur-xl dark:bg-slate-800/80 dark:border-slate-700 rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-4 sm:p-6 animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <Wallet className="w-5 h-5 text-blue-600" />
                 Fund Company
               </h3>
               <button
                 onClick={() => setShowLoanModal(false)}
-                className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition"
+                className="p-2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"
               >
                 <X size={18} />
               </button>
@@ -361,16 +361,16 @@ const Dashboard = () => {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Amount (₦)</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Amount (₦)</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₦</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">₦</span>
                   <input
                     type="number"
                     min="0.01"
                     step="0.01"
                     value={loanAmount}
                     onChange={(e) => setLoanAmount(e.target.value)}
-                    className="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                    className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white/50 dark:bg-slate-700/50 dark:text-white dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
                     placeholder="0.00"
                     required
                   />
@@ -378,12 +378,12 @@ const Dashboard = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Note (optional)</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Note (optional)</label>
                 <input
                   type="text"
                   value={loanNote}
                   onChange={(e) => setLoanNote(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white/50 dark:bg-slate-700/50 dark:text-white dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
                   placeholder="e.g., Office renovation"
                 />
               </div>
@@ -392,7 +392,7 @@ const Dashboard = () => {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowLoanModal(false)}
-                className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition"
+                className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition"
               >
                 Cancel
               </button>

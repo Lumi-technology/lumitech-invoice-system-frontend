@@ -110,7 +110,7 @@ function CreateInvoice() {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900 flex items-center gap-2">
+            <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
               <Receipt className="w-6 h-6 text-blue-600" />
               New Invoice
             </h1>
@@ -123,7 +123,7 @@ function CreateInvoice() {
 
         {/* Section 1 — Invoice Details */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
             <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
               <FileText className="w-4 h-4 text-blue-500" />
               Invoice Details
@@ -141,7 +141,7 @@ function CreateInvoice() {
                 value={form.clientId}
                 onChange={e => setForm({ ...form, clientId: e.target.value })}
                 required
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
               >
                 <option value="">Select a client…</option>
                 {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -158,7 +158,7 @@ function CreateInvoice() {
               <select
                 value={form.projectId}
                 onChange={e => setForm({ ...form, projectId: e.target.value })}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
               >
                 <option value="">No project</option>
                 {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -175,7 +175,7 @@ function CreateInvoice() {
                 type="date"
                 value={form.issueDate}
                 onChange={e => setForm({ ...form, issueDate: e.target.value })}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
               />
             </div>
 
@@ -190,7 +190,7 @@ function CreateInvoice() {
                 value={form.dueDate}
                 onChange={e => setForm({ ...form, dueDate: e.target.value })}
                 required
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
               />
             </div>
 
@@ -199,7 +199,7 @@ function CreateInvoice() {
 
         {/* Section 2 — Line Items */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
               <Receipt className="w-4 h-4 text-blue-500" />
               Line Items
@@ -304,7 +304,7 @@ function CreateInvoice() {
 
           {/* CC Emails */}
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
               <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                 <Mail className="w-4 h-4 text-blue-500" />
                 CC Recipients
@@ -321,7 +321,7 @@ function CreateInvoice() {
                     value={ccInput}
                     onChange={e => setCcInput(e.target.value)}
                     onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addCcEmail(); } }}
-                    className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                    className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
                   />
                 </div>
                 <button
@@ -351,8 +351,8 @@ function CreateInvoice() {
 
           {/* Totals */}
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-              <h2 className="text-sm font-semibold text-slate-700">Summary</h2>
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+              <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Summary</h2>
             </div>
             <div className="p-6 space-y-4">
               <div className="flex justify-between items-center text-sm">

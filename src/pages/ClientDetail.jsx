@@ -117,7 +117,7 @@ function ClientDetail() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600 mb-4" />
-          <p className="text-slate-500">Loading client...</p>
+          <p className="text-slate-500 dark:text-slate-400">Loading client...</p>
         </div>
       </div>
     );
@@ -131,7 +131,7 @@ function ClientDetail() {
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors"
+          className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-colors"
         >
           <ArrowLeft size={20} />
           <span className="text-sm font-medium">Back</span>
@@ -140,7 +140,7 @@ function ClientDetail() {
           {isAdmin && (
             <button
               onClick={openEditModal}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition shadow-sm text-sm font-medium"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 transition shadow-sm text-sm font-medium"
             >
               <Edit2 size={16} />
               Edit
@@ -159,35 +159,35 @@ function ClientDetail() {
       </div>
 
       {/* Client Info Card */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="px-6 py-5 border-b border-slate-100 bg-slate-50/50">
+      <div className="bg-white/80 backdrop-blur-sm dark:bg-slate-800/80 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-lg">
               {client.name.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-slate-900">{client.name}</h1>
-              <p className="text-sm text-slate-500">Client details</p>
+              <h1 className="text-xl font-semibold text-slate-900 dark:text-white">{client.name}</h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Client details</p>
             </div>
           </div>
         </div>
 
         <div className="p-6 flex flex-wrap gap-6">
           {client.email && (
-            <div className="flex items-center gap-2 text-slate-600 text-sm">
-              <Mail className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-sm">
+              <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500" />
               {client.email}
             </div>
           )}
           {client.phone && (
-            <div className="flex items-center gap-2 text-slate-600 text-sm">
-              <Phone className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-sm">
+              <Phone className="w-4 h-4 text-slate-400 dark:text-slate-500" />
               {client.phone}
             </div>
           )}
           {client.address && (
-            <div className="flex items-center gap-2 text-slate-600 text-sm">
-              <MapPin className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-sm">
+              <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500" />
               {client.address}
             </div>
           )}
@@ -195,7 +195,7 @@ function ClientDetail() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-slate-200">
+      <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700">
         {[
           { key: "details", label: "Details" },
           { key: "projects", label: "Projects", icon: FolderOpen },
@@ -206,7 +206,7 @@ function ClientDetail() {
             className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.key
                 ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-500 hover:text-slate-700"
+                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             }`}
           >
             {tab.icon && <tab.icon size={15} />}
@@ -217,13 +217,13 @@ function ClientDetail() {
 
       {/* Projects Tab */}
       {activeTab === "projects" && (
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-white/80 backdrop-blur-sm dark:bg-slate-800/80 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
           {projectsLoading ? (
             <div className="flex items-center justify-center py-16">
               <div className="inline-block animate-spin rounded-full h-6 w-6 border-4 border-slate-200 border-t-blue-600" />
             </div>
           ) : projects.length === 0 ? (
-            <div className="text-center py-16 text-slate-400">
+            <div className="text-center py-16 text-slate-400 dark:text-slate-500">
               <FolderOpen className="mx-auto w-8 h-8 mb-2 opacity-30" />
               <p className="text-sm">No projects for this client.</p>
             </div>
@@ -231,22 +231,22 @@ function ClientDetail() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/50">
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Project</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Category</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Contract Value</th>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Project</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Category</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Contract Value</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                   {projects.map(p => (
                     <tr
                       key={p.id}
                       onClick={() => navigate(`/projects/${p.id}`)}
-                      className="hover:bg-slate-50 cursor-pointer transition-colors"
+                      className="hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors"
                     >
-                      <td className="px-6 py-4 font-medium text-slate-900">{p.name}</td>
-                      <td className="px-6 py-4 text-slate-500">{p.category ?? "—"}</td>
+                      <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{p.name}</td>
+                      <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{p.category ?? "—"}</td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                           { ACTIVE: "bg-emerald-100 text-emerald-700", ON_HOLD: "bg-amber-100 text-amber-700", SUSPENDED: "bg-orange-100 text-orange-700", CANCELLED: "bg-rose-100 text-rose-700", COMPLETED: "bg-blue-100 text-blue-700" }[p.status] ?? "bg-slate-100 text-slate-600"
@@ -254,7 +254,7 @@ function ClientDetail() {
                           {p.status?.replace("_", " ")}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right font-medium text-slate-900">
+                      <td className="px-6 py-4 text-right font-medium text-slate-900 dark:text-white">
                         {new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(p.revisedContractValue ?? p.contractValue ?? 0)}
                       </td>
                     </tr>
@@ -268,12 +268,12 @@ function ClientDetail() {
 
       {/* Portal Link Section */}
       {activeTab === "details" && client.portalUrl && (
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-6">
+        <div className="bg-white/80 backdrop-blur-sm dark:bg-slate-800/80 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex items-center gap-2 mb-1">
             <Link2 className="w-4 h-4 text-blue-600" />
-            <h2 className="text-sm font-semibold text-slate-900">Client Portal Link</h2>
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Client Portal Link</h2>
           </div>
-          <p className="text-xs text-slate-500 mb-4">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
             Share this link with the client to let them view and pay their invoices online.
           </p>
           <div className="flex gap-2">
@@ -281,14 +281,14 @@ function ClientDetail() {
               type="text"
               readOnly
               value={client.portalUrl}
-              className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-slate-700 text-sm focus:outline-none truncate"
+              className="flex-1 px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200 text-sm focus:outline-none truncate"
             />
             <button
               onClick={copyPortalLink}
               className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all ${
                 copied
                   ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                  : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
               }`}
             >
               {copied ? <CheckCircle size={16} /> : <Copy size={16} />}
@@ -301,13 +301,13 @@ function ClientDetail() {
       {/* Edit Client Modal */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-6">
+          <div className="bg-white/90 backdrop-blur-xl dark:bg-slate-800/80 dark:border-slate-700 rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <Edit2 className="w-5 h-5 text-blue-600" />
                 Edit Client
               </h3>
-              <button onClick={() => setShowEditModal(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+              <button onClick={() => setShowEditModal(false)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
                 <X size={18} />
               </button>
             </div>
@@ -320,14 +320,14 @@ function ClientDetail() {
                 { label: "Address", field: "address", type: "text", icon: <MapPin className="w-4 h-4 text-slate-400" /> },
               ].map(({ label, field, type, icon }) => (
                 <div key={field}>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">{label}</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</span>
                     <input
                       type={type}
                       value={editForm[field]}
                       onChange={e => setEditForm({ ...editForm, [field]: e.target.value })}
-                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl bg-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white dark:placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
                       placeholder={label}
                     />
                   </div>
@@ -336,7 +336,7 @@ function ClientDetail() {
             </div>
 
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowEditModal(false)} className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+              <button onClick={() => setShowEditModal(false)} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition">
                 Cancel
               </button>
               <button
