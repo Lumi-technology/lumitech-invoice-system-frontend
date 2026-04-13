@@ -12,8 +12,9 @@ import {
   BarChart3,
   X,
   Wallet,
-  Plus
+  Plus,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   BarChart,
   Bar,
@@ -160,6 +161,32 @@ const Dashboard = () => {
           Fund Company
         </button>
       </div>
+
+      {/* Outstanding Revenue — hero card */}
+      {dashboard.summary.outstanding > 0 && (
+        <div className="relative bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl p-6 shadow-xl shadow-rose-500/30 overflow-hidden">
+          <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full pointer-events-none" />
+          <div className="absolute -bottom-8 -left-4 w-24 h-24 bg-white/5 rounded-full pointer-events-none" />
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-rose-100 text-sm font-semibold uppercase tracking-wide mb-1">Outstanding Revenue</p>
+              <p className="text-3xl sm:text-4xl font-extrabold text-white">
+                {formatCurrency(dashboard.summary.outstanding)}
+              </p>
+              <p className="text-rose-200 text-sm mt-1.5">still unpaid across all invoices</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                to="/invoices"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-rose-600 text-sm font-bold rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
+              >
+                View Invoices
+                <AlertCircle className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
