@@ -19,9 +19,9 @@ import Toast from "../components/Toast";
 const PLANS = ["FREE", "STARTER", "PRO"];
 
 const PLAN_STYLE = {
-  FREE:    "bg-slate-100 text-slate-600",
-  STARTER: "bg-blue-100 text-blue-700",
-  PRO:     "bg-indigo-100 text-indigo-700",
+  FREE:    "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+  STARTER: "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300",
+  PRO:     "bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300",
 };
 
 // ── Suspend-with-reason modal ────────────────────────────────────────────────
@@ -30,38 +30,38 @@ function SuspendModal({ org, onConfirm, onCancel, loading }) {
   if (!org) return null;
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-rose-100 rounded-lg">
-              <AlertTriangle className="w-4 h-4 text-rose-600" />
+            <div className="p-2 bg-rose-100 dark:bg-rose-900/30 rounded-lg">
+              <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
             </div>
-            <h3 className="text-base font-semibold text-slate-900">Suspend Organisation</h3>
+            <h3 className="text-base font-semibold text-slate-900 dark:text-white">Suspend Organisation</h3>
           </div>
-          <button onClick={onCancel} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+          <button onClick={onCancel} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
             <X size={16} />
           </button>
         </div>
-        <p className="text-sm text-slate-600 mb-4">
-          Suspending <span className="font-semibold text-slate-900">{org.name}</span> will immediately revoke access for all their users.
+        <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+          Suspending <span className="font-semibold text-slate-900 dark:text-white">{org.name}</span> will immediately revoke access for all their users.
         </p>
         <div className="mb-5">
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Reason <span className="text-slate-400 font-normal">(optional)</span>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">
+            Reason <span className="text-slate-400 dark:text-slate-500 font-normal">(optional)</span>
           </label>
           <textarea
             rows={3}
             value={reason}
             onChange={e => setReason(e.target.value)}
             placeholder="e.g., Payment overdue, Terms violation…"
-            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 resize-none transition"
+            className="w-full px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-xl text-sm bg-white dark:bg-slate-700/50 dark:text-white dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 resize-none transition"
           />
         </div>
         <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition"
+            className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition"
           >
             Cancel
           </button>
@@ -88,7 +88,7 @@ function SuperAdmin() {
   const [stats, setStats] = useState(null);
   const [orgs, setOrgs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [suspendTarget, setSuspendTarget] = useState(null);  // org being suspended
+  const [suspendTarget, setSuspendTarget] = useState(null);
   const [suspending, setSuspending] = useState(false);
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
@@ -98,9 +98,7 @@ function SuperAdmin() {
 
   const fetchAll = () => {
     setLoading(true);
-    // Fetch current user's org ID so we can block self-suspension
     api.get("/api/org").then(res => setCurrentOrgId(res.data.id ?? null)).catch(() => {});
-
     Promise.all([
       api.get("/api/superadmin/stats"),
       api.get("/api/superadmin/organisations"),
@@ -115,10 +113,8 @@ function SuperAdmin() {
 
   useEffect(() => { fetchAll(); }, []);
 
-  // Guard — non-admin users get redirected
   if (!isPlatformAdmin) return <Navigate to="/dashboard" replace />;
 
-  // ── Actions ────────────────────────────────────────────────────────────────
   const changePlan = async (orgId, plan) => {
     try {
       await api.put(`/api/superadmin/organisations/${orgId}/plan`, { plan });
@@ -155,14 +151,13 @@ function SuperAdmin() {
     }
   };
 
-  // ── Sub-components ─────────────────────────────────────────────────────────
   const StatCard = ({ label, value, icon: Icon, color, sub }) => (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-5">
+    <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{label}</p>
-          <p className="text-3xl font-bold text-slate-900 mt-1">{value ?? "—"}</p>
-          {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{label}</p>
+          <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{value ?? "—"}</p>
+          {sub && <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{sub}</p>}
         </div>
         <div className={`p-2.5 rounded-xl ${color}`}>
           <Icon className="w-5 h-5 text-white" />
@@ -184,18 +179,18 @@ function SuperAdmin() {
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatCard label="Total Orgs"   value={stats?.totalOrgs}      icon={Building2} color="bg-gradient-to-br from-blue-600 to-indigo-600" />
-        <StatCard label="Active"       value={stats?.activeOrgs}     icon={CheckCircle} color="bg-gradient-to-br from-emerald-500 to-teal-500" />
-        <StatCard label="Suspended"    value={stats?.suspendedOrgs}  icon={XCircle}  color="bg-gradient-to-br from-rose-500 to-pink-500" />
-        <StatCard label="Total Users"  value={stats?.totalUsers}     icon={Users}    color="bg-gradient-to-br from-violet-500 to-purple-600" />
-        <StatCard label="Invoices"     value={stats?.totalInvoices}  icon={FileText} color="bg-gradient-to-br from-amber-500 to-orange-500" />
-        <StatCard label="Projects"     value={stats?.totalProjects}  icon={FolderOpen} color="bg-gradient-to-br from-cyan-500 to-sky-600" />
+        <StatCard label="Total Orgs"  value={stats?.totalOrgs}     icon={Building2}  color="bg-gradient-to-br from-blue-600 to-indigo-600" />
+        <StatCard label="Active"      value={stats?.activeOrgs}    icon={CheckCircle} color="bg-gradient-to-br from-emerald-500 to-teal-500" />
+        <StatCard label="Suspended"   value={stats?.suspendedOrgs} icon={XCircle}    color="bg-gradient-to-br from-rose-500 to-pink-500" />
+        <StatCard label="Total Users" value={stats?.totalUsers}    icon={Users}      color="bg-gradient-to-br from-violet-500 to-purple-600" />
+        <StatCard label="Invoices"    value={stats?.totalInvoices} icon={FileText}   color="bg-gradient-to-br from-amber-500 to-orange-500" />
+        <StatCard label="Projects"    value={stats?.totalProjects} icon={FolderOpen} color="bg-gradient-to-br from-cyan-500 to-sky-600" />
       </div>
 
       {/* Plan breakdown */}
       <div className="grid grid-cols-3 gap-4">
         {PLANS.map(p => (
-          <div key={p} className={`rounded-2xl border px-5 py-4 flex items-center justify-between ${PLAN_STYLE[p]} border-current/10`}>
+          <div key={p} className={`rounded-2xl border border-current/10 px-5 py-4 flex items-center justify-between ${PLAN_STYLE[p]}`}>
             <span className="text-sm font-semibold">{p}</span>
             <span className="text-2xl font-bold">
               {stats
@@ -210,7 +205,7 @@ function SuperAdmin() {
       <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">All Organisations</h2>
-          <span className="text-xs text-slate-500 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full">{orgs.length} total</span>
+          <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full">{orgs.length} total</span>
         </div>
 
         {loading ? (
@@ -218,12 +213,12 @@ function SuperAdmin() {
             <div className="animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600" />
           </div>
         ) : orgs.length === 0 ? (
-          <div className="text-center py-20 text-slate-400 text-sm">No organisations found.</div>
+          <div className="text-center py-20 text-slate-400 dark:text-slate-500 text-sm">No organisations found.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/30">
+                <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-800/50">
                   <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Organisation</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Plan</th>
@@ -247,8 +242,8 @@ function SuperAdmin() {
                             {org.name?.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-medium text-slate-900">{org.name}</p>
-                            {org.email && <p className="text-xs text-slate-400">{org.email}</p>}
+                            <p className="font-medium text-slate-900 dark:text-white">{org.name}</p>
+                            {org.email && <p className="text-xs text-slate-400 dark:text-slate-500">{org.email}</p>}
                           </div>
                         </div>
                       </td>
@@ -256,7 +251,9 @@ function SuperAdmin() {
                       {/* Status badge */}
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          isSuspended ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700"
+                          isSuspended
+                            ? "bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300"
+                            : "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300"
                         }`}>
                           {isSuspended ? <XCircle size={11} /> : <CheckCircle size={11} />}
                           {isSuspended ? "Suspended" : "Active"}
@@ -278,30 +275,28 @@ function SuperAdmin() {
                       </td>
 
                       {/* Counts */}
-                      <td className="px-4 py-4 text-center text-slate-600">{org.userCount ?? "—"}</td>
-                      <td className="px-4 py-4 text-center text-slate-600">{org.clientCount ?? "—"}</td>
-                      <td className="px-4 py-4 text-center text-slate-600">{org.invoiceCount ?? "—"}</td>
-                      <td className="px-4 py-4 text-center text-slate-600">{org.projectCount ?? "—"}</td>
+                      <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.userCount ?? "—"}</td>
+                      <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.clientCount ?? "—"}</td>
+                      <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.invoiceCount ?? "—"}</td>
+                      <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.projectCount ?? "—"}</td>
 
                       {/* Actions */}
                       <td className="px-6 py-4 text-right">
                         {isSuspended ? (
                           <button
                             onClick={() => doUnsuspend(org)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition"
                           >
-                            <CheckCircle size={13} />
-                            Unsuspend
+                            <CheckCircle size={13} />Unsuspend
                           </button>
                         ) : isOwnOrg ? (
-                          <span className="text-xs text-slate-400 italic px-2">Your org</span>
+                          <span className="text-xs text-slate-400 dark:text-slate-500 italic px-2">Your org</span>
                         ) : (
                           <button
                             onClick={() => setSuspendTarget(org)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-700 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-900/50 transition"
                           >
-                            <XCircle size={13} />
-                            Suspend
+                            <XCircle size={13} />Suspend
                           </button>
                         )}
                       </td>
