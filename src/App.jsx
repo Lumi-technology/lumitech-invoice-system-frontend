@@ -24,6 +24,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Billing from "./pages/Billing";
 import Finance from "./pages/Finance";
 import Team from "./pages/Team";
+import ChartOfAccounts from "./pages/ChartOfAccounts";
+import JournalEntries from "./pages/JournalEntries";
 
 function App() {
   const [planLimitMessage, setPlanLimitMessage] = useState(null);
@@ -289,6 +291,28 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Team />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ACCOUNTING */}
+          <Route
+            path="/accounting/accounts"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <ChartOfAccounts />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/accounting/entries"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <JournalEntries />
                 </Layout>
               </ProtectedRoute>
             }

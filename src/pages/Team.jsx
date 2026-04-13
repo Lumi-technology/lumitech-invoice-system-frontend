@@ -3,34 +3,20 @@ import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
 import {
-  Users,
-  UserPlus,
-  Trash2,
-  CheckCircle,
-  XCircle,
-  X,
-  Eye,
-  EyeOff,
-  ShieldCheck,
-  User,
+  Users, UserPlus, Trash2, CheckCircle, XCircle, X, Eye, EyeOff,
+  ShieldCheck, User,
 } from "lucide-react";
 import Toast from "../components/Toast";
 
 const ROLE_STYLE = {
-  SUPER_ADMIN: "bg-purple-100 text-purple-700",
-  ADMIN:       "bg-blue-100 text-blue-700",
-  STAFF:       "bg-slate-100 text-slate-600",
-};
-
-const ROLE_ICON = {
-  SUPER_ADMIN: ShieldCheck,
-  ADMIN:       ShieldCheck,
-  STAFF:       User,
+  SUPER_ADMIN: "bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300",
+  ADMIN:       "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300",
+  STAFF:       "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
 };
 
 // ── Add Member Modal ──────────────────────────────────────────────────────────
-function AddMemberModal({ onClose, onSuccess }) {
-  const [form, setForm] = useState({ username: "", password: "", role: "ADMIN" });
+function AddMemberModal({ roleToCreate, onClose, onSuccess }) {
+  const [form, setForm] = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -38,15 +24,12 @@ function AddMemberModal({ onClose, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
+    if (form.password.length < 6) { setError("Password must be at least 6 characters."); return; }
     setLoading(true);
-    const endpoint = form.role === "ADMIN" ? "/api/auth/admin" : "/api/auth/staff";
+    const endpoint = roleToCreate === "ADMIN" ? "/api/auth/admin" : "/api/auth/staff";
     try {
       await api.post(endpoint, { username: form.username, password: form.password });
-      onSuccess(`${form.role} "${form.username}" created successfully`);
+      onSuccess(`${roleToCreate} "${form.username}" created successfully`);
       onClose();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create user.");
@@ -57,68 +40,35 @@ function AddMemberModal({ onClose, onSuccess }) {
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg">
               <UserPlus className="w-4 h-4 text-white" />
             </div>
-            <h3 className="text-base font-semibold text-slate-900">Add Team Member</h3>
+            <h3 className="text-base font-semibold text-slate-900 dark:text-white">Add {roleToCreate}</h3>
           </div>
-          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
             <X size={16} />
           </button>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-600 text-sm">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-3 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-700 rounded-xl text-rose-600 dark:text-rose-300 text-sm">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Role selector */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Role</label>
-            <div className="grid grid-cols-2 gap-2">
-              {["ADMIN", "STAFF"].map(r => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => setForm(f => ({ ...f, role: r }))}
-                  className={`px-4 py-2.5 rounded-xl text-sm font-semibold border-2 transition ${
-                    form.role === r
-                      ? "border-blue-600 bg-blue-50 text-blue-700"
-                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
-                  }`}
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-slate-400">
-              {form.role === "ADMIN"
-                ? "Can create invoices, clients, and projects. Cannot delete clients or manage other admins."
-                : "Read and create access only. No delete permissions."}
-            </p>
-          </div>
-
-          {/* Username */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Username</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Username</label>
             <input
               type="text"
               value={form.username}
               onChange={e => setForm(f => ({ ...f, username: e.target.value }))}
               required
               placeholder="e.g. john_doe"
-              className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+              className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
             />
           </div>
-
-          {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Password</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -126,33 +76,17 @@ function AddMemberModal({ onClose, onSuccess }) {
                 onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
                 required
                 placeholder="Min. 6 characters"
-                className="w-full px-4 py-2.5 pr-11 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                className="w-full px-4 py-2.5 pr-11 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(s => !s)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-              >
+              <button type="button" onClick={() => setShowPassword(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
           </div>
-
           <div className="flex justify-end gap-3 pt-1">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {loading ? "Creating…" : `Add ${form.role}`}
+            <button type="button" onClick={onClose} disabled={loading} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition">Cancel</button>
+            <button type="submit" disabled={loading} className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all disabled:opacity-60">
+              {loading ? "Creating…" : `Add ${roleToCreate}`}
             </button>
           </div>
         </form>
@@ -166,17 +100,17 @@ function Team() {
   const user = getUserFromToken();
   const role = user?.role || (Array.isArray(user?.roles) ? user.roles[0] : null);
   const isSuperAdmin = role === "SUPER_ADMIN" || role === "PLATFORM_ADMIN";
-  const canAccess = role === "SUPER_ADMIN" || role === "ADMIN" || role === "PLATFORM_ADMIN";
+  const isAdmin = role === "ADMIN" || isSuperAdmin;
+  const canAccess = isAdmin;
 
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null);  // { id, username }
+  const [addRole, setAddRole] = useState(null); // "ADMIN" | "STAFF" | null
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
 
-  const showToast = (message, type = "success") =>
-    setToast({ visible: true, message, type });
+  const showToast = (message, type = "success") => setToast({ visible: true, message, type });
 
   const fetchMembers = () => {
     setLoading(true);
@@ -186,19 +120,16 @@ function Team() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => {
-    if (!canAccess) return;
-    fetchMembers();
-  }, []);
+  useEffect(() => { if (!canAccess) return; fetchMembers(); }, []);
 
   if (!canAccess) return <Navigate to="/dashboard" replace />;
 
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      await api.delete(`/api/auth/users/${deleteTarget.id}`);
-      setMembers(prev => prev.filter(m => m.id !== deleteTarget.id));
-      showToast(`${deleteTarget.username} removed from team`);
+      await api.delete(`/api/auth/users/${deleteTarget.username}`);
+      setMembers(prev => prev.filter(m => m.username !== deleteTarget.username));
+      showToast(`${deleteTarget.username} removed`);
       setDeleteTarget(null);
     } catch (err) {
       showToast(err.response?.data?.message || "Failed to delete user.", "error");
@@ -209,7 +140,6 @@ function Team() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
@@ -218,22 +148,24 @@ function Team() {
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage who has access to your organisation.</p>
         </div>
-        {isSuperAdmin && (
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition-all self-start sm:self-auto"
-          >
-            <UserPlus size={16} />
-            Add Member
-          </button>
-        )}
+        <div className="flex items-center gap-2 flex-wrap">
+          {isAdmin && (
+            <button onClick={() => setAddRole("STAFF")} className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm">
+              <UserPlus size={16} />Add Staff
+            </button>
+          )}
+          {isSuperAdmin && (
+            <button onClick={() => setAddRole("ADMIN")} className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition-all">
+              <UserPlus size={16} />Add Admin
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Table */}
       <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Team Members</h2>
-          <span className="text-xs text-slate-500 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full">{members.length} total</span>
+          <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full">{members.length} total</span>
         </div>
 
         {loading ? (
@@ -242,94 +174,65 @@ function Team() {
           </div>
         ) : members.length === 0 ? (
           <div className="text-center py-20">
-            <div className="inline-flex p-4 bg-slate-100 rounded-full mb-4">
-              <Users className="w-8 h-8 text-slate-400" />
-            </div>
-            <p className="text-slate-500 text-sm">No team members yet.</p>
-            {isSuperAdmin && (
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition"
-              >
-                <UserPlus size={15} />
-                Add your first member
-              </button>
-            )}
+            <div className="inline-flex p-4 bg-slate-100 dark:bg-slate-700 rounded-full mb-4"><Users className="w-8 h-8 text-slate-400" /></div>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">No team members yet.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100">
+                <tr className="border-b border-slate-100 dark:border-slate-700">
                   <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Member</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Role</th>
                   <th className="text-center px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Verified</th>
-                  {isSuperAdmin && (
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
-                  )}
+                  <th className="text-center px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {members.map(member => {
-                  const RoleIcon = ROLE_ICON[member.role] ?? User;
                   const isSelf = member.username === user?.username;
                   const isProtected = member.role === "SUPER_ADMIN";
+                  const RoleIcon = member.role === "STAFF" ? User : ShieldCheck;
                   return (
-                    <tr key={member.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                      {/* Username */}
+                    <tr key={member.id ?? member.username} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
                             {member.username?.charAt(0).toUpperCase()}
                           </div>
-                          <div>
-                            <p className="font-medium text-slate-900">
-                              {member.username}
-                              {isSelf && (
-                                <span className="ml-2 text-xs text-slate-400 font-normal">(you)</span>
-                              )}
-                            </p>
-                          </div>
+                          <p className="font-medium text-slate-900 dark:text-white">
+                            {member.username}
+                            {isSelf && <span className="ml-2 text-xs text-slate-400 font-normal">(you)</span>}
+                          </p>
                         </div>
                       </td>
-
-                      {/* Role badge */}
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${ROLE_STYLE[member.role] ?? ROLE_STYLE.STAFF}`}>
                           <RoleIcon size={11} />
                           {member.role?.replace("_", " ")}
                         </span>
                       </td>
-
-                      {/* Verified */}
                       <td className="px-6 py-4 text-center">
-                        {member.verified ? (
-                          <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-medium">
-                            <CheckCircle size={14} />
-                            Yes
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-slate-400 text-xs font-medium">
-                            <XCircle size={14} />
-                            No
-                          </span>
-                        )}
+                        {member.verified
+                          ? <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-medium"><CheckCircle size={14} />Yes</span>
+                          : <span className="inline-flex items-center gap-1 text-slate-400 text-xs font-medium"><XCircle size={14} />No</span>}
                       </td>
-
-                      {/* Actions */}
-                      {isSuperAdmin && (
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => setDeleteTarget(member)}
-                            disabled={isProtected || isSelf}
-                            title={isProtected ? "Cannot remove SUPER_ADMIN" : isSelf ? "Cannot remove yourself" : `Remove ${member.username}`}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition disabled:opacity-30 disabled:cursor-not-allowed"
-                          >
-                            <Trash2 size={13} />
-                            Remove
-                          </button>
-                        </td>
-                      )}
+                      <td className="px-6 py-4 text-center">
+                        {member.suspended
+                          ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300"><XCircle size={11} />Suspended</span>
+                          : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300"><CheckCircle size={11} />Active</span>}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => setDeleteTarget(member)}
+                          disabled={isProtected || isSelf}
+                          title={isProtected ? "Cannot remove SUPER_ADMIN" : isSelf ? "Cannot remove yourself" : `Remove ${member.username}`}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-700 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 rounded-lg hover:bg-rose-100 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <Trash2 size={13} />Remove
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
@@ -339,10 +242,11 @@ function Team() {
         )}
       </div>
 
-      {/* Add Member Modal */}
-      {showAddModal && (
+      {/* Add Modal */}
+      {addRole && (
         <AddMemberModal
-          onClose={() => setShowAddModal(false)}
+          roleToCreate={addRole}
+          onClose={() => setAddRole(null)}
           onSuccess={(msg) => { showToast(msg); fetchMembers(); }}
         />
       )}
@@ -350,29 +254,17 @@ function Team() {
       {/* Delete Confirm */}
       {deleteTarget && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-sm w-full p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 max-w-sm w-full p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-rose-100 rounded-lg">
-                <Trash2 className="w-4 h-4 text-rose-600" />
-              </div>
-              <h3 className="text-base font-semibold text-slate-900">Remove Member</h3>
+              <div className="p-2 bg-rose-100 dark:bg-rose-900/30 rounded-lg"><Trash2 className="w-4 h-4 text-rose-600" /></div>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">Remove Member</h3>
             </div>
-            <p className="text-sm text-slate-600 mb-6">
-              Remove <span className="font-semibold text-slate-900">{deleteTarget.username}</span> from your organisation? They will lose access immediately.
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-6">
+              Remove <span className="font-semibold text-slate-900 dark:text-white">{deleteTarget.username}</span>? They will lose access immediately.
             </p>
             <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setDeleteTarget(null)}
-                disabled={deleting}
-                className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="px-4 py-2 text-sm font-medium text-white bg-rose-600 rounded-xl hover:bg-rose-700 transition disabled:opacity-60"
-              >
+              <button onClick={() => setDeleteTarget(null)} disabled={deleting} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 transition">Cancel</button>
+              <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 text-sm font-medium text-white bg-rose-600 rounded-xl hover:bg-rose-700 transition disabled:opacity-60">
                 {deleting ? "Removing…" : "Remove"}
               </button>
             </div>
