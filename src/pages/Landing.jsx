@@ -11,6 +11,8 @@ import {
   Zap,
   Clock,
   ChevronRight,
+  BookOpen,
+  Landmark,
 } from "lucide-react";
 
 /* ── tiny mock dashboard card ── */
@@ -102,6 +104,20 @@ const valueProps = [
     title: "Cashflow Clarity",
     desc: "Know exactly where your money is going — at a glance, every single day.",
   },
+  {
+    icon: <BookOpen className="w-5 h-5 text-violet-600" />,
+    bg: "bg-violet-50",
+    title: "Chart of Accounts",
+    desc: "Track every naira with double-entry bookkeeping. Categorise transactions into assets, liabilities, income and expenses — just like a professional accountant.",
+    comingSoon: true,
+  },
+  {
+    icon: <Landmark className="w-5 h-5 text-cyan-600" />,
+    bg: "bg-cyan-50",
+    title: "Bank Statement Import",
+    desc: "Upload your bank statement and post transactions directly to your accounts. Reconcile your books in minutes.",
+    comingSoon: true,
+  },
 ];
 
 const steps = [
@@ -191,9 +207,14 @@ export default function Landing() {
             <h2 className="text-3xl font-bold text-slate-900 mb-3">Everything you need. Nothing you don't.</h2>
             <p className="text-slate-500 max-w-xl mx-auto">Built for SMEs, freelancers, agencies, and contractors who need clarity without complexity.</p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {valueProps.map(v => (
-              <div key={v.title} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md hover:border-slate-300 transition-all group">
+              <div key={v.title} className={`relative bg-white rounded-2xl p-6 shadow-sm border transition-all group ${v.comingSoon ? "border-dashed border-slate-300 hover:border-slate-400" : "border-slate-200 hover:shadow-md hover:border-slate-300"}`}>
+                {v.comingSoon && (
+                  <span className="absolute top-4 right-4 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-700 border border-violet-200">
+                    Coming Soon
+                  </span>
+                )}
                 <div className={`w-10 h-10 ${v.bg} rounded-xl flex items-center justify-center mb-4`}>
                   {v.icon}
                 </div>
