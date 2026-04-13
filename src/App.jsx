@@ -30,6 +30,7 @@ import TrialBalance from "./pages/TrialBalance";
 import ProfitLoss from "./pages/ProfitLoss";
 import BalanceSheet from "./pages/BalanceSheet";
 import BankStatementImport from "./pages/BankStatementImport";
+import AgingReport from "./pages/AgingReport";
 
 function App() {
   const [planLimitMessage, setPlanLimitMessage] = useState(null);
@@ -365,6 +366,18 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <BankStatementImport />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* AGING REPORT */}
+          <Route
+            path="/invoices/reports/aging"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AgingReport />
                 </Layout>
               </ProtectedRoute>
             }
