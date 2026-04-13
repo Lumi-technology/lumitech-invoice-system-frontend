@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, FileText, PlusCircle, Users, LogOut,
   ChevronLeft, ChevronRight, Building2, FolderOpen, ShieldCheck,
-  CreditCard, Wallet, UsersRound, X, BookOpen, BookOpenCheck, Scale,
+  CreditCard, Wallet, UsersRound, X, BookOpen, BookOpenCheck, Scale, TrendingUp,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
@@ -43,7 +43,8 @@ function Navbar({ onClose }) {
     { path: "/finance",       label: "Finance",       icon: Wallet },
     { path: "/accounting/accounts", label: "Chart of Accounts", icon: BookOpen },
     { path: "/accounting/entries",  label: "Journal Entries",   icon: BookOpenCheck },
-    { path: "/accounting/reports/trial-balance", label: "Trial Balance", icon: Scale },
+    { path: "/accounting/reports/trial-balance", label: "Trial Balance",  icon: Scale },
+    { path: "/accounting/reports/profit-loss",   label: "Profit & Loss", icon: TrendingUp },
     ...(!isStaff ? [{ path: "/team", label: "Team", icon: UsersRound }] : []),
     { path: "/settings/org",  label: "Org Settings",  icon: Building2 },
     { path: "/settings/billing", label: "Billing",    icon: CreditCard },

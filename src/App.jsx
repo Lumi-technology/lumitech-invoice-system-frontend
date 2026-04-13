@@ -27,6 +27,7 @@ import Team from "./pages/Team";
 import ChartOfAccounts from "./pages/ChartOfAccounts";
 import JournalEntries from "./pages/JournalEntries";
 import TrialBalance from "./pages/TrialBalance";
+import ProfitLoss from "./pages/ProfitLoss";
 
 function App() {
   const [planLimitMessage, setPlanLimitMessage] = useState(null);
@@ -326,6 +327,18 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <TrialBalance />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* PROFIT & LOSS */}
+          <Route
+            path="/accounting/reports/profit-loss"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <ProfitLoss />
                 </Layout>
               </ProtectedRoute>
             }
