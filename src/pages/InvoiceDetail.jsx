@@ -43,6 +43,13 @@ function InvoiceDetail() {
   const [paymentMethod, setPaymentMethod] = useState("TRANSFER");
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
 
+  // Mark as Paid state
+  const [showMarkPaidModal, setShowMarkPaidModal] = useState(false);
+  const [markPaidAmount, setMarkPaidAmount] = useState("");
+  const [markPaidMethod, setMarkPaidMethod] = useState("Bank Transfer");
+  const [isMarkingPaid, setIsMarkingPaid] = useState(false);
+  const [markPaidError, setMarkPaidError] = useState("");
+
   // Send reminder state
   const [isSendingReminder, setIsSendingReminder] = useState(false);
 
@@ -60,6 +67,12 @@ function InvoiceDetail() {
       user.role === "PLATFORM_ADMIN" ||
       (Array.isArray(user.roles) &&
         (user.roles.includes("ADMIN") || user.roles.includes("SUPER_ADMIN") || user.roles.includes("PLATFORM_ADMIN"))));
+  const canMarkPaid =
+    user &&
+    (user.role === "SUPER_ADMIN" ||
+      user.role === "ADMIN" ||
+      (Array.isArray(user.roles) &&
+        (user.roles.includes("SUPER_ADMIN") || user.roles.includes("ADMIN"))));
 
   // Edit invoice state
   const [showEditModal, setShowEditModal] = useState(false);
@@ -118,6 +131,25 @@ function InvoiceDetail() {
       setToast({ visible: true, message: msg, type: "error" });
     } finally {
       setIsSavingEdit(false);
+    }
+  };
+
+  // Mark as Paid handler
+  const handleMarkPaid = async () => {
+    setMarkPaidError("");
+    setIsMarkingPaid(true);
+    try {
+      await api.post(`/api/invoices/${id}/mark-paid`, {
+        amount: Number(markPaidAmount),
+        method: markPaidMethod,
+      });
+      await fetchInvoice();
+      setShowMarkPaidModal(false);
+      setToast({ visible: true, message: "Payment recorded successfully", type: "success" });
+    } catch (err) {
+      setMarkPaidError(err.response?.data?.message || "Failed to record payment.");
+    } finally {
+      setIsMarkingPaid(false);
     }
   };
 
@@ -308,6 +340,15 @@ function InvoiceDetail() {
             >
               <CreditCard size={16} />
               {isPayingOnline ? "Opening..." : "Pay Now"}
+            </button>
+          )}
+          {canMarkPaid && invoice.status !== "PAID" && (
+            <button
+              onClick={() => { setMarkPaidAmount(balanceDue); setMarkPaidError(""); setShowMarkPaidModal(true); }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-emerald-600 to-teal-600 text-white rounded-xl shadow-lg shadow-emerald-600/30 hover:shadow-xl hover:scale-[1.02] transition-all"
+            >
+              <CheckCircle size={16} />
+              Mark as Paid
             </button>
           )}
           {isAdmin && (
@@ -665,6 +706,69 @@ function InvoiceDetail() {
               >
                 <Save size={15} />
                 {isSavingEdit ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mark as Paid Modal */}
+      {showMarkPaidModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-lg">
+                  <CheckCircle className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="text-base font-semibold text-slate-900 dark:text-white">Mark as Paid</h3>
+              </div>
+              <button onClick={() => setShowMarkPaidModal(false)} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                <X size={16} />
+              </button>
+            </div>
+
+            {markPaidError && (
+              <div className="mb-4 p-3 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-700 rounded-xl text-rose-600 dark:text-rose-300 text-sm">{markPaidError}</div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Amount (₦)</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₦</span>
+                  <input
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    value={markPaidAmount}
+                    onChange={e => setMarkPaidAmount(e.target.value)}
+                    className="w-full pl-8 pr-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Payment Method</label>
+                <select
+                  value={markPaidMethod}
+                  onChange={e => setMarkPaidMethod(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
+                >
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Cheque">Cheque</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-5">
+              <button onClick={() => setShowMarkPaidModal(false)} disabled={isMarkingPaid} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition">
+                Cancel
+              </button>
+              <button onClick={handleMarkPaid} disabled={isMarkingPaid || !markPaidAmount} className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all disabled:opacity-60">
+                {isMarkingPaid ? "Recording…" : "Confirm Payment"}
               </button>
             </div>
           </div>
