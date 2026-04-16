@@ -35,9 +35,17 @@ function Billing() {
     }
   };
 
-  const currentPlan = billing?.plan ?? "FREE";
-  const currentStatus = billing?.status ?? "ACTIVE";
+  const currentPlan = billing?.currentPlan ?? "FREE";
+  const currentStatus = billing?.subscriptionStatus ?? (currentPlan === "FREE" ? "TRIAL" : "ACTIVE");
   const isTrial = currentPlan === "FREE";
+
+  const PLAN_DISPLAY = {
+    FREE:           "Free Trial",
+    STARTER:        "Essential",
+    GROWTH:         "Business",
+    PRO:            "Pro",
+    ACCOUNTANT_PRO: "Accountant Pro",
+  };
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -67,16 +75,23 @@ function Billing() {
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Current Plan</p>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-slate-900">{currentPlan}</span>
+                    <span className="text-lg font-bold text-slate-900">{PLAN_DISPLAY[currentPlan] ?? currentPlan}</span>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                      currentStatus === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                      currentStatus === "ACTIVE" ? "bg-emerald-100 text-emerald-700" :
+                      currentStatus === "TRIAL"  ? "bg-amber-100 text-amber-700" :
+                                                   "bg-rose-100 text-rose-700"
                     }`}>
-                      {currentStatus}
+                      {currentStatus === "TRIAL" ? "Free Trial" : currentStatus}
                     </span>
                   </div>
-                  {billing?.expiresAt && (
+                  {billing?.trialEndsAt && isTrial && (
                     <p className="text-xs text-slate-400 mt-0.5">
-                      Renews {new Date(billing.expiresAt).toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric" })}
+                      Trial ends {new Date(billing.trialEndsAt).toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric" })}
+                    </p>
+                  )}
+                  {billing?.trialEndsAt && !isTrial && (
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Renews {new Date(billing.trialEndsAt).toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric" })}
                     </p>
                   )}
                 </div>
@@ -290,7 +305,11 @@ function Billing() {
           <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-6 py-4">
             <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-amber-800 leading-relaxed">
-              <span className="font-semibold text-amber-900">Your trial ends in 30 days</span> — continue only if it's valuable to you. Nothing is deleted. Subscribe and pick up exactly where you left off.
+              <span className="font-semibold text-amber-900">
+                {billing?.daysLeftInTrial > 0
+                  ? `Your trial ends in ${billing.daysLeftInTrial} day${billing.daysLeftInTrial === 1 ? "" : "s"}`
+                  : "Your trial has ended"}
+              </span> — continue only if it's valuable to you. Nothing is deleted. Subscribe and pick up exactly where you left off.
             </p>
           </div>
 

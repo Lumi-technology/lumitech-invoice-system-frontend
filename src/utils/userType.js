@@ -5,14 +5,23 @@ export const USER_TYPES = {
   ACCOUNTANT:     "accountant",
 };
 
+// Current display mode — can be toggled by accountant-registered users
 export function getUserType() {
   return localStorage.getItem("userType") || USER_TYPES.BUSINESS_OWNER;
 }
 
 export function setUserType(type) {
   localStorage.setItem("userType", type);
-  // Dispatch event so components can react without a full reload
   window.dispatchEvent(new Event("userTypeChange"));
+}
+
+// Registration role — immutable after signup, determines if mode toggle is allowed
+export function getRegisteredAs() {
+  return localStorage.getItem("registeredAs") || USER_TYPES.BUSINESS_OWNER;
+}
+
+export function setRegisteredAs(type) {
+  localStorage.setItem("registeredAs", type);
 }
 
 export function isBusinessOwner() {

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
 import { UserPlus, Building2, Mail, User, Lock, Eye, EyeOff, CheckCircle, Briefcase, Calculator } from "lucide-react";
-import { setUserType } from "../utils/userType";
+import { setUserType, setRegisteredAs } from "../utils/userType";
 
 function Register() {
   const [form, setForm] = useState({ orgName: "", email: "", username: "", password: "" });
@@ -26,6 +26,7 @@ function Register() {
     try {
       await api.post("/api/auth/register", form);
       setUserType(selectedUserType);
+      setRegisteredAs(selectedUserType);
       setRegistered(true);
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Please try again.");

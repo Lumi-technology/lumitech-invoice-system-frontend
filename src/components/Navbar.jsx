@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
-import { getUserType, setUserType, USER_TYPES, paymentLabel } from "../utils/userType";
+import { getUserType, setUserType, getRegisteredAs, USER_TYPES, paymentLabel } from "../utils/userType";
 
 const PLAN_BADGE = {
   FREE:           "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400",
@@ -74,9 +74,9 @@ function Navbar({ onClose }) {
   // FREE = null means trial (full access); plan not yet loaded also means no restriction
   const canAccessAccountingTools = !plan || ACCOUNTING_PLANS.has(plan);
 
-  // Business owners (registered as SME) can NEVER switch to accountant mode.
-  // Only users who registered as accountant have this option.
-  const canSwitchMode = userType === USER_TYPES.ACCOUNTANT;
+  // Only users who registered as accountant can toggle modes.
+  // Business owners are permanently locked to business owner experience.
+  const canSwitchMode = getRegisteredAs() === USER_TYPES.ACCOUNTANT;
 
   const handleSwitchMode = () => {
     const next = userType === USER_TYPES.BUSINESS_OWNER ? USER_TYPES.ACCOUNTANT : USER_TYPES.BUSINESS_OWNER;
