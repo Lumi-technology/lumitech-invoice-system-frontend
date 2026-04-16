@@ -120,7 +120,7 @@ function OrgSettings() {
             <Sun className="w-4 h-4 text-blue-500" />
             Appearance
           </h2>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Choose how LumiCash looks for you.</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Choose how LumiLedger looks for you.</p>
         </div>
 
         <div className="p-6">

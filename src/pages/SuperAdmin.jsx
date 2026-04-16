@@ -174,7 +174,7 @@ function SuperAdmin() {
           <ShieldCheck className="w-6 h-6 text-blue-600" />
           Platform Admin
         </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage all organisations on LumiCash.</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage all organisations on LumiLedger.</p>
       </div>
 
       {/* Stats row */}

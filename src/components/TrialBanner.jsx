@@ -27,7 +27,7 @@ function TrialBanner() {
   if (trialExpired) {
     variant = {
       type: "error",
-      message: "Your free trial has expired. Upgrade to continue using LumiCash.",
+      message: "Your free trial has expired. Upgrade to continue using LumiLedger.",
       cta: "Upgrade Now",
     };
   } else if (currentPlan === "FREE" && typeof daysLeftInTrial === "number" && daysLeftInTrial <= 7) {
