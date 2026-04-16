@@ -137,7 +137,7 @@ function Navbar({ onClose }) {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{user.username}</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{role || "Member"}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{role || "Members"}</p>
                   {plan && (
                     <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${PLAN_BADGE[plan] ?? PLAN_BADGE.FREE}`}>
                       {plan}
