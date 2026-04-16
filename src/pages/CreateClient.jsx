@@ -28,7 +28,7 @@ function CreateClient() {
 
     try {
       await api.post("api/clients", form);
-      navigate("/"); // back to invoice list
+      navigate("/clients");
     } catch (err) {
       console.error("CREATE CLIENT ERROR:", err.response?.data || err);
     } finally {
