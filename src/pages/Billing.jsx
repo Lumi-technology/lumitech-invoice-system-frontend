@@ -8,6 +8,8 @@ function Billing() {
   const [billing, setBilling] = useState(null);
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
 
   useEffect(() => {
@@ -32,6 +34,21 @@ function Billing() {
       setToast({ visible: true, message: msg, type: "error" });
     } finally {
       setUpgrading(null);
+    }
+  };
+
+  const handleCancel = async () => {
+    try {
+      setCancelling(true);
+      await api.post("/api/billing/cancel");
+      setToast({ visible: true, message: "Subscription cancelled. You've been moved to the Free plan.", type: "success" });
+      setBilling(prev => ({ ...prev, currentPlan: "FREE", subscriptionStatus: "CANCELLED", hasActiveSubscription: false }));
+      setShowCancelConfirm(false);
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to cancel subscription.";
+      setToast({ visible: true, message: msg, type: "error" });
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -104,6 +121,22 @@ function Billing() {
               )}
             </div>
           </div>
+
+          {/* Cancel subscription — only shown for active paid plans */}
+          {!isTrial && billing?.hasActiveSubscription && (
+            <div className="flex items-center justify-between bg-rose-50 border border-rose-200 rounded-2xl px-5 py-4">
+              <div>
+                <p className="text-sm font-medium text-rose-800">Cancel subscription</p>
+                <p className="text-xs text-rose-500 mt-0.5">You'll keep access until the end of your billing period, then move to the Free plan.</p>
+              </div>
+              <button
+                onClick={() => setShowCancelConfirm(true)}
+                className="ml-4 shrink-0 px-4 py-2 text-sm font-medium text-rose-700 bg-white border border-rose-300 rounded-xl hover:bg-rose-50 transition-all"
+              >
+                Cancel plan
+              </button>
+            </div>
+          )}
 
           {/* Plan cards */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
@@ -314,6 +347,34 @@ function Billing() {
             LumiLedger — Your business finances, simplified.
           </p>
         </>
+      )}
+
+      {/* Cancel confirmation modal */}
+      {showCancelConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full">
+            <h2 className="text-lg font-semibold text-slate-900 mb-2">Cancel your subscription?</h2>
+            <p className="text-sm text-slate-500 mb-6">
+              Your plan will stay active until the end of the current billing period. After that, your account will move to the Free plan and some features will be restricted.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCancelConfirm(false)}
+                disabled={cancelling}
+                className="flex-1 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+              >
+                Keep plan
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={cancelling}
+                className="flex-1 py-2.5 text-sm font-medium text-white bg-rose-600 hover:bg-rose-500 rounded-xl transition-all disabled:opacity-50"
+              >
+                {cancelling ? "Cancelling..." : "Yes, cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <Toast {...toast} onClose={() => setToast({ ...toast, visible: false })} />
