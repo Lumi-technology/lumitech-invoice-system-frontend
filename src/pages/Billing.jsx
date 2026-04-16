@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import { CreditCard, CheckCircle, Clock, ArrowRight, Zap, Calculator } from "lucide-react";
 import Toast from "../components/Toast";
+import { setUserType, setRegisteredAs, USER_TYPES } from "../utils/userType";
 
 function Billing() {
   const [billing, setBilling] = useState(null);
@@ -14,7 +15,14 @@ function Billing() {
 
   useEffect(() => {
     api.get("/api/billing/status")
-      .then(res => setBilling(res.data))
+      .then(res => {
+        setBilling(res.data);
+        // If on Accountant Pro, ensure the user is in accountant mode
+        if (res.data?.currentPlan === "ACCOUNTANT_PRO") {
+          setRegisteredAs(USER_TYPES.ACCOUNTANT);
+          setUserType(USER_TYPES.ACCOUNTANT);
+        }
+      })
       .catch(() => setToast({ visible: true, message: "Failed to load billing info", type: "error" }))
       .finally(() => setLoading(false));
   }, []);
