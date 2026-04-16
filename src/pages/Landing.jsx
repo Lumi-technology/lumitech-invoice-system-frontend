@@ -207,7 +207,7 @@ const steps = [
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-white font-sans antialiased">
+    <div className="min-h-screen bg-white font-sans antialiased overflow-x-hidden">
 
       {/* ── NAV ──────────────────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100/80">
