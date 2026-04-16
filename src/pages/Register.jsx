@@ -1,13 +1,43 @@
-// Register.jsx
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
-import { UserPlus, Building2, Mail, User, Lock, Eye, EyeOff, CheckCircle, Briefcase, Calculator } from "lucide-react";
+import {
+  Briefcase, Calculator, Building2, Mail, User,
+  Lock, Eye, EyeOff, CheckCircle, ArrowRight, ArrowLeft
+} from "lucide-react";
 import { setUserType, setRegisteredAs } from "../utils/userType";
 
-function Register() {
+const STEPS = ["Role", "Business", "Account"];
+
+function StepDots({ current }) {
+  return (
+    <div className="flex items-center justify-center gap-2 mb-8">
+      {STEPS.map((label, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <div className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-all duration-300 ${
+            i < current  ? "bg-blue-600 text-white" :
+            i === current ? "bg-blue-600 text-white ring-4 ring-blue-600/20" :
+                            "bg-slate-100 text-slate-400"
+          }`}>
+            {i < current ? <CheckCircle size={14} /> : i + 1}
+          </div>
+          <span className={`text-xs font-medium hidden sm:block transition-colors ${i === current ? "text-blue-600" : "text-slate-400"}`}>
+            {label}
+          </span>
+          {i < STEPS.length - 1 && (
+            <div className={`w-8 h-px mx-1 transition-all duration-500 ${i < current ? "bg-blue-600" : "bg-slate-200"}`} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function Register() {
+  const navigate = useNavigate();
+  const [step, setStep] = useState(0);
+  const [selectedUserType, setSelectedUserType] = useState("");
   const [form, setForm] = useState({ orgName: "", email: "", username: "", password: "" });
-  const [selectedUserType, setSelectedUserType] = useState("business_owner");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -15,13 +45,9 @@ function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [registered, setRegistered] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError("");
-    if (form.password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+    if (form.password !== confirmPassword) { setError("Passwords do not match."); return; }
     setIsLoading(true);
     try {
       await api.post("/api/auth/register", { ...form, userType: selectedUserType.toUpperCase() });
@@ -35,77 +61,175 @@ function Register() {
     }
   };
 
-  const fields = [
-    { key: "orgName",  label: "Organisation Name", type: "text",  icon: Building2, placeholder: "Phoenix Plus Ltd" },
-    { key: "email",    label: "Email",              type: "email", icon: Mail,      placeholder: "admin@company.com" },
-    { key: "username", label: "Username",           type: "text",  icon: User,      placeholder: "yourname" },
-  ];
+  if (registered) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-sm text-center">
+          <div className="inline-flex p-5 bg-emerald-50 rounded-full mb-6 animate-bounce">
+            <CheckCircle className="w-12 h-12 text-emerald-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">You're in!</h2>
+          <p className="text-slate-500 mb-2">Your account is ready.</p>
+          <p className="text-sm text-slate-400 mb-8">
+            We sent a verification link to <span className="font-medium text-slate-600">{form.email}</span>. Verify your email then log in.
+          </p>
+          <Link
+            to="/login"
+            className="inline-flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg shadow-blue-600/30 hover:scale-[1.02] transition-all"
+          >
+            Go to Login <ArrowRight size={18} />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Branding */}
-        <div className="text-center mb-8">
-          <div className="inline-flex p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg shadow-blue-600/20 mb-4">
-            <UserPlus className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+
+        {/* Logo */}
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-slate-900">
             Lumi<span className="text-blue-600">Ledger</span>
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Create your account — free for 30 days</p>
+          <p className="text-sm text-slate-400 mt-1">Free for 30 days — no card needed</p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+        <StepDots current={step} />
 
-          {/* Success state */}
-          {registered ? (
-            <div className="text-center py-4">
-              <div className="inline-flex p-4 bg-emerald-50 rounded-full mb-5">
-                <CheckCircle className="w-10 h-10 text-emerald-600" />
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+
+          {/* ── Step 0: Role ── */}
+          {step === 0 && (
+            <div className="p-8">
+              <h2 className="text-xl font-bold text-slate-900 mb-1">How will you use LumiLedger?</h2>
+              <p className="text-sm text-slate-400 mb-6">This shapes your experience from day one.</p>
+              <div className="space-y-3">
+                {[
+                  {
+                    value: "business_owner",
+                    Icon: Briefcase,
+                    title: "Business Owner",
+                    desc: "I run a business and want to manage invoices, expenses and finances.",
+                    color: "blue",
+                  },
+                  {
+                    value: "accountant",
+                    Icon: Calculator,
+                    title: "Accountant / Bookkeeper",
+                    desc: "I manage finances for clients and need advanced accounting tools.",
+                    color: "violet",
+                  },
+                ].map(({ value, Icon, title, desc, color }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => { setSelectedUserType(value); setStep(1); }}
+                    className={`w-full flex items-start gap-4 p-5 rounded-2xl border-2 text-left transition-all duration-200 group hover:scale-[1.01] ${
+                      selectedUserType === value
+                        ? color === "blue" ? "border-blue-500 bg-blue-50" : "border-violet-500 bg-violet-50"
+                        : "border-slate-200 hover:border-slate-300 bg-white"
+                    }`}
+                  >
+                    <div className={`p-2.5 rounded-xl shrink-0 ${
+                      color === "blue" ? "bg-blue-100 text-blue-600" : "bg-violet-100 text-violet-600"
+                    }`}>
+                      <Icon size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-slate-900 text-sm">{title}</p>
+                      <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">{desc}</p>
+                    </div>
+                    <ArrowRight size={16} className="text-slate-300 group-hover:text-slate-500 shrink-0 mt-1 transition-colors" />
+                  </button>
+                ))}
               </div>
-              <h2 className="text-lg font-semibold text-slate-900 mb-2">Account created!</h2>
-              <p className="text-sm text-slate-500 mb-6">
-                Check your email to verify your account before logging in.
+              <p className="text-sm text-center text-slate-400 mt-6">
+                Already have an account?{" "}
+                <Link to="/login" className="text-blue-600 font-medium hover:text-blue-700 transition">Log in</Link>
               </p>
-              <Link
-                to="/login"
-                className="inline-flex items-center justify-center gap-2 w-full px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-medium rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition-all"
-              >
-                Go to Login
-              </Link>
             </div>
-          ) : (
-            <>
+          )}
+
+          {/* ── Step 1: Business ── */}
+          {step === 1 && (
+            <div className="p-8">
+              <button onClick={() => setStep(0)} className="flex items-center gap-1.5 text-slate-400 hover:text-slate-600 text-sm mb-5 transition-colors">
+                <ArrowLeft size={15} /> Back
+              </button>
+              <h2 className="text-xl font-bold text-slate-900 mb-1">Your business</h2>
+              <p className="text-sm text-slate-400 mb-6">This appears on your invoices and reports.</p>
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <Building2 size={14} className="text-slate-400" /> Business / Organisation Name
+                  </label>
+                  <input
+                    type="text"
+                    autoFocus
+                    placeholder="Phoenix Plus Ltd"
+                    value={form.orgName}
+                    onChange={e => setForm({ ...form, orgName: e.target.value })}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <Mail size={14} className="text-slate-400" /> Email Address
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="admin@company.com"
+                    value={form.email}
+                    onChange={e => setForm({ ...form, email: e.target.value })}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={() => { if (form.orgName.trim() && form.email.trim()) setStep(2); }}
+                disabled={!form.orgName.trim() || !form.email.trim()}
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 py-3.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg shadow-blue-600/25 hover:scale-[1.02] transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                Continue <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
+
+          {/* ── Step 2: Account ── */}
+          {step === 2 && (
+            <div className="p-8">
+              <button onClick={() => setStep(1)} className="flex items-center gap-1.5 text-slate-400 hover:text-slate-600 text-sm mb-5 transition-colors">
+                <ArrowLeft size={15} /> Back
+              </button>
+              <h2 className="text-xl font-bold text-slate-900 mb-1">Create your login</h2>
+              <p className="text-sm text-slate-400 mb-6">Choose a username and a strong password.</p>
+
               {error && (
-                <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-600 text-sm text-center">
+                <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-600 text-sm text-center">
                   {error}
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                {fields.map(({ key, label, type, icon: Icon, placeholder }) => (
-                  <div key={key} className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-                      <Icon className="w-4 h-4 text-slate-400" />
-                      {label}
-                    </label>
-                    <input
-                      type={type}
-                      placeholder={placeholder}
-                      value={form[key]}
-                      onChange={e => setForm({ ...form, [key]: e.target.value })}
-                      required
-                      className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-                    />
-                  </div>
-                ))}
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <User size={14} className="text-slate-400" /> Username
+                  </label>
+                  <input
+                    type="text"
+                    autoFocus
+                    placeholder="yourname"
+                    value={form.username}
+                    onChange={e => setForm({ ...form, username: e.target.value })}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                  />
+                </div>
 
-                {/* Password */}
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-                    <Lock className="w-4 h-4 text-slate-400" />
-                    Password
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <Lock size={14} className="text-slate-400" /> Password
                   </label>
                   <div className="relative">
                     <input
@@ -113,8 +237,7 @@ function Register() {
                       placeholder="••••••••"
                       value={form.password}
                       onChange={e => setForm({ ...form, password: e.target.value })}
-                      required
-                      className="w-full px-4 py-2.5 pr-11 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                      className="w-full px-4 py-3 pr-11 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
                     />
                     <button type="button" onClick={() => setShowPassword(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -122,11 +245,9 @@ function Register() {
                   </div>
                 </div>
 
-                {/* Confirm Password */}
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-                    <Lock className="w-4 h-4 text-slate-400" />
-                    Confirm Password
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <Lock size={14} className="text-slate-400" /> Confirm Password
                   </label>
                   <div className="relative">
                     <input
@@ -134,8 +255,7 @@ function Register() {
                       placeholder="••••••••"
                       value={confirmPassword}
                       onChange={e => setConfirmPassword(e.target.value)}
-                      required
-                      className={`w-full px-4 py-2.5 pr-11 border rounded-xl bg-white/50 focus:outline-none focus:ring-2 transition ${
+                      className={`w-full px-4 py-3 pr-11 border rounded-xl bg-white focus:outline-none focus:ring-2 transition text-sm ${
                         confirmPassword && form.password !== confirmPassword
                           ? "border-rose-300 focus:ring-rose-500/20 focus:border-rose-500"
                           : "border-slate-200 focus:ring-blue-500/20 focus:border-blue-500"
@@ -149,64 +269,27 @@ function Register() {
                     <p className="text-xs text-rose-500">Passwords do not match</p>
                   )}
                 </div>
+              </div>
 
-                {/* User type selector */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">I am a…</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { value: "business_owner", label: "Business Owner", sub: "I run my own business", Icon: Briefcase },
-                      { value: "accountant",     label: "Accountant",     sub: "I manage client books",  Icon: Calculator },
-                    ].map(({ value, label, sub, Icon }) => (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => setSelectedUserType(value)}
-                        className={`flex flex-col items-center gap-1.5 p-4 rounded-xl border-2 transition text-center ${
-                          selectedUserType === value
-                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                            : "border-slate-200 dark:border-slate-600 hover:border-slate-300"
-                        }`}
-                      >
-                        <Icon size={20} className={selectedUserType === value ? "text-blue-600" : "text-slate-400"} />
-                        <span className={`text-sm font-semibold ${selectedUserType === value ? "text-blue-700 dark:text-blue-300" : "text-slate-700 dark:text-slate-200"}`}>{label}</span>
-                        <span className="text-xs text-slate-400">{sub}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              <button
+                onClick={handleSubmit}
+                disabled={isLoading || !form.username.trim() || !form.password || form.password !== confirmPassword}
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 py-3.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg shadow-blue-600/25 hover:scale-[1.02] transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                {isLoading ? (
+                  <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Creating account...</>
+                ) : (
+                  <>Create Account <ArrowRight size={16} /></>
+                )}
+              </button>
 
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full inline-flex justify-center items-center gap-2 px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-medium rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Creating account...
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus size={18} />
-                      Create Account
-                    </>
-                  )}
-                </button>
-              </form>
-
-              <p className="text-sm text-center text-slate-500 mt-6">
-                Already have an account?{" "}
-                <Link to="/login" className="text-blue-600 font-medium hover:text-blue-700 transition">
-                  Log in
-                </Link>
+              <p className="text-xs text-center text-slate-400 mt-4">
+                By creating an account you agree to our terms of service.
               </p>
-            </>
+            </div>
           )}
         </div>
       </div>
     </div>
   );
 }
-
-export default Register;
