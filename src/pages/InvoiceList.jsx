@@ -39,6 +39,7 @@ function InvoiceList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [totalElements, setTotalElements] = useState(0);
   const [page, setPage] = useState(0);
+  const [orgName, setOrgName] = useState("");
   const PAGE_SIZE = 5;
   const navigate = useNavigate();
   const user = getUserFromToken();
@@ -46,6 +47,7 @@ function InvoiceList() {
 
   useEffect(() => {
     fetchInvoices();
+    api.get("/api/org").then(res => setOrgName(res.data?.name || "")).catch(() => {});
   }, []);
 
   const fetchInvoices = async () => {
@@ -131,7 +133,7 @@ function InvoiceList() {
               </div>
               <div>
                 <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
-                  Lumitech <span className="text-blue-600">Invoices</span>
+                  {orgName ? <>{orgName} <span className="text-blue-600">Invoices</span></> : <span className="text-blue-600">Invoices</span>}
                 </h1>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Professional billing dashboard</p>
               </div>
