@@ -28,6 +28,12 @@ function NavLink({ item, collapsed, onClick, isActive }) {
       <Link
         to={item.path}
         onClick={onClick}
+        data-tour={
+          item.path === "/create"   ? "new-invoice"  :
+          item.path === "/invoices" ? "nav-invoices" :
+          item.path === "/clients"  ? "nav-clients"  :
+          item.path === "/invoices/reports/aging" ? "nav-reports" : undefined
+        }
         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
           active
             ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"

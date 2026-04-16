@@ -11,6 +11,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from "recharts";
 import { getUserType, capitalLabel, USER_TYPES } from "../utils/userType";
+import TourOverlay from "../components/TourOverlay";
 
 const Dashboard = () => {
   const user = getUserFromToken();
@@ -126,6 +127,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 sm:space-y-8">
+      <TourOverlay />
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
