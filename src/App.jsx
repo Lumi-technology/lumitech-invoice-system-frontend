@@ -22,6 +22,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import Billing from "./pages/Billing";
+import PricingPage from "./pages/PricingPage";
 import Finance from "./pages/Finance";
 import Team from "./pages/Team";
 import ChartOfAccounts from "./pages/ChartOfAccounts";
@@ -142,6 +143,7 @@ function App() {
 
           {/* PUBLIC */}
           <Route path="/" element={<Landing />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

@@ -222,8 +222,9 @@ export default function Landing() {
           </div>
           <div className="hidden md:flex items-center gap-6">
             <a href="#features"     className="text-sm font-medium text-slate-500 hover:text-slate-900 transition">Features</a>
-            <a href="#how-it-works" className="text-sm font-medium text-slate-500 hover:text-slate:900 transition">How it works</a>
+            <a href="#how-it-works" className="text-sm font-medium text-slate-500 hover:text-slate-900 transition">How it works</a>
             <a href="#pricing"      className="text-sm font-medium text-slate-500 hover:text-slate-900 transition">Pricing</a>
+            <Link to="/pricing"     className="text-sm font-medium text-slate-500 hover:text-slate-900 transition">Plans & FAQ</Link>
           </div>
           <div className="flex items-center gap-3">
             <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition hidden sm:block">Sign In</Link>
