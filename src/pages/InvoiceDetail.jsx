@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
+import { getUserType, USER_TYPES, paymentLabel } from "../utils/userType";
 
 function InvoiceDetail() {
   const { id } = useParams();
@@ -37,11 +38,16 @@ function InvoiceDetail() {
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Payment state
+  // Payment / Collection state
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("TRANSFER");
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+  const [splitCapital, setSplitCapital] = useState(false);
+  const [capitalRecoveryAmount, setCapitalRecoveryAmount] = useState("");
+
+  const userType = getUserType();
+  const isBusinessOwner = userType === USER_TYPES.BUSINESS_OWNER;
 
   // Mark as Paid state
   const [showMarkPaidModal, setShowMarkPaidModal] = useState(false);
@@ -212,22 +218,28 @@ function InvoiceDetail() {
     });
   };
 
-  // Payment handler
+  // Payment / Collection handler
   const handlePayment = async () => {
     try {
       setIsSubmittingPayment(true);
-      await api.post("/api/finance/payments", {
+      const body = {
         invoiceId: id,
         amount: Number(paymentAmount),
         paymentMethod,
-      });
+      };
+      if (splitCapital && capitalRecoveryAmount) {
+        body.capitalRecoveryAmount = Number(capitalRecoveryAmount);
+      }
+      await api.post("/api/finance/payments", body);
       await fetchInvoice();
-      setToast({ visible: true, message: "Payment recorded successfully", type: "success" });
+      setToast({ visible: true, message: paymentLabel("recorded"), type: "success" });
       setShowPaymentModal(false);
       setPaymentAmount("");
+      setSplitCapital(false);
+      setCapitalRecoveryAmount("");
     } catch (err) {
       console.error(err);
-      setToast({ visible: true, message: "Payment failed", type: "error" });
+      setToast({ visible: true, message: `${paymentLabel("module")} failed`, type: "error" });
     } finally {
       setIsSubmittingPayment(false);
     }
@@ -514,12 +526,14 @@ function InvoiceDetail() {
                 <button
                   onClick={() => {
                     setPaymentAmount(balanceDue);
+                    setSplitCapital(false);
+                    setCapitalRecoveryAmount("");
                     setShowPaymentModal(true);
                   }}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-emerald-600 to-teal-600 text-white font-medium rounded-xl shadow-lg shadow-emerald-600/30 hover:shadow-xl hover:shadow-emerald-600/40 hover:scale-[1.02] transition-all duration-200"
                 >
                   <DollarSign size={18} />
-                  Record Payment
+                  {paymentLabel("record")}
                 </button>
               </div>
             )}
@@ -527,14 +541,14 @@ function InvoiceDetail() {
         </div>
       </div>
 
-      {/* Payment Modal */}
+      {/* Payment / Collection Modal */}
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white/90 backdrop-blur-xl dark:bg-slate-800/80 dark:border-slate-700 rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <DollarSign className="w-5 h-5 text-emerald-600" />
-                Record Payment
+                {paymentLabel("record")}
               </h3>
               <button
                 onClick={() => setShowPaymentModal(false)}
@@ -545,8 +559,11 @@ function InvoiceDetail() {
             </div>
 
             <div className="space-y-4">
+              {/* Amount */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Amount (₦)</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+                  Amount Received (₦)
+                </label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">₦</span>
                   <input
@@ -554,41 +571,106 @@ function InvoiceDetail() {
                     min="0.01"
                     step="0.01"
                     value={paymentAmount}
-                    onChange={(e) => setPaymentAmount(e.target.value)}
+                    onChange={(e) => {
+                      setPaymentAmount(e.target.value);
+                      // Reset capital amount if it exceeds new total
+                      if (capitalRecoveryAmount && Number(capitalRecoveryAmount) > Number(e.target.value)) {
+                        setCapitalRecoveryAmount("");
+                      }
+                    }}
                     className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white/50 dark:bg-slate-700/50 dark:text-white dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
                     placeholder="0.00"
                   />
                 </div>
               </div>
 
+              {/* Payment Method */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Payment Method</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("TRANSFER")}
-                    className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border transition ${
-                      paymentMethod === "TRANSFER"
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600"
-                    }`}
-                  >
-                    <CreditCard size={16} />
-                    Transfer
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("CASH")}
-                    className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border transition ${
-                      paymentMethod === "CASH"
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600"
-                    }`}
-                  >
-                    <Wallet size={16} />
-                    Cash
-                  </button>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { key: "TRANSFER", label: "Transfer", icon: CreditCard },
+                    { key: "CASH",     label: "Cash",     icon: Wallet },
+                    { key: "POS",      label: "POS",      icon: DollarSign },
+                  ].map(({ key, label, icon: Icon }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setPaymentMethod(key)}
+                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border transition text-sm ${
+                        paymentMethod === key
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600"
+                      }`}
+                    >
+                      <Icon size={14} />
+                      {label}
+                    </button>
+                  ))}
                 </div>
+              </div>
+
+              {/* Capital Recovery Split — only when capital tracking makes sense */}
+              <div className={`rounded-xl border transition-all ${
+                splitCapital
+                  ? "border-amber-300 bg-amber-50/60 dark:bg-amber-900/10 p-4"
+                  : "border-slate-200 dark:border-slate-600 p-3"
+              }`}>
+                <label className="flex items-center gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={splitCapital}
+                    onChange={e => {
+                      setSplitCapital(e.target.checked);
+                      if (!e.target.checked) setCapitalRecoveryAmount("");
+                    }}
+                    className="w-4 h-4 rounded border-slate-300 text-amber-500 focus:ring-amber-500/30"
+                  />
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {paymentLabel("capitalSplit")}
+                  </span>
+                </label>
+
+                {splitCapital && paymentAmount && (
+                  <div className="mt-3 space-y-3">
+                    <p className="text-xs text-amber-700 dark:text-amber-400">
+                      Split ₦{Number(paymentAmount).toLocaleString()} between revenue and capital recovery
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Capital Recovery */}
+                      <div>
+                        <label className="block text-xs font-medium text-amber-700 dark:text-amber-400 mb-1">
+                          {paymentLabel("capitalPart")} (₦)
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₦</span>
+                          <input
+                            type="number"
+                            min="0"
+                            max={paymentAmount}
+                            step="0.01"
+                            value={capitalRecoveryAmount}
+                            onChange={e => setCapitalRecoveryAmount(e.target.value)}
+                            className="w-full pl-6 pr-2 py-2 text-sm border border-amber-300 dark:border-amber-600 rounded-lg bg-white dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition"
+                            placeholder="0"
+                          />
+                        </div>
+                      </div>
+                      {/* Revenue (auto-calculated) */}
+                      <div>
+                        <label className="block text-xs font-medium text-emerald-700 dark:text-emerald-400 mb-1">
+                          {paymentLabel("revenuePart")} (₦)
+                        </label>
+                        <div className="px-3 py-2 text-sm bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 rounded-lg text-emerald-700 dark:text-emerald-300 font-medium">
+                          ₦{Math.max(0, Number(paymentAmount) - Number(capitalRecoveryAmount || 0)).toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                    {capitalRecoveryAmount && Number(capitalRecoveryAmount) > Number(paymentAmount) && (
+                      <p className="text-xs text-rose-500">Capital recovery cannot exceed the total amount received</p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -601,10 +683,14 @@ function InvoiceDetail() {
               </button>
               <button
                 onClick={handlePayment}
-                disabled={isSubmittingPayment}
+                disabled={
+                  isSubmittingPayment ||
+                  !paymentAmount ||
+                  (splitCapital && capitalRecoveryAmount && Number(capitalRecoveryAmount) > Number(paymentAmount))
+                }
                 className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-br from-emerald-600 to-teal-600 rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition disabled:opacity-50"
               >
-                {isSubmittingPayment ? "Processing..." : "Submit Payment"}
+                {isSubmittingPayment ? "Processing..." : paymentLabel("submit")}
               </button>
             </div>
           </div>

@@ -35,3 +35,18 @@ export function capitalLabel(key) {
   };
   return labels[key] ?? key;
 }
+
+// Returns payment/collections label based on user type
+export function paymentLabel(key) {
+  const bo = getUserType() === USER_TYPES.BUSINESS_OWNER;
+  const labels = {
+    module:       bo ? "Collections"          : "Payments",
+    record:       bo ? "Record Collection"    : "Record Payment",
+    recorded:     bo ? "Collection recorded"  : "Payment recorded",
+    submit:       bo ? "Submit Collection"    : "Submit Payment",
+    capitalSplit: bo ? "Part of this is capital recovery" : "Allocate capital recovery",
+    revenuePart:  bo ? "Revenue"              : "Revenue",
+    capitalPart:  bo ? "Capital Recovery"     : "Capital Recovery",
+  };
+  return labels[key] ?? key;
+}

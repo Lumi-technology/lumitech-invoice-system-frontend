@@ -4,11 +4,11 @@ import {
   LayoutDashboard, FileText, PlusCircle, Users, LogOut,
   ChevronLeft, ChevronRight, Building2, FolderOpen, ShieldCheck,
   CreditCard, Wallet, UsersRound, X, BookOpen, BookOpenCheck, Scale, TrendingUp, LayoutList, Landmark, ClipboardList,
-  ChevronDown, Briefcase, Calculator, ArrowLeftRight,
+  ChevronDown, Briefcase, Calculator, ArrowLeftRight, Banknote, PiggyBank,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
-import { getUserType, setUserType, USER_TYPES } from "../utils/userType";
+import { getUserType, setUserType, USER_TYPES, paymentLabel } from "../utils/userType";
 
 const PLAN_BADGE = {
   FREE:    "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400",
@@ -74,20 +74,22 @@ function Navbar({ onClose }) {
 
   // ── Primary nav items shared by both modes ──────────────────────────────
   const coreItems = [
-    ...(!isAdminOrStaff ? [{ path: "/dashboard",   label: "Dashboard",   icon: LayoutDashboard }] : []),
-    { path: "/invoices",                            label: "Invoices",    icon: FileText },
-    { path: "/invoices/reports/aging",              label: "Aging Report",icon: ClipboardList },
-    { path: "/create",                              label: "New Invoice", icon: PlusCircle },
-    { path: "/projects",                            label: "Projects",    icon: FolderOpen },
-    { path: "/clients/create",                      label: "New Customer",icon: Users },
-    { path: "/clients",                             label: "Customers",   icon: Users },
-    { path: "/finance",                             label: isAccountant ? "Finance" : "Expenses", icon: Wallet },
+    ...(!isAdminOrStaff ? [{ path: "/dashboard",   label: "Dashboard",            icon: LayoutDashboard }] : []),
+    { path: "/invoices",                            label: "Invoices",             icon: FileText },
+    { path: "/create",                              label: "New Invoice",          icon: PlusCircle },
+    { path: "/clients",                             label: "Customers",            icon: Users },
+    { path: "/projects",                            label: "Projects",             icon: FolderOpen },
+    // Collections (business owner) / Payments (accountant)
+    { path: "/finance",                             label: paymentLabel("module"), icon: Banknote },
+    // Capital — business owner primary, accountant secondary
+    ...(!isAccountant ? [{ path: "/dashboard", label: "Capital", icon: PiggyBank }] : []),
   ];
 
   // ── Accounting items (always visible for accountants, hidden for biz owners) ──
   const accountingItems = [
     { path: "/accounting/accounts",                  label: "Chart of Accounts", icon: BookOpen },
     { path: "/accounting/entries",                   label: "Journal Entries",   icon: BookOpenCheck },
+    { path: "/invoices/reports/aging",               label: "Aging Report",      icon: ClipboardList },
     { path: "/accounting/reports/trial-balance",     label: "Trial Balance",     icon: Scale },
     { path: "/accounting/reports/profit-loss",       label: "Profit & Loss",     icon: TrendingUp },
     { path: "/accounting/reports/balance-sheet",     label: "Balance Sheet",     icon: LayoutList },
@@ -96,6 +98,7 @@ function Navbar({ onClose }) {
 
   // ── Reports visible in primary nav for business owners ──────────────────
   const reportItems = [
+    { path: "/invoices/reports/aging",               label: "Aging Report",      icon: ClipboardList },
     { path: "/accounting/reports/trial-balance",     label: "Trial Balance",     icon: Scale },
     { path: "/accounting/reports/profit-loss",       label: "Profit & Loss",     icon: TrendingUp },
     { path: "/accounting/reports/balance-sheet",     label: "Balance Sheet",     icon: LayoutList },
