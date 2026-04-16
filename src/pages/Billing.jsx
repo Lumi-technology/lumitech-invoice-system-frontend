@@ -172,12 +172,12 @@ function Billing() {
               </p>
               <ul className="space-y-2.5 mb-6 flex-1">
                 {[
+                  "Invoicing & payments",
+                  "Expense tracking",
+                  "Financial reports",
+                  "Capital tracking",
                   "Up to 50 clients",
-                  "Unlimited invoices",
-                  "Owner capital tracking",
-                  "Project tracking",
                   "Email reminders",
-                  "Paystack online payments",
                 ].map(f => (
                   <li key={f} className="flex items-start gap-2 text-xs text-white">
                     <CheckCircle className="w-3.5 h-3.5 text-blue-200 flex-shrink-0 mt-0.5" />
@@ -219,13 +219,12 @@ function Billing() {
               </p>
               <ul className="space-y-2.5 mb-6 flex-1">
                 {[
-                  "Unlimited clients",
                   "Everything in Essential",
+                  "Unlimited clients",
                   "Multi-user access",
-                  "Team roles (Admin, Staff)",
                   "Advanced reports",
-                  "Activity logs",
-                  "Priority support",
+                  "Chart of Accounts",
+                  "Journal Entries",
                 ].map(f => (
                   <li key={f} className="flex items-start gap-2 text-xs text-slate-300">
                     <CheckCircle className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0 mt-0.5" />
@@ -268,13 +267,11 @@ function Billing() {
               </p>
               <ul className="space-y-2.5 mb-6 flex-1">
                 {[
-                  "Unlimited client orgs",
                   "Everything in Business",
-                  "Full double-entry accounting",
-                  "Classified balance sheet",
-                  "Bank statement import",
-                  "AR/AP posting flows",
-                  "Dedicated account manager",
+                  "Multi-business management",
+                  "Team roles & permissions",
+                  "Priority support",
+                  "Advanced controls",
                 ].map(f => (
                   <li key={f} className="flex items-start gap-2 text-xs text-slate-600">
                     <CheckCircle className="w-3.5 h-3.5 text-violet-500 flex-shrink-0 mt-0.5" />
