@@ -58,9 +58,9 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
       const payload = {
         reference: form.reference,
         description: form.description,
-        date: form.date,
+        entryDate: form.date,
         lines: validLines.map(l => ({
-          accountId: parseInt(l.accountId),
+          accountId: l.accountId,
           description: l.description,
           debit: parseFloat(l.debit) || 0,
           credit: parseFloat(l.credit) || 0,
@@ -265,7 +265,7 @@ function EntryRow({ entry, canDelete, onDelete }) {
             <span className="font-mono text-xs text-slate-500 dark:text-slate-400">{entry.reference || `JE-${entry.id}`}</span>
           </div>
         </td>
-        <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300">{fmtDate(entry.date)}</td>
+        <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300">{fmtDate(entry.entryDate)}</td>
         <td className="px-4 py-4 text-sm text-slate-700 dark:text-slate-200 max-w-xs truncate">{entry.description || "—"}</td>
         <td className="px-4 py-4 text-sm text-right font-medium text-slate-700 dark:text-slate-200">{fmt(totalDebits)}</td>
         <td className="px-4 py-4 text-xs text-center">
