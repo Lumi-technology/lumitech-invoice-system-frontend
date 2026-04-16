@@ -4,17 +4,22 @@ import {
   LayoutDashboard, FileText, PlusCircle, Users, LogOut,
   ChevronLeft, ChevronRight, Building2, FolderOpen, ShieldCheck,
   CreditCard, Wallet, UsersRound, X, BookOpen, BookOpenCheck, Scale, TrendingUp, LayoutList, Landmark, ClipboardList,
-  ChevronDown, Briefcase, Calculator, ArrowLeftRight, Banknote, PiggyBank,
+  ChevronDown, Briefcase, Calculator, ArrowLeftRight, Banknote, PiggyBank, Lock,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
 import { getUserType, setUserType, USER_TYPES, paymentLabel } from "../utils/userType";
 
 const PLAN_BADGE = {
-  FREE:    "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400",
-  STARTER: "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300",
-  PRO:     "bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300",
+  FREE:           "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400",
+  STARTER:        "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300",
+  GROWTH:         "bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300",
+  ACCOUNTANT_PRO: "bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300",
 };
+
+// Plans that include Chart of Accounts + Journal Entries
+// STARTER (Essential) does NOT include accounting tools
+const ACCOUNTING_PLANS = new Set(["FREE", "GROWTH", "ACCOUNTANT_PRO"]);
 
 function NavLink({ item, collapsed, onClick, isActive }) {
   const active = isActive(item.path);
@@ -65,6 +70,13 @@ function Navbar({ onClose }) {
       .then(res => setPlan(res.data.plan ?? null))
       .catch(() => {});
   }, []);
+
+  // FREE = null means trial (full access); plan not yet loaded also means no restriction
+  const canAccessAccountingTools = !plan || ACCOUNTING_PLANS.has(plan);
+
+  // Business owners (registered as SME) can NEVER switch to accountant mode.
+  // Only users who registered as accountant have this option.
+  const canSwitchMode = userType === USER_TYPES.ACCOUNTANT;
 
   const handleSwitchMode = () => {
     const next = userType === USER_TYPES.BUSINESS_OWNER ? USER_TYPES.ACCOUNTANT : USER_TYPES.BUSINESS_OWNER;
@@ -165,10 +177,28 @@ function Navbar({ onClose }) {
               <p className="px-3 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Accounting</p>
             )}
             <ul className="space-y-1">
-              {accountingItems.map(item => (
-                <NavLink key={item.path} item={item} collapsed={collapsed} onClick={onClose} isActive={isActive} />
-              ))}
+              {accountingItems
+                .filter(item => {
+                  // Gate Chart of Accounts + Journal Entries + Bank Import by plan
+                  const restricted = ["/accounting/accounts", "/accounting/entries", "/accounting/import"];
+                  return canAccessAccountingTools || !restricted.includes(item.path);
+                })
+                .map(item => (
+                  <NavLink key={item.path} item={item} collapsed={collapsed} onClick={onClose} isActive={isActive} />
+                ))}
             </ul>
+            {/* Show upgrade nudge for restricted items if on STARTER */}
+            {!canAccessAccountingTools && !collapsed && (
+              <Link
+                to="/settings/billing"
+                onClick={onClose}
+                className="flex items-center gap-2 px-3 py-2 mx-0 rounded-xl border border-dashed border-slate-600 text-slate-500 hover:border-indigo-400 hover:text-indigo-400 transition text-xs mt-1"
+              >
+                <Lock size={12} />
+                Chart of Accounts &amp; Journal Entries
+                <span className="ml-auto text-indigo-400 font-semibold">Upgrade</span>
+              </Link>
+            )}
           </>
         )}
 
@@ -184,38 +214,71 @@ function Navbar({ onClose }) {
               ))}
             </ul>
 
-            {/* Advanced Accounting (collapsed by default) */}
-            {!collapsed ? (
-              <div className="pt-2">
-                <button
-                  onClick={() => setAdvancedOpen(o => !o)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition text-sm font-medium"
-                >
-                  <span>Advanced Accounting</span>
-                  <ChevronDown size={14} className={`transition-transform ${advancedOpen ? "rotate-180" : ""}`} />
-                </button>
-                {advancedOpen && (
-                  <ul className="space-y-1 mt-1 pl-2">
-                    {[
-                      { path: "/accounting/accounts", label: "Chart of Accounts", icon: BookOpen },
-                      { path: "/accounting/entries",  label: "Journal Entries",   icon: BookOpenCheck },
-                      ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark }] : []),
-                    ].map(item => (
-                      <NavLink key={item.path} item={item} collapsed={false} onClick={onClose} isActive={isActive} />
-                    ))}
-                  </ul>
-                )}
-              </div>
+            {/* Advanced Accounting — gated by plan */}
+            {canAccessAccountingTools ? (
+              /* Unlocked: collapsible section */
+              !collapsed ? (
+                <div className="pt-2">
+                  <button
+                    onClick={() => setAdvancedOpen(o => !o)}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition text-sm font-medium"
+                  >
+                    <span>Advanced Accounting</span>
+                    <ChevronDown size={14} className={`transition-transform ${advancedOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {advancedOpen && (
+                    <ul className="space-y-1 mt-1 pl-2">
+                      {[
+                        { path: "/accounting/accounts", label: "Chart of Accounts", icon: BookOpen },
+                        { path: "/accounting/entries",  label: "Journal Entries",   icon: BookOpenCheck },
+                        ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark }] : []),
+                      ].map(item => (
+                        <NavLink key={item.path} item={item} collapsed={false} onClick={onClose} isActive={isActive} />
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ) : (
+                <ul className="space-y-1 pt-1">
+                  {[
+                    { path: "/accounting/accounts", label: "Chart of Accounts", icon: BookOpen },
+                    { path: "/accounting/entries",  label: "Journal Entries",   icon: BookOpenCheck },
+                  ].map(item => (
+                    <NavLink key={item.path} item={item} collapsed={true} onClick={onClose} isActive={isActive} />
+                  ))}
+                </ul>
+              )
             ) : (
-              // Collapsed: show advanced items as icons
-              <ul className="space-y-1 pt-1">
-                {[
-                  { path: "/accounting/accounts", label: "Chart of Accounts", icon: BookOpen },
-                  { path: "/accounting/entries",  label: "Journal Entries",   icon: BookOpenCheck },
-                ].map(item => (
-                  <NavLink key={item.path} item={item} collapsed={true} onClick={onClose} isActive={isActive} />
-                ))}
-              </ul>
+              /* Locked: upgrade prompt */
+              !collapsed ? (
+                <div className="pt-2">
+                  <Link
+                    to="/settings/billing"
+                    onClick={onClose}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500 hover:border-indigo-400 hover:text-indigo-500 transition text-sm group"
+                  >
+                    <Lock size={14} className="flex-shrink-0" />
+                    <span className="flex-1">Advanced Accounting</span>
+                    <span className="text-xs font-semibold text-indigo-500 group-hover:text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded-full">
+                      Upgrade
+                    </span>
+                  </Link>
+                  <p className="px-3 mt-1.5 text-xs text-slate-400">
+                    Chart of Accounts &amp; Journal Entries — available on Business plan
+                  </p>
+                </div>
+              ) : (
+                <div className="pt-1">
+                  <Link
+                    to="/settings/billing"
+                    onClick={onClose}
+                    title="Upgrade for Advanced Accounting"
+                    className="flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition"
+                  >
+                    <Lock size={16} />
+                  </Link>
+                </div>
+              )
             )}
           </>
         )}
@@ -246,7 +309,7 @@ function Navbar({ onClose }) {
                         <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
                           active ? "bg-white/20 text-white" : PLAN_BADGE[plan] ?? PLAN_BADGE.FREE
                         }`}>
-                          {plan}
+                          {{ FREE: "Trial", STARTER: "Essential", GROWTH: "Business", ACCOUNTANT_PRO: "Pro" }[plan] ?? plan}
                         </span>
                       )}
                     </>
@@ -288,19 +351,21 @@ function Navbar({ onClose }) {
           </div>
         )}
 
-        {/* Switch Mode */}
-        <button
-          onClick={handleSwitchMode}
-          title={`Switch to ${isAccountant ? "Business Owner" : "Accountant"} view`}
-          className={`flex items-center gap-3 px-3 py-2 w-full rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition mb-1 ${collapsed ? "justify-center" : ""}`}
-        >
-          <ArrowLeftRight size={16} />
-          {!collapsed && (
-            <span className="text-xs font-medium">
-              Switch to {isAccountant ? "Business Owner" : "Accountant"} view
-            </span>
-          )}
-        </button>
+        {/* Switch Mode — only available for accountant-registered users */}
+        {canSwitchMode && (
+          <button
+            onClick={handleSwitchMode}
+            title={`Switch to ${isAccountant ? "Business Owner" : "Accountant"} view`}
+            className={`flex items-center gap-3 px-3 py-2 w-full rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition mb-1 ${collapsed ? "justify-center" : ""}`}
+          >
+            <ArrowLeftRight size={16} />
+            {!collapsed && (
+              <span className="text-xs font-medium">
+                Switch to {isAccountant ? "Business Owner" : "Accountant"} view
+              </span>
+            )}
+          </button>
+        )}
 
         <button
           onClick={handleLogout}
