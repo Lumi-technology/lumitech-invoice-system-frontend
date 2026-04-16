@@ -1,55 +1,47 @@
-// Landing.jsx — LumiCash marketing page
+// Landing.jsx — LumiLedger marketing page
 import { Link } from "react-router-dom";
 import {
   FileText, CheckCircle, TrendingUp, BarChart3, Layers, ArrowRight,
   Shield, Zap, Clock, ChevronRight, BookOpen, Landmark, Bell,
   Eye, Users, Star, AlertTriangle, XCircle, Banknote, Lock,
+  Wallet, PiggyBank, Briefcase, Calculator,
 } from "lucide-react";
 
-/* ─── Mock dashboard UI ──────────────────────────────────────────────────── */
+/* ─── Mock Dashboard ─────────────────────────────────────────────────────── */
 function MockDashboard() {
-  const invoices = [
-    { label: "Phoenix Plus — Web Redesign",  amount: "₦550,000", status: "Paid",    color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
-    { label: "TechCorp — API Integration",   amount: "₦280,000", status: "Partial", color: "text-amber-600 bg-amber-50 border-amber-200" },
-    { label: "Nova Agency — Brand Identity", amount: "₦190,000", status: "Unpaid",  color: "text-rose-600 bg-rose-50 border-rose-200" },
-  ];
   return (
     <div className="relative w-full max-w-lg mx-auto">
       <div className="absolute -inset-6 bg-gradient-to-br from-blue-500/20 via-indigo-500/15 to-purple-500/10 rounded-3xl blur-3xl" />
       <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden">
-        {/* Window chrome */}
         <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2 bg-slate-50">
           <div className="w-3 h-3 rounded-full bg-rose-400" />
           <div className="w-3 h-3 rounded-full bg-amber-400" />
           <div className="w-3 h-3 rounded-full bg-emerald-400" />
-          <span className="ml-2 text-xs text-slate-400 font-medium">LumiCash — Dashboard</span>
+          <span className="ml-2 text-xs text-slate-400 font-medium">LumiLedger — Dashboard</span>
         </div>
-        {/* Outstanding Revenue — hero stat */}
-        <div className="mx-4 mt-4 mb-2 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold text-rose-600 uppercase tracking-wide">Outstanding Revenue</p>
-            <p className="text-xl font-extrabold text-rose-700 mt-0.5">₦470,000</p>
+        {/* Capital tracking hero */}
+        <div className="mx-4 mt-4 mb-2 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+          <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">Your Capital Overview</p>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: "You Put In",       value: "₦850,000", color: "text-blue-700"   },
+              { label: "You've Got Back",  value: "₦520,000", color: "text-emerald-700" },
+              { label: "Business Owes You",value: "₦330,000", color: "text-rose-700"    },
+            ].map(s => (
+              <div key={s.label} className="text-center">
+                <p className={`text-sm font-extrabold ${s.color}`}>{s.value}</p>
+                <p className="text-xs text-slate-400 mt-0.5 leading-tight">{s.label}</p>
+              </div>
+            ))}
           </div>
-          <div className="text-xs text-rose-500 text-right">
-            <p className="font-medium">2 unpaid</p>
-            <p>1 partial</p>
-          </div>
-        </div>
-        {/* Stats */}
-        <div className="grid grid-cols-2 divide-x divide-slate-100 border-y border-slate-100 mx-0">
-          {[
-            { label: "Total Invoiced", value: "₦1.02M", color: "text-slate-900" },
-            { label: "Collected",      value: "₦550K",  color: "text-emerald-600" },
-          ].map(s => (
-            <div key={s.label} className="px-4 py-3 text-center">
-              <p className={`text-sm font-bold ${s.color}`}>{s.value}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{s.label}</p>
-            </div>
-          ))}
         </div>
         {/* Invoice rows */}
         <div className="divide-y divide-slate-50">
-          {invoices.map(inv => (
+          {[
+            { label: "Phoenix Plus — Web Redesign",  amount: "₦550,000", status: "Paid",    color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
+            { label: "TechCorp — API Integration",   amount: "₦280,000", status: "Partial", color: "text-amber-600 bg-amber-50 border-amber-200" },
+            { label: "Nova Agency — Brand Identity", amount: "₦190,000", status: "Unpaid",  color: "text-rose-600 bg-rose-50 border-rose-200" },
+          ].map(inv => (
             <div key={inv.label} className="px-4 py-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
@@ -64,14 +56,13 @@ function MockDashboard() {
             </div>
           ))}
         </div>
-        {/* Progress */}
         <div className="px-4 py-3 bg-slate-50 border-t border-slate-100">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs text-slate-500">Collection rate this month</span>
-            <span className="text-xs font-bold text-blue-600">54%</span>
+            <span className="text-xs text-slate-500">Capital recovery rate</span>
+            <span className="text-xs font-bold text-blue-600">61%</span>
           </div>
           <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
-            <div className="h-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" style={{ width: "54%" }} />
+            <div className="h-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" style={{ width: "61%" }} />
           </div>
         </div>
       </div>
@@ -79,23 +70,25 @@ function MockDashboard() {
   );
 }
 
-/* ─── Partial Payment Visual ─────────────────────────────────────────────── */
-function PartialPaymentCard() {
+/* ─── Capital Tracking Card ──────────────────────────────────────────────── */
+function CapitalCard() {
   return (
     <div className="relative bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-w-sm w-full">
-      <div className="px-5 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+      <div className="px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-blue-50 to-indigo-50 flex items-center justify-between">
         <div>
-          <p className="text-sm font-bold text-slate-900">TechCorp — API Integration</p>
-          <p className="text-xs text-slate-400 mt-0.5">Invoice #INV-0042</p>
+          <p className="text-sm font-bold text-slate-900">Owner Capital Tracker</p>
+          <p className="text-xs text-slate-400 mt-0.5">Money you've put into this business</p>
         </div>
-        <span className="text-xs px-2.5 py-1 bg-amber-100 text-amber-700 border border-amber-200 rounded-full font-bold">Partial</span>
+        <div className="p-2 bg-blue-600 rounded-lg">
+          <PiggyBank className="w-4 h-4 text-white" />
+        </div>
       </div>
       <div className="p-5">
         <div className="grid grid-cols-3 gap-3 mb-4">
           {[
-            { label: "Invoice Total", value: "₦280,000", color: "text-slate-900" },
-            { label: "Paid So Far",   value: "₦120,000", color: "text-emerald-600" },
-            { label: "Still Owed",    value: "₦160,000", color: "text-rose-600"    },
+            { label: "You Put In",    value: "₦850,000", color: "text-blue-700"   },
+            { label: "Recovered",     value: "₦520,000", color: "text-emerald-600" },
+            { label: "Still Owed",    value: "₦330,000", color: "text-rose-600"    },
           ].map(s => (
             <div key={s.label} className="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
               <p className={`text-sm font-extrabold ${s.color}`}>{s.value}</p>
@@ -105,24 +98,24 @@ function PartialPaymentCard() {
         </div>
         <div className="mb-4">
           <div className="flex justify-between text-xs text-slate-500 mb-1.5">
-            <span>Payment progress</span><span className="font-bold text-blue-600">43% collected</span>
+            <span>Capital recovery progress</span><span className="font-bold text-blue-600">61% recovered</span>
           </div>
           <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div className="h-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full" style={{ width: "43%" }} />
+            <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" style={{ width: "61%" }} />
           </div>
         </div>
         <div className="space-y-2">
-          <p className="text-xs text-slate-400 uppercase font-semibold tracking-wider">Payment history</p>
+          <p className="text-xs text-slate-400 uppercase font-semibold tracking-wider">Capital history</p>
           {[
-            { date: "Mar 12, 2026", amount: "₦80,000", note: "Initial deposit" },
-            { date: "Mar 28, 2026", amount: "₦40,000", note: "Milestone 1" },
+            { date: "Jan 10, 2026", amount: "₦500,000", note: "Initial capital injection" },
+            { date: "Mar 5, 2026",  amount: "₦350,000", note: "Equipment purchase" },
           ].map(p => (
-            <div key={p.date} className="flex items-center justify-between bg-emerald-50 rounded-lg px-3 py-2 border border-emerald-100">
+            <div key={p.date} className="flex items-center justify-between bg-blue-50 rounded-lg px-3 py-2 border border-blue-100">
               <div>
                 <p className="text-xs font-semibold text-slate-800">{p.note}</p>
                 <p className="text-xs text-slate-400">{p.date}</p>
               </div>
-              <span className="text-xs font-bold text-emerald-600">{p.amount}</span>
+              <span className="text-xs font-bold text-blue-600">{p.amount}</span>
             </div>
           ))}
         </div>
@@ -134,81 +127,81 @@ function PartialPaymentCard() {
 /* ─── Data ───────────────────────────────────────────────────────────────── */
 const testimonials = [
   {
-    quote: "I didn't realize how much clients owed me until I started using LumiCash. I had ₦340,000 outstanding that I wasn't tracking properly. Found it on day one.",
+    quote: "I finally know how much my business owes me. I had put in over ₦800,000 and had no idea how much was coming back. LumiLedger showed me everything on day one.",
     name: "Amara O.",
-    role: "Freelance Designer, Lagos",
+    role: "Business Owner, Lagos",
     initials: "AO",
     color: "from-blue-500 to-indigo-600",
-    metric: "₦340K recovered",
+    metric: "₦800K tracked",
   },
   {
-    quote: "The partial payment tracking alone changed everything. Before, I had no idea which clients had paid half and who was avoiding me. Now I know instantly.",
+    quote: "As an accountant managing 6 businesses, this is the only tool that gives me the full picture — journal entries, balance sheet, and capital tracking all in one place.",
     name: "Chidi N.",
-    role: "Tech Agency Owner, Abuja",
+    role: "Accountant, Abuja",
     initials: "CN",
     color: "from-emerald-500 to-teal-600",
-    metric: "Payment cycle: 45 → 14 days",
+    metric: "6 clients managed",
   },
   {
-    quote: "Setting up took 5 minutes. I sent my first invoice that same day. The dashboard shows me exactly who owes what — it's the clarity I never had with spreadsheets.",
+    quote: "Set up in 5 minutes. My dashboard now shows revenue, expenses, profit — and how much my business owes me personally. I've never had this clarity before.",
     name: "Funmilayo B.",
     role: "Branding Consultant, Ibadan",
     initials: "FB",
     color: "from-violet-500 to-purple-600",
-    metric: "Set up in under 5 min",
+    metric: "Set up in 5 min",
   },
 ];
 
 const benefits = [
   {
-    icon: <Zap className="w-5 h-5 text-blue-600" />,
+    icon: <Wallet className="w-5 h-5 text-blue-600" />,
     bg: "bg-blue-50",
     badge: "bg-blue-100 text-blue-700",
-    badgeText: "Instant",
-    title: "Send invoices in seconds",
-    desc: "Create a professional, branded invoice and deliver it to your client with a payment link — in under 2 minutes. No design skills needed.",
+    badgeText: "Unique",
+    title: "Track money you've put into your business",
+    desc: "Record capital injections and watch your recovery rate grow as revenue comes in. Know exactly what your business owes you — always.",
   },
   {
     icon: <Eye className="w-5 h-5 text-indigo-600" />,
     bg: "bg-indigo-50",
     badge: "bg-indigo-100 text-indigo-700",
-    badgeText: "Visibility",
-    title: "Know exactly which clients have paid — and who hasn't",
-    desc: "See every invoice status in real time. Paid, partial, overdue — no guesswork, no chasing Excel rows.",
+    badgeText: "Clarity",
+    title: "Know exactly who owes you — and how much",
+    desc: "Every invoice status live: paid, partial, overdue. No guesswork, no chasing spreadsheet rows.",
   },
   {
     icon: <Bell className="w-5 h-5 text-violet-600" />,
     bg: "bg-violet-50",
     badge: "bg-violet-100 text-violet-700",
     badgeText: "Automated",
-    title: "Get paid faster with automatic reminders",
-    desc: "Let LumiCash follow up for you. Polite, timed reminders go out automatically so your clients never forget.",
+    title: "Send invoices and get paid faster",
+    desc: "Create professional invoices in seconds. Automatic reminders so clients never forget — and you don't have to follow up manually.",
   },
   {
     icon: <Banknote className="w-5 h-5 text-emerald-600" />,
     bg: "bg-emerald-50",
     badge: "bg-emerald-100 text-emerald-700",
     badgeText: "Complete",
-    title: "Understand your business money at a glance",
-    desc: "Chart of accounts, journal entries, profit & loss, balance sheet — accounting-grade tools without the accountant price tag.",
+    title: "Accounting-grade tools without the complexity",
+    desc: "Chart of accounts, journal entries, profit & loss, balance sheet — full double-entry bookkeeping built right in.",
   },
 ];
 
 const features = [
-  { icon: <FileText className="w-5 h-5 text-blue-600" />,    bg: "bg-blue-50",    title: "Know which clients owe you — and exactly how much",  desc: "Every invoice status is live. Paid, partial, or overdue — see the full picture instantly." },
-  { icon: <BarChart3 className="w-5 h-5 text-indigo-600" />, bg: "bg-indigo-50",  title: "Understand your business money at a glance",           desc: "Total invoiced, collected, and outstanding — updated in real time on your dashboard." },
-  { icon: <Layers className="w-5 h-5 text-violet-600" />,    bg: "bg-violet-50",  title: "See how much each project has earned — and what's left", desc: "Group invoices by project. Track total earned vs balance remaining per client." },
-  { icon: <CheckCircle className="w-5 h-5 text-emerald-600" />, bg: "bg-emerald-50", title: "Track partial payments without confusion",            desc: "Clients pay in parts? LumiCash tracks every instalment and always shows the right balance." },
-  { icon: <Users className="w-5 h-5 text-amber-600" />,      bg: "bg-amber-50",   title: "Team access with the right permissions",              desc: "Add admins and staff. Everyone sees exactly what they need — nothing more." },
-  { icon: <TrendingUp className="w-5 h-5 text-rose-600" />,  bg: "bg-rose-50",    title: "Financial reports that actually make sense",           desc: "Trial Balance, Profit & Loss, Balance Sheet — built right into the platform." },
-  { icon: <BookOpen className="w-5 h-5 text-cyan-600" />,    bg: "bg-cyan-50",    title: "Full chart of accounts for serious bookkeeping",      desc: "Double-entry accounting — assets, liabilities, equity, income, expenses." },
-  { icon: <Landmark className="w-5 h-5 text-teal-600" />,    bg: "bg-teal-50",    title: "Bank statement import (coming soon)",                 desc: "Reconcile your books in minutes by uploading your bank statement directly.", comingSoon: true },
+  { icon: <PiggyBank className="w-5 h-5 text-blue-600" />,    bg: "bg-blue-50",    title: "Owner Capital Tracking",         desc: "Record money you put in. Track how much comes back. See exactly what your business owes you over time.", highlight: true },
+  { icon: <FileText className="w-5 h-5 text-indigo-600" />,   bg: "bg-indigo-50",  title: "Invoicing & Payments",           desc: "Create, send, and track invoices with Paystack payment links. Partial payments tracked automatically." },
+  { icon: <BarChart3 className="w-5 h-5 text-violet-600" />,  bg: "bg-violet-50",  title: "Financial Dashboard",            desc: "Revenue, expenses, profit — updated in real time. Understand your business money at a glance." },
+  { icon: <Layers className="w-5 h-5 text-amber-600" />,      bg: "bg-amber-50",   title: "Project & Client Tracking",      desc: "Group invoices by project. Track total earned vs balance remaining per client." },
+  { icon: <TrendingUp className="w-5 h-5 text-rose-600" />,   bg: "bg-rose-50",    title: "Financial Reports",              desc: "Trial Balance, Profit & Loss, Balance Sheet — real accounting reports built into the platform." },
+  { icon: <BookOpen className="w-5 h-5 text-cyan-600" />,     bg: "bg-cyan-50",    title: "Chart of Accounts",              desc: "Full double-entry bookkeeping — assets, liabilities, equity, income, expenses." },
+  { icon: <Users className="w-5 h-5 text-teal-600" />,        bg: "bg-teal-50",    title: "Team Access & Roles",            desc: "Add admins and staff. Everyone sees exactly what they need — nothing more." },
+  { icon: <Landmark className="w-5 h-5 text-slate-600" />,    bg: "bg-slate-50",   title: "Bank Statement Import",          desc: "Reconcile your books in minutes by uploading your bank statement directly.", comingSoon: true },
 ];
 
 const steps = [
-  { n: "1", title: "Create your invoice",    desc: "Add your client, line items, and due date. Done in under 2 minutes.", color: "from-blue-600 to-blue-700",    glow: "shadow-blue-600/30" },
-  { n: "2", title: "Send to your client",    desc: "Your client receives a professional invoice with a one-click payment link.", color: "from-indigo-600 to-indigo-700", glow: "shadow-indigo-600/30" },
-  { n: "3", title: "Get paid. Track it all", desc: "Payments are recorded automatically. Your outstanding balance updates instantly.", color: "from-violet-600 to-violet-700", glow: "shadow-violet-600/30" },
+  { n: "1", title: "Record your transactions",       desc: "Add income, expenses, and invoices. Your dashboard updates instantly.", color: "from-blue-600 to-blue-700", glow: "shadow-blue-600/30" },
+  { n: "2", title: "Track your capital investment",  desc: "Record money you put into the business and watch your recovery grow.", color: "from-indigo-600 to-indigo-700", glow: "shadow-indigo-600/30" },
+  { n: "3", title: "Watch your business pay you back", desc: "As revenue comes in, see your outstanding capital decrease in real time.", color: "from-violet-600 to-violet-700", glow: "shadow-violet-600/30" },
 ];
 
 /* ─── Page ───────────────────────────────────────────────────────────────── */
@@ -224,20 +217,17 @@ export default function Landing() {
               <FileText className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-slate-900 text-lg tracking-tight">
-              LumiCash<span className="text-blue-600">.</span>
+              LumiLedger<span className="text-blue-600">.</span>
             </span>
           </div>
           <div className="hidden md:flex items-center gap-6">
-            <a href="#features"      className="text-sm font-medium text-slate-500 hover:text-slate-900 transition">Features</a>
-            <a href="#how-it-works"  className="text-sm font-medium text-slate-500 hover:text-slate-900 transition">How it works</a>
-            <a href="#pricing"       className="text-sm font-medium text-slate-500 hover:text-slate-900 transition">Pricing</a>
+            <a href="#features"     className="text-sm font-medium text-slate-500 hover:text-slate-900 transition">Features</a>
+            <a href="#how-it-works" className="text-sm font-medium text-slate-500 hover:text-slate:900 transition">How it works</a>
+            <a href="#pricing"      className="text-sm font-medium text-slate-500 hover:text-slate-900 transition">Pricing</a>
           </div>
           <div className="flex items-center gap-3">
             <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition hidden sm:block">Sign In</Link>
-            <Link
-              to="/register"
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-blue-600/25 hover:shadow-xl hover:scale-[1.02] transition-all"
-            >
+            <Link to="/register" className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-blue-600/25 hover:shadow-xl hover:scale-[1.02] transition-all">
               Start Free <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -248,7 +238,6 @@ export default function Landing() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-white to-indigo-50/40 pointer-events-none" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-blue-100/40 to-transparent rounded-full blur-3xl pointer-events-none" />
-
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-28">
           <div className="grid lg:grid-cols-2 gap-14 items-center">
             <div>
@@ -256,40 +245,29 @@ export default function Landing() {
                 <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
                 30-Day Free Trial · No credit card required
               </div>
-
               <h1 className="text-4xl sm:text-5xl lg:text-[52px] font-extrabold text-slate-900 leading-[1.1] tracking-tight mb-6">
-                Know exactly who owes you —{" "}
+                Track your business finances —{" "}
                 <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
-                  and how much is still coming in.
+                  and your money inside it.
                 </span>
               </h1>
-
               <p className="text-lg sm:text-xl text-slate-500 leading-relaxed mb-8 max-w-lg">
-                Track invoices, partial payments, and project cashflow in one place — without spreadsheets or confusion.
+                Manage invoices, expenses, and see exactly how much your business owes you. Built for business owners and accountants.
               </p>
-
               <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <Link
-                  to="/register"
-                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-xl shadow-blue-600/30 hover:shadow-2xl hover:scale-[1.02] transition-all text-base"
-                >
-                  Start Free 30-Day Trial <ArrowRight className="w-4 h-4" />
+                <Link to="/register" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-xl shadow-blue-600/30 hover:shadow-2xl hover:scale-[1.02] transition-all text-base">
+                  Start Free Trial <ArrowRight className="w-4 h-4" />
                 </Link>
-                <a
-                  href="#how-it-works"
-                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition shadow-sm text-base"
-                >
+                <a href="#how-it-works" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition shadow-sm text-base">
                   See How It Works
                 </a>
               </div>
-
               <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
                 <div className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-emerald-500" />No credit card required</div>
                 <div className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-emerald-500" />Set up in under 2 minutes</div>
                 <div className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-emerald-500" />Cancel anytime</div>
               </div>
             </div>
-
             <MockDashboard />
           </div>
         </div>
@@ -301,7 +279,7 @@ export default function Landing() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 flex-wrap">
             <div className="text-center">
               <p className="text-3xl font-extrabold text-slate-900">100+</p>
-              <p className="text-sm text-slate-500 mt-0.5">Businesses using LumiCash</p>
+              <p className="text-sm text-slate-500 mt-0.5">Businesses using LumiLedger</p>
             </div>
             <div className="hidden sm:block w-px h-10 bg-slate-100" />
             <div className="text-center">
@@ -310,8 +288,8 @@ export default function Landing() {
             </div>
             <div className="hidden sm:block w-px h-10 bg-slate-100" />
             <div className="text-center">
-              <p className="text-3xl font-extrabold text-slate-900">14 days</p>
-              <p className="text-sm text-slate-500 mt-0.5">Avg. payment cycle (down from 45)</p>
+              <p className="text-3xl font-extrabold text-slate-900">SMEs + Accountants</p>
+              <p className="text-sm text-slate-500 mt-0.5">Two modes, one platform</p>
             </div>
             <div className="hidden sm:block w-px h-10 bg-slate-100" />
             <div className="flex items-center gap-1">
@@ -322,27 +300,28 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── POSITIONING: Partial Payment Tracking ────────────────────────── */}
+      {/* ── OWNER CAPITAL — UNIQUE FEATURE ───────────────────────────────── */}
       <section className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left: copy */}
             <div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 text-xs font-semibold rounded-full border border-amber-100 mb-6">
-                The #1 problem we solve
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100 mb-6">
+                ✦ What makes LumiLedger different
               </span>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-5">
-                Finally, track partial payments{" "}
-                <span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">without confusion</span>
+                Finally know{" "}
+                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  what your business owes you
+                </span>
               </h2>
               <p className="text-slate-500 text-lg leading-relaxed mb-8">
-                When clients pay in parts, LumiCash automatically tracks what's been paid and what's still owed — so nothing slips through the cracks.
+                Most business owners put money into their business and never track it. LumiLedger lets you record every capital injection and see exactly how much comes back to you over time.
               </p>
-              <div className="space-y-4">
+              <div className="space-y-4 mb-8">
                 {[
-                  { icon: <CheckCircle className="w-4 h-4 text-emerald-500" />, text: "Outstanding balance recalculates after every partial payment" },
-                  { icon: <CheckCircle className="w-4 h-4 text-emerald-500" />, text: "Full payment history per invoice — date, amount, and note" },
-                  { icon: <CheckCircle className="w-4 h-4 text-emerald-500" />, text: "One dashboard showing all clients with open balances" },
+                  { icon: <CheckCircle className="w-4 h-4 text-emerald-500" />, text: "Record money you put into the business — any amount, any time" },
+                  { icon: <CheckCircle className="w-4 h-4 text-emerald-500" />, text: "Track your recovery rate as revenue comes in" },
+                  { icon: <CheckCircle className="w-4 h-4 text-emerald-500" />, text: "See 'Business Owes You' — one clear number, always up to date" },
                 ].map(f => (
                   <div key={f.text} className="flex items-start gap-3">
                     <div className="mt-0.5 flex-shrink-0">{f.icon}</div>
@@ -350,19 +329,12 @@ export default function Landing() {
                   </div>
                 ))}
               </div>
-              <div className="mt-8">
-                <Link
-                  to="/register"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 hover:scale-[1.02] transition-all"
-                >
-                  Start Tracking Payments <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
+              <Link to="/register" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 hover:scale-[1.02] transition-all">
+                Start Tracking Your Capital <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
-
-            {/* Right: card */}
             <div className="flex justify-center">
-              <PartialPaymentCard />
+              <CapitalCard />
             </div>
           </div>
         </div>
@@ -372,21 +344,19 @@ export default function Landing() {
       <section className="py-24 bg-slate-50 border-y border-slate-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-700 text-xs font-semibold rounded-full border border-rose-100 mb-5">
-              Sound familiar?
-            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-700 text-xs font-semibold rounded-full border border-rose-100 mb-5">Sound familiar?</span>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 leading-tight">
-              Running a business shouldn't mean<br className="hidden sm:block" /> chasing money all day
+              Running a business shouldn't mean<br className="hidden sm:block" /> losing track of your money
             </h2>
             <p className="text-slate-500 max-w-xl mx-auto text-base leading-relaxed">
-              If you're managing invoices manually, you're losing time, losing money, and losing sleep.
+              Most business owners are flying blind. They fund their business but never track it.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: <XCircle className="w-6 h-6 text-rose-500" />, title: "Chasing clients for payment — every week", desc: "You send the invoice. Then nothing. You follow up. Still nothing. It eats your time and your confidence." },
-              { icon: <AlertTriangle className="w-6 h-6 text-amber-500" />, title: "No idea what's been paid vs what's still owed", desc: "Partial payments, multiple clients, different projects — it breaks down fast. And mistakes cost you real money." },
-              { icon: <XCircle className="w-6 h-6 text-rose-500" />, title: "Invoices that don't look like a real business", desc: "Sending a Word doc or WhatsApp message makes it easy for clients to ignore or delay. You deserve better." },
+              { icon: <XCircle className="w-6 h-6 text-rose-500" />,      title: "You fund your business but don't track it",        desc: "You've put in money over months or years — but you have no idea how much, or how much has come back." },
+              { icon: <AlertTriangle className="w-6 h-6 text-amber-500" />, title: "You don't know what your business owes you",       desc: "There's no clear number. Just a feeling that you've put in more than you've gotten back." },
+              { icon: <XCircle className="w-6 h-6 text-rose-500" />,      title: "Your records are scattered and incomplete",        desc: "Notes, chats, memory, spreadsheets — nothing paints the full picture of your financial position." },
             ].map(p => (
               <div key={p.title} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <div className="w-11 h-11 bg-rose-50 rounded-xl flex items-center justify-center mb-4 border border-rose-100">{p.icon}</div>
@@ -396,7 +366,7 @@ export default function Landing() {
             ))}
           </div>
           <div className="mt-12 text-center">
-            <p className="text-lg font-semibold text-slate-700">LumiCash fixes all of this — in minutes, not months.</p>
+            <p className="text-lg font-semibold text-slate-700">LumiLedger fixes all of this — starting today.</p>
           </div>
         </div>
       </section>
@@ -405,13 +375,11 @@ export default function Landing() {
       <section className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100 mb-5">
-              The LumiCash way
-            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100 mb-5">Everything in one place</span>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 leading-tight">
-              One platform. Every tool you need<br className="hidden sm:block" /> to get paid and stay paid.
+              One platform. Complete financial clarity.
             </h2>
-            <p className="text-slate-500 max-w-xl mx-auto">Built for how African businesses actually operate — fast, flexible, and focused on outcomes.</p>
+            <p className="text-slate-500 max-w-xl mx-auto">Built for how African businesses actually operate — invoicing, expenses, accounting, and capital tracking all in one place.</p>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             {benefits.map(b => (
@@ -437,11 +405,16 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Everything you need. Nothing you don't.</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">Built for SMEs, freelancers, agencies, and contractors who need financial clarity without complexity.</p>
+            <p className="text-slate-500 max-w-xl mx-auto">Built for SMEs, freelancers, agencies, and accountants who need financial clarity without complexity.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map(f => (
-              <div key={f.title} className={`relative bg-white rounded-2xl p-5 border transition-all hover:shadow-md hover:-translate-y-0.5 ${f.comingSoon ? "border-dashed border-slate-300" : "border-slate-200 shadow-sm"}`}>
+              <div key={f.title} className={`relative bg-white rounded-2xl p-5 border transition-all hover:shadow-md hover:-translate-y-0.5 ${
+                f.highlight ? "border-blue-300 shadow-md ring-1 ring-blue-100" : f.comingSoon ? "border-dashed border-slate-300" : "border-slate-200 shadow-sm"
+              }`}>
+                {f.highlight && (
+                  <span className="absolute top-3 right-3 text-xs font-bold px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full border border-blue-200">★ Unique</span>
+                )}
                 {f.comingSoon && (
                   <span className="absolute top-3 right-3 text-xs font-bold px-2 py-0.5 bg-violet-100 text-violet-700 rounded-full border border-violet-200">Soon</span>
                 )}
@@ -458,20 +431,16 @@ export default function Landing() {
       <section id="how-it-works" className="py-24 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-semibold rounded-full border border-indigo-100 mb-5">
-              Simple by design
-            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-semibold rounded-full border border-indigo-100 mb-5">Simple by design</span>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Up and running in 3 steps</h2>
-            <p className="text-slate-500 max-w-md mx-auto">If you can send an email, you can use LumiCash. Set up in under 2 minutes.</p>
+            <p className="text-slate-500 max-w-md mx-auto">If you can use a smartphone, you can use LumiLedger. Set up in under 2 minutes.</p>
           </div>
           <div className="relative">
             <div className="hidden md:block absolute top-10 left-[calc(16.67%+1.5rem)] right-[calc(16.67%+1.5rem)] h-px bg-gradient-to-r from-blue-200 via-indigo-200 to-violet-200" />
             <div className="grid md:grid-cols-3 gap-8">
               {steps.map(s => (
                 <div key={s.n} className="relative text-center">
-                  <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${s.color} flex items-center justify-center text-white font-extrabold text-3xl shadow-xl ${s.glow} mx-auto mb-5 relative z-10`}>
-                    {s.n}
-                  </div>
+                  <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${s.color} flex items-center justify-center text-white font-extrabold text-3xl shadow-xl ${s.glow} mx-auto mb-5 relative z-10`}>{s.n}</div>
                   <h3 className="font-bold text-slate-900 mb-2 text-lg">{s.title}</h3>
                   <p className="text-sm text-slate-500 leading-relaxed max-w-xs mx-auto">{s.desc}</p>
                 </div>
@@ -487,80 +456,65 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── DARK FEATURE SECTION ─────────────────────────────────────────── */}
+      {/* ── WHO IT'S FOR ─────────────────────────────────────────────────── */}
       <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-14 items-center">
-            <div>
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/20 text-blue-300 text-xs font-semibold rounded-full border border-blue-500/20 mb-6">
-                Financial Clarity
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight mb-5">
-                Your finances, always up to date — without the spreadsheet headache
-              </h2>
-              <p className="text-slate-400 text-base leading-relaxed mb-8">
-                LumiCash gives you accounting-grade tools without the accounting degree. From invoicing to full double-entry bookkeeping — everything in one place.
-              </p>
-              <div className="space-y-4">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Built for two kinds of people</h2>
+            <p className="text-slate-400 max-w-lg mx-auto">Same platform. Different experience. Adapted to how you work.</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Business Owners */}
+            <div className="bg-slate-800/60 rounded-2xl border border-slate-700 p-8">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-2.5 bg-emerald-500/20 rounded-xl border border-emerald-500/20">
+                  <Briefcase className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-lg">For Business Owners</h3>
+                  <p className="text-xs text-slate-400">Simple, clear, non-technical</p>
+                </div>
+              </div>
+              <div className="space-y-3 mb-6">
                 {[
-                  { icon: <CheckCircle className="w-4 h-4 text-emerald-400" />, text: "Outstanding balance recalculates automatically after every partial payment" },
-                  { icon: <BarChart3   className="w-4 h-4 text-blue-400" />,   text: "Full payment history per project — see exactly what came in and when" },
-                  { icon: <TrendingUp  className="w-4 h-4 text-indigo-400" />, text: "Trial Balance, P&L, and Balance Sheet — real financial reports built in" },
-                  { icon: <Layers      className="w-4 h-4 text-amber-400" />,  text: "All outstanding balances across every client — at a glance" },
+                  "Stay in control of your business money",
+                  "Know exactly what your business owes you",
+                  "Track invoices, expenses, and profit simply",
+                  "Advanced tools available when you need them",
                 ].map(f => (
-                  <div key={f.text} className="flex items-start gap-3">
-                    <div className="mt-0.5 flex-shrink-0 p-1.5 rounded-lg bg-white/5">{f.icon}</div>
-                    <p className="text-slate-300 text-sm leading-relaxed">{f.text}</p>
+                  <div key={f} className="flex items-start gap-3">
+                    <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-slate-300 text-sm">{f}</p>
                   </div>
                 ))}
               </div>
+              <p className="text-xs text-emerald-400 font-semibold italic">"I understand my money in seconds"</p>
             </div>
-            {/* Dark project card */}
-            <div className="bg-slate-800/80 backdrop-blur rounded-2xl border border-slate-700 overflow-hidden shadow-2xl">
-              <div className="px-5 py-4 border-b border-slate-700 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-white">TechCorp — API Integration</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Invoice #INV-0042</p>
-                </div>
-                <span className="text-xs px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/20 rounded-full font-semibold">Partial</span>
-              </div>
-              <div className="p-5 space-y-4">
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { label: "Invoice Total", value: "₦280,000", color: "text-white" },
-                    { label: "Paid",          value: "₦120,000", color: "text-emerald-400" },
-                    { label: "Outstanding",   value: "₦160,000", color: "text-rose-400" },
-                  ].map(s => (
-                    <div key={s.label} className="bg-slate-700/50 rounded-xl p-3 text-center border border-slate-700/50">
-                      <p className={`font-bold text-sm ${s.color}`}>{s.value}</p>
-                      <p className="text-slate-400 text-xs mt-0.5">{s.label}</p>
-                    </div>
-                  ))}
+            {/* Accountants */}
+            <div className="bg-slate-800/60 rounded-2xl border border-indigo-500/30 p-8">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-2.5 bg-indigo-500/20 rounded-xl border border-indigo-500/20">
+                  <Calculator className="w-5 h-5 text-indigo-400" />
                 </div>
                 <div>
-                  <div className="flex justify-between text-xs text-slate-400 mb-1.5">
-                    <span>Collection progress</span><span className="font-bold text-blue-400">43%</span>
-                  </div>
-                  <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-                    <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" style={{ width: "43%" }} />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Payment history</p>
-                  {[
-                    { date: "Mar 12, 2026", amount: "₦80,000", note: "Initial deposit" },
-                    { date: "Mar 28, 2026", amount: "₦40,000", note: "Milestone 1" },
-                  ].map(p => (
-                    <div key={p.date} className="flex items-center justify-between bg-slate-700/40 rounded-lg px-3 py-2.5 border border-slate-700/30">
-                      <div>
-                        <p className="text-xs text-white font-medium">{p.note}</p>
-                        <p className="text-xs text-slate-400">{p.date}</p>
-                      </div>
-                      <span className="text-xs font-bold text-emerald-400">{p.amount}</span>
-                    </div>
-                  ))}
+                  <h3 className="font-bold text-white text-lg">For Accountants</h3>
+                  <p className="text-xs text-slate-400">Powerful, structured, professional</p>
                 </div>
               </div>
+              <div className="space-y-3 mb-6">
+                {[
+                  "Manage multiple businesses from one dashboard",
+                  "Full journal entries and chart of accounts",
+                  "Trial balance, P&L, and balance sheet reports",
+                  "Team roles and client access controls",
+                ].map(f => (
+                  <div key={f} className="flex items-start gap-3">
+                    <CheckCircle className="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-slate-300 text-sm">{f}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-indigo-400 font-semibold italic">"I have full control over the books"</p>
             </div>
           </div>
         </div>
@@ -573,8 +527,8 @@ export default function Landing() {
             <div className="flex items-center justify-center gap-1 mb-5">
               {Array.from({ length: 5 }, (_, i) => <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />)}
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Trusted by 100+ African businesses</h2>
-            <p className="text-slate-500 max-w-lg mx-auto">₦50M+ tracked. Real businesses. Real results.</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Trusted by 100+ businesses</h2>
+            <p className="text-slate-500 max-w-lg mx-auto">₦50M+ tracked. Real businesses. Real clarity.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map(t => (
@@ -587,9 +541,7 @@ export default function Landing() {
                 </div>
                 <p className="text-slate-700 text-sm leading-relaxed mb-6 italic flex-1">"{t.quote}"</p>
                 <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${t.color} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
-                    {t.initials}
-                  </div>
+                  <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${t.color} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>{t.initials}</div>
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{t.name}</p>
                     <p className="text-xs text-slate-400">{t.role}</p>
@@ -606,105 +558,114 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-100 text-blue-700 text-xs font-semibold rounded-full mb-5">
-              <Zap className="w-3.5 h-3.5" />30-Day Free Trial — Full Access
+              <Zap className="w-3.5 h-3.5" /> 30-Day Free Trial — Full Access
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 leading-tight">
-              Simple pricing.<br className="hidden sm:block" />Start free, scale when you're ready.
+              Simple pricing.<br className="hidden sm:block" /> Start free, scale when you're ready.
             </h2>
-            <p className="text-slate-500 max-w-xl mx-auto">
-              Try everything for 30 days. After that, your account will be locked until you subscribe.
-            </p>
+            <p className="text-slate-500 max-w-xl mx-auto">Try everything for 30 days. No restrictions. No card needed.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 items-stretch">
+          <div className="grid md:grid-cols-4 gap-5 items-stretch">
 
-            {/* Free Trial */}
-            <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-8 flex flex-col">
+            {/* FREE TRIAL */}
+            <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-6 flex flex-col">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full mb-5 self-start border border-emerald-100">
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />Free Trial
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> Free Trial
               </div>
-              <p className="text-4xl font-extrabold text-slate-900 mb-1">₦0</p>
-              <p className="text-slate-500 text-sm mb-2">for 30 days — full access</p>
-              <p className="text-xs text-slate-400 mb-6 leading-relaxed">Every feature unlocked. No restrictions. No card needed.</p>
-              <ul className="space-y-3 mb-6 flex-1">
-                {[
-                  "All features included",
-                  "Project & cashflow tracking",
-                  "Client payment portal",
-                  "PDF export & email reminders",
-                  "Financial reports",
-                ].map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-slate-600">
+              <p className="text-3xl font-extrabold text-slate-900 mb-1">₦0</p>
+              <p className="text-slate-500 text-sm mb-2">for 30 days</p>
+              <p className="text-xs text-slate-400 mb-5 leading-relaxed">Full access. No restrictions. No card needed.</p>
+              <ul className="space-y-2.5 mb-6 flex-1">
+                {["All features included", "Invoicing & payments", "Capital tracking", "Financial reports"].map(f => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-slate-600">
                     <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />{f}
                   </li>
                 ))}
               </ul>
-              {/* Lock message */}
-              <div className="mb-5 flex items-start gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5">
-                <Lock className="w-3.5 h-3.5 text-slate-400 mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-slate-500 leading-relaxed">Your data stays safe. Unlock anytime by subscribing.</p>
-              </div>
               <div className="mt-auto">
-                <Link to="/register" className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all shadow-md text-sm">
+                <Link to="/register" className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition text-sm">
                   Start Free Trial <ArrowRight className="w-4 h-4" />
                 </Link>
-                <p className="text-center text-xs text-slate-400 mt-3">No card. No commitment.</p>
+                <p className="text-center text-xs text-slate-400 mt-2">No card. No commitment.</p>
               </div>
             </div>
 
-            {/* Starter — hero */}
-            <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 rounded-2xl p-8 shadow-2xl shadow-blue-600/40 flex flex-col md:-mt-4 md:-mb-4">
+            {/* ESSENTIAL — hero */}
+            <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 rounded-2xl p-6 shadow-2xl shadow-blue-600/40 flex flex-col md:-mt-4 md:-mb-4">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-white text-blue-700 text-xs font-extrabold rounded-full shadow-lg border border-blue-100">
-                  ⭐ Most Popular
-                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-blue-700 text-xs font-extrabold rounded-full shadow-lg border border-blue-100">⭐ Most Popular</span>
               </div>
-              <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full mb-6 self-start tracking-widest uppercase">Starter</div>
-              <div className="mb-2">
-                <span className="text-5xl font-extrabold text-white">₦9,900</span>
+              <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full mb-5 self-start tracking-widest uppercase">Essential</div>
+              <div className="mb-1">
+                <span className="text-4xl font-extrabold text-white">₦9,900</span>
                 <span className="text-blue-200 text-sm ml-1">/month</span>
               </div>
-              <p className="text-blue-200 text-sm mb-6">For freelancers and small teams managing client work</p>
-              <ul className="space-y-3 mb-8 flex-1">
-                {["Up to 50 clients", "Unlimited invoices", "Project-based tracking", "Partial payment tracking", "Automatic email reminders", "Paystack payment links"].map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-white">
-                    <CheckCircle className="w-4 h-4 text-blue-200 flex-shrink-0 mt-0.5" />{f}
+              <p className="text-blue-200 text-sm mb-5">For business owners managing their finances</p>
+              <ul className="space-y-2.5 mb-6 flex-1">
+                {["Invoicing & payments", "Expense tracking", "Financial reports", "✅ Capital tracking", "Up to 50 clients", "Email reminders"].map(f => (
+                  <li key={f} className={`flex items-start gap-2 text-sm ${f.startsWith("✅") ? "text-white font-semibold" : "text-white"}`}>
+                    <CheckCircle className={`w-4 h-4 flex-shrink-0 mt-0.5 ${f.startsWith("✅") ? "text-emerald-300" : "text-blue-200"}`} />
+                    {f.replace("✅ ", "")}
                   </li>
                 ))}
               </ul>
               <div className="mt-auto">
-                <Link to="/register" className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-white text-blue-700 font-extrabold rounded-xl hover:bg-blue-50 transition-all shadow-lg text-sm">
+                <Link to="/register" className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-white text-blue-700 font-extrabold rounded-xl hover:bg-blue-50 transition shadow-lg text-sm">
                   Start 30-Day Free Trial <ArrowRight className="w-4 h-4" />
                 </Link>
-                <p className="text-center text-xs text-blue-300 mt-3">Then ₦9,900/month. Cancel anytime.</p>
+                <p className="text-center text-xs text-blue-300 mt-2">Then ₦9,900/month. Cancel anytime.</p>
               </div>
             </div>
 
-            {/* Growth */}
-            <div className="bg-slate-900 rounded-2xl border-2 border-slate-700 p-8 flex flex-col">
-              <div className="inline-flex items-center px-3 py-1 bg-indigo-500/20 text-indigo-300 text-xs font-bold rounded-full mb-6 self-start border border-indigo-500/30 tracking-widest uppercase">Growth</div>
-              <div className="mb-2">
-                <span className="text-4xl font-extrabold text-white">₦24,900</span>
+            {/* BUSINESS */}
+            <div className="bg-slate-900 rounded-2xl border-2 border-slate-700 p-6 flex flex-col">
+              <div className="inline-flex items-center px-3 py-1 bg-indigo-500/20 text-indigo-300 text-xs font-bold rounded-full mb-5 self-start border border-indigo-500/30 tracking-widest uppercase">Business</div>
+              <div className="mb-1">
+                <span className="text-3xl font-extrabold text-white">₦24,900</span>
                 <span className="text-slate-400 text-sm ml-1">/month</span>
               </div>
-              <p className="text-slate-400 text-sm mb-6">For growing businesses that need team collaboration</p>
-              <ul className="space-y-3 mb-8 flex-1">
-                {["Unlimited clients", "Unlimited invoices", "Everything in Starter", "Multi-user access", "Team roles (Admin, Staff)", "Advanced financial reports", "Chart of Accounts", "Priority support"].map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-slate-300">
+              <p className="text-slate-400 text-sm mb-5">For growing businesses that need more</p>
+              <ul className="space-y-2.5 mb-6 flex-1">
+                {["Everything in Essential", "Unlimited clients", "Multi-user access", "Advanced reports", "Chart of Accounts", "Journal Entries"].map(f => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-slate-300">
                     <CheckCircle className="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5" />{f}
                   </li>
                 ))}
               </ul>
               <div className="mt-auto">
-                <Link to="/register" className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-sm">
-                  Start 30-Day Free Trial <ArrowRight className="w-4 h-4" />
+                <Link to="/register" className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition shadow-lg text-sm">
+                  Start Free Trial <ArrowRight className="w-4 h-4" />
                 </Link>
-                <p className="text-center text-xs text-slate-500 mt-3">Then ₦24,900/month. Cancel anytime.</p>
+                <p className="text-center text-xs text-slate-500 mt-2">Then ₦24,900/month.</p>
+              </div>
+            </div>
+
+            {/* ACCOUNTANT PRO */}
+            <div className="bg-white rounded-2xl border-2 border-violet-200 p-6 flex flex-col">
+              <div className="inline-flex items-center px-3 py-1 bg-violet-100 text-violet-700 text-xs font-bold rounded-full mb-5 self-start border border-violet-200 tracking-widest uppercase">Accountant Pro</div>
+              <div className="mb-1">
+                <span className="text-3xl font-extrabold text-slate-900">₦59,900</span>
+                <span className="text-slate-400 text-sm ml-1">/month</span>
+              </div>
+              <p className="text-slate-500 text-sm mb-5">For accountants managing multiple clients</p>
+              <ul className="space-y-2.5 mb-6 flex-1">
+                {["Everything in Business", "Multi-business management", "Team roles & permissions", "Priority support", "Advanced controls"].map(f => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-slate-600">
+                    <CheckCircle className="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" />{f}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-violet-600 font-semibold italic mb-4">Built for accountants managing multiple clients</p>
+              <div className="mt-auto">
+                <Link to="/register" className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl transition shadow-lg text-sm">
+                  Start Free Trial <ArrowRight className="w-4 h-4" />
+                </Link>
+                <p className="text-center text-xs text-slate-400 mt-2">Then ₦59,900/month.</p>
               </div>
             </div>
           </div>
 
-          {/* Trust row */}
           <div className="mt-12 flex flex-wrap justify-center gap-6 md:gap-10">
             {[
               { icon: <Shield className="w-4 h-4 text-emerald-600" />,      text: "No hidden fees" },
@@ -728,27 +689,21 @@ export default function Landing() {
               {Array.from({ length: 5 }, (_, i) => <Star key={i} className="w-5 h-5 text-amber-300 fill-amber-300" />)}
             </div>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-5 leading-tight">
-              Stop guessing your finances.<br />Start tracking them.
+              Take control of your<br />business finances today
             </h2>
             <p className="text-blue-200 text-lg mb-10 leading-relaxed">
-              Join 100+ businesses already using LumiCash to know exactly who owes them — and get paid faster.
+              Join 100+ businesses already using LumiLedger to understand their money — and track what their business owes them.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/register"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-700 font-extrabold rounded-xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all text-base"
-              >
-                Start Free Trial <ArrowRight className="w-5 h-5" />
+              <Link to="/register" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-700 font-extrabold rounded-xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all text-base">
+                Start Using LumiLedger <ArrowRight className="w-5 h-5" />
               </Link>
-              <Link
-                to="/register"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all text-base backdrop-blur-sm"
-              >
-                Get Started Now
-              </Link>
+              <a href="#how-it-works" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all text-base backdrop-blur-sm">
+                See How It Works
+              </a>
             </div>
             <p className="mt-5 text-blue-300 text-sm">30-day free trial · No credit card required · Set up in 2 minutes</p>
-            <p className="mt-3 text-blue-400/70 text-xs font-medium tracking-wide">LumiCash — Your business money, simplified.</p>
+            <p className="mt-3 text-blue-400/70 text-xs font-medium tracking-wide">LumiLedger — Your business finances, simplified.</p>
           </div>
         </div>
       </section>
@@ -761,10 +716,10 @@ export default function Landing() {
               <div className="p-1.5 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg shadow-sm">
                 <FileText className="w-3.5 h-3.5 text-white" />
               </div>
-              <span className="font-bold text-slate-900 text-sm">LumiCash<span className="text-blue-600">.</span></span>
+              <span className="font-bold text-slate-900 text-sm">LumiLedger<span className="text-blue-600">.</span></span>
             </div>
             <p className="text-xs text-slate-400 text-center">
-              © {new Date().getFullYear()} LumiCash by Lumitech Systems. Your business money, simplified.
+              © {new Date().getFullYear()} LumiLedger by Lumitech Systems. Your business finances, simplified.
             </p>
             <div className="flex items-center gap-4">
               <Link to="/login"    className="text-xs text-slate-500 hover:text-blue-600 transition">Sign In</Link>

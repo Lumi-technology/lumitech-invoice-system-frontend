@@ -1,7 +1,7 @@
 // Billing.jsx
 import { useEffect, useState } from "react";
 import api from "../services/api";
-import { CreditCard, CheckCircle, Clock, ArrowRight, Zap } from "lucide-react";
+import { CreditCard, CheckCircle, Clock, ArrowRight, Zap, Calculator } from "lucide-react";
 import Toast from "../components/Toast";
 
 function Billing() {
@@ -90,32 +90,32 @@ function Billing() {
             </div>
           </div>
 
-          {/* Plan cards — same design as landing page */}
-          <div className="grid md:grid-cols-3 gap-6 items-stretch">
+          {/* Plan cards */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
 
-            {/* Trial / FREE */}
-            <div className={`bg-white rounded-2xl border-2 border-dashed p-8 flex flex-col transition-all ${
+            {/* FREE Trial */}
+            <div className={`bg-white rounded-2xl border-2 border-dashed p-6 flex flex-col transition-all ${
               currentPlan === "FREE" ? "border-blue-400 ring-2 ring-blue-500/20" : "border-slate-200"
             }`}>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full mb-6 self-start border border-emerald-100">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full mb-5 self-start border border-emerald-100">
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
                 Free Trial
               </div>
-              <p className="text-4xl font-bold text-slate-900 mb-1">₦0</p>
+              <p className="text-3xl font-bold text-slate-900 mb-1">₦0</p>
               <p className="text-slate-500 text-sm mb-2">for 30 days</p>
-              <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+              <p className="text-xs text-slate-400 mb-5 leading-relaxed">
                 Full access to every feature. No restrictions. No card needed.
               </p>
-              <ul className="space-y-3 mb-8 flex-1">
+              <ul className="space-y-2.5 mb-6 flex-1">
                 {[
-                  "Everything in Starter — free",
+                  "All features unlocked",
                   "Unlimited invoices & clients",
-                  "Project & cashflow tracking",
+                  "Owner capital tracking",
                   "Client payment portal",
-                  "PDF export & email reminders",
+                  "PDF export",
                 ].map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-slate-600">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <li key={f} className="flex items-start gap-2 text-xs text-slate-600">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
                     {f}
                   </li>
                 ))}
@@ -130,42 +130,42 @@ function Billing() {
                     Trial period
                   </div>
                 )}
-                <p className="text-center text-xs text-slate-400 mt-3">
-                  Trial ends → account locks until you subscribe
+                <p className="text-center text-xs text-slate-400 mt-2">
+                  Locks after 30 days
                 </p>
               </div>
             </div>
 
-            {/* STARTER — hero */}
-            <div className={`relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 rounded-2xl p-8 shadow-2xl shadow-blue-600/40 flex flex-col md:-mt-4 md:-mb-4 ${
+            {/* STARTER → Essential */}
+            <div className={`relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 rounded-2xl p-6 shadow-2xl shadow-blue-600/40 flex flex-col ${
               currentPlan === "STARTER" ? "ring-4 ring-white/50" : ""
             }`}>
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-white text-blue-600 text-xs font-bold rounded-full shadow-lg border border-blue-100">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-white text-blue-600 text-xs font-bold rounded-full shadow-lg border border-blue-100">
                   ⭐ Most Popular
                 </span>
               </div>
-              <div className="inline-flex items-center px-3 py-1 bg-white/15 text-white text-xs font-bold rounded-full mb-6 self-start tracking-widest uppercase">
-                Starter
+              <div className="inline-flex items-center px-3 py-1 bg-white/15 text-white text-xs font-bold rounded-full mb-5 self-start tracking-widest uppercase">
+                Essential
               </div>
               <div className="mb-2">
-                <span className="text-5xl font-extrabold text-white">₦9,900</span>
-                <span className="text-blue-200 text-base ml-1">/month</span>
+                <span className="text-4xl font-extrabold text-white">₦9,900</span>
+                <span className="text-blue-200 text-sm ml-1">/month</span>
               </div>
-              <p className="text-blue-200 text-sm mb-6">
-                Best for individuals and small teams managing client work
+              <p className="text-blue-200 text-xs mb-5">
+                Best for small businesses and solo operators
               </p>
-              <ul className="space-y-3 mb-8 flex-1">
+              <ul className="space-y-2.5 mb-6 flex-1">
                 {[
                   "Up to 50 clients",
                   "Unlimited invoices",
+                  "Owner capital tracking",
                   "Project tracking",
-                  "Partial payment tracking",
                   "Email reminders",
                   "Paystack online payments",
                 ].map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-white">
-                    <CheckCircle className="w-4 h-4 text-blue-200 flex-shrink-0 mt-0.5" />
+                  <li key={f} className="flex items-start gap-2 text-xs text-white">
+                    <CheckCircle className="w-3.5 h-3.5 text-blue-200 flex-shrink-0 mt-0.5" />
                     {f}
                   </li>
                 ))}
@@ -179,42 +179,41 @@ function Billing() {
                   <button
                     onClick={() => handleUpgrade("STARTER")}
                     disabled={!!upgrading}
-                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-white text-blue-700 font-bold rounded-xl hover:bg-blue-50 transition-all shadow-lg text-sm disabled:opacity-50"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-white text-blue-700 font-bold rounded-xl hover:bg-blue-50 transition-all shadow-lg text-sm disabled:opacity-50"
                   >
-                    {upgrading === "STARTER" ? "Processing..." : <>Upgrade to Starter <ArrowRight className="w-4 h-4" /></>}
+                    {upgrading === "STARTER" ? "Processing..." : <>Get Essential <ArrowRight className="w-4 h-4" /></>}
                   </button>
                 )}
-                <p className="text-center text-xs text-blue-300 mt-3">Cancel anytime.</p>
+                <p className="text-center text-xs text-blue-300 mt-2">Cancel anytime.</p>
               </div>
             </div>
 
-            {/* GROWTH — premium */}
-            <div className={`bg-slate-900 rounded-2xl border-2 p-8 flex flex-col transition-all ${
+            {/* GROWTH → Business */}
+            <div className={`bg-slate-900 rounded-2xl border-2 p-6 flex flex-col transition-all ${
               currentPlan === "GROWTH" ? "border-indigo-400 ring-2 ring-indigo-500/30" : "border-slate-700"
             }`}>
-              <div className="inline-flex items-center px-3 py-1 bg-indigo-500/20 text-indigo-300 text-xs font-bold rounded-full mb-6 self-start border border-indigo-500/30 tracking-widest uppercase">
-                Growth
+              <div className="inline-flex items-center px-3 py-1 bg-indigo-500/20 text-indigo-300 text-xs font-bold rounded-full mb-5 self-start border border-indigo-500/30 tracking-widest uppercase">
+                Business
               </div>
               <div className="mb-2">
-                <span className="text-4xl font-extrabold text-white">₦24,900</span>
-                <span className="text-slate-400 text-base ml-1">/month</span>
+                <span className="text-3xl font-extrabold text-white">₦24,900</span>
+                <span className="text-slate-400 text-sm ml-1">/month</span>
               </div>
-              <p className="text-slate-400 text-sm mb-6">
-                For growing businesses that need more control and team collaboration
+              <p className="text-slate-400 text-xs mb-5">
+                For growing businesses that need team collaboration
               </p>
-              <ul className="space-y-3 mb-8 flex-1">
+              <ul className="space-y-2.5 mb-6 flex-1">
                 {[
                   "Unlimited clients",
-                  "Unlimited invoices",
-                  "Everything in Starter",
+                  "Everything in Essential",
                   "Multi-user access",
                   "Team roles (Admin, Staff)",
-                  "Advanced reports (profit per project)",
+                  "Advanced reports",
                   "Activity logs",
                   "Priority support",
                 ].map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-slate-300">
-                    <CheckCircle className="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5" />
+                  <li key={f} className="flex items-start gap-2 text-xs text-slate-300">
+                    <CheckCircle className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0 mt-0.5" />
                     {f}
                   </li>
                 ))}
@@ -228,12 +227,61 @@ function Billing() {
                   <button
                     onClick={() => handleUpgrade("GROWTH")}
                     disabled={!!upgrading}
-                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-sm disabled:opacity-50"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-sm disabled:opacity-50"
                   >
-                    {upgrading === "GROWTH" ? "Processing..." : <>Upgrade to Growth <ArrowRight className="w-4 h-4" /></>}
+                    {upgrading === "GROWTH" ? "Processing..." : <>Get Business <ArrowRight className="w-4 h-4" /></>}
                   </button>
                 )}
-                <p className="text-center text-xs text-slate-500 mt-3">Cancel anytime.</p>
+                <p className="text-center text-xs text-slate-500 mt-2">Cancel anytime.</p>
+              </div>
+            </div>
+
+            {/* ACCOUNTANT_PRO — new */}
+            <div className={`bg-white rounded-2xl border-2 p-6 flex flex-col transition-all ${
+              currentPlan === "ACCOUNTANT_PRO" ? "border-violet-500 ring-2 ring-violet-500/20" : "border-violet-200"
+            }`}>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-violet-50 text-violet-700 text-xs font-bold rounded-full mb-5 self-start border border-violet-200 tracking-widest uppercase">
+                <Calculator size={11} />
+                Accountant Pro
+              </div>
+              <div className="mb-2">
+                <span className="text-3xl font-extrabold text-slate-900">₦59,900</span>
+                <span className="text-slate-400 text-sm ml-1">/month</span>
+              </div>
+              <p className="text-slate-500 text-xs mb-5">
+                Built for accountants managing multiple clients
+              </p>
+              <ul className="space-y-2.5 mb-6 flex-1">
+                {[
+                  "Unlimited client orgs",
+                  "Everything in Business",
+                  "Full double-entry accounting",
+                  "Classified balance sheet",
+                  "Bank statement import",
+                  "AR/AP posting flows",
+                  "Dedicated account manager",
+                ].map(f => (
+                  <li key={f} className="flex items-start gap-2 text-xs text-slate-600">
+                    <CheckCircle className="w-3.5 h-3.5 text-violet-500 flex-shrink-0 mt-0.5" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-auto">
+                {currentPlan === "ACCOUNTANT_PRO" ? (
+                  <div className="w-full text-center py-2.5 text-sm font-semibold text-violet-700 bg-violet-50 border border-violet-200 rounded-xl">
+                    Current Plan
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleUpgrade("ACCOUNTANT_PRO")}
+                    disabled={!!upgrading}
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-violet-600/20 text-sm disabled:opacity-50"
+                  >
+                    {upgrading === "ACCOUNTANT_PRO" ? "Processing..." : <>Get Accountant Pro <ArrowRight className="w-4 h-4" /></>}
+                  </button>
+                )}
+                <p className="text-center text-xs text-slate-400 mt-2">Cancel anytime.</p>
               </div>
             </div>
           </div>
@@ -247,7 +295,7 @@ function Billing() {
           </div>
 
           <p className="text-center text-sm text-slate-400 font-medium tracking-wide pb-4">
-            LumiCash — Your business money, simplified.
+            LumiLedger — Your business finances, simplified.
           </p>
         </>
       )}
