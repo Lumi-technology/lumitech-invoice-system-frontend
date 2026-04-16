@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
 import axios from "axios";
-import { LogIn, User, Lock, Mail } from "lucide-react";
+import { LogIn, User, Lock, Mail, Eye, EyeOff } from "lucide-react";
 
 const BASE_URL = import.meta.env.VITE_API_URL ||
   (import.meta.env.DEV ? "http://localhost:8081" : "https://ledgerapi.lumitechsystems.com");
@@ -12,6 +12,7 @@ function Login() {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [needsVerification, setNeedsVerification] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [resendDone, setResendDone] = useState(false);
@@ -134,14 +135,24 @@ function Login() {
                   Forgot your password?
                 </Link>
               </div>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className="w-full px-4 py-2.5 pr-11 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
+              </div>
             </div>
 
             {/* Submit Button */}
