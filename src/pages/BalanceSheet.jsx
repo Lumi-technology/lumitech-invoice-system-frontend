@@ -13,48 +13,46 @@ const fmtDate = (d) => {
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-function SectionTable({ rows, extraRows, total, totalLabel, headerColor, totalColor }) {
-  const allEmpty = (!rows || rows.length === 0) && (!extraRows || extraRows.length === 0);
+function SubSection({ label, rows, total, totalLabel, accentColor }) {
+  if (!rows || rows.length === 0) return null;
   return (
-    <table className="w-full text-sm">
-      <thead>
-        <tr className={`border-b border-slate-100 dark:border-slate-700 ${headerColor}`}>
-          <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Code</th>
-          <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Account Name</th>
-          <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Amount</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-        {allEmpty ? (
-          <tr>
-            <td colSpan={3} className="px-6 py-6 text-center text-sm text-slate-400">No accounts for this period.</td>
+    <div className="mb-1">
+      <p className={`px-6 py-2 text-xs font-semibold uppercase tracking-wider ${accentColor} border-b border-slate-100 dark:border-slate-700/60`}>
+        {label}
+      </p>
+      <table className="w-full text-sm">
+        <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+          {rows.map((row) => (
+            <tr key={row.accountId} className="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
+              <td className="px-6 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 w-24">{row.code}</td>
+              <td className="px-6 py-3 text-slate-800 dark:text-slate-100">{row.name}</td>
+              <td className="px-6 py-3 text-right font-medium text-slate-700 dark:text-slate-200">{fmt(row.amount)}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr className="border-t border-slate-200 dark:border-slate-600">
+            <td colSpan={2} className="px-6 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">{totalLabel}</td>
+            <td className="px-6 py-2.5 text-right text-sm font-bold text-slate-700 dark:text-slate-200">{fmt(total)}</td>
           </tr>
-        ) : (
-          <>
-            {(rows ?? []).map((row) => (
-              <tr key={row.accountId} className="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
-                <td className="px-6 py-3 font-mono text-xs text-slate-500 dark:text-slate-400">{row.code}</td>
-                <td className="px-6 py-3 text-slate-800 dark:text-slate-100 font-medium">{row.name}</td>
-                <td className="px-6 py-3 text-right font-medium text-slate-700 dark:text-slate-200">{fmt(row.amount)}</td>
-              </tr>
-            ))}
-            {(extraRows ?? []).map((row, i) => (
-              <tr key={`extra-${i}`} className="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
-                <td className="px-6 py-3 font-mono text-xs text-slate-500 dark:text-slate-400">{row.code ?? "—"}</td>
-                <td className="px-6 py-3 text-slate-800 dark:text-slate-100 font-medium italic">{row.name}</td>
-                <td className="px-6 py-3 text-right font-medium text-slate-700 dark:text-slate-200">{fmt(row.amount)}</td>
-              </tr>
-            ))}
-          </>
-        )}
-      </tbody>
-      <tfoot>
-        <tr className={`border-t border-slate-200 dark:border-slate-600 ${totalColor}`}>
-          <td colSpan={2} className="px-6 py-3 text-xs font-bold uppercase tracking-wide">{totalLabel}</td>
-          <td className="px-6 py-3 text-right text-sm font-bold">{fmt(total)}</td>
-        </tr>
-      </tfoot>
-    </table>
+        </tfoot>
+      </table>
+    </div>
+  );
+}
+
+function SectionCard({ title, headerStyle, children, total, totalLabel, totalStyle }) {
+  return (
+    <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div className={`px-6 py-4 border-b border-slate-100 dark:border-slate-700 ${headerStyle}`}>
+        <h2 className="text-sm font-bold uppercase tracking-widest">{title}</h2>
+      </div>
+      {children}
+      <div className={`flex items-center justify-between px-6 py-3.5 border-t border-slate-200 dark:border-slate-600 ${totalStyle}`}>
+        <span className="text-xs font-bold uppercase tracking-wide">{totalLabel}</span>
+        <span className="text-base font-bold">{fmt(total)}</span>
+      </div>
+    </div>
   );
 }
 
@@ -191,48 +189,81 @@ function BalanceSheet() {
       {/* Report sections */}
       {!loading && data && (
         <>
-          {/* Assets */}
-          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-emerald-50/60 dark:bg-emerald-900/10">
-              <h2 className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">Assets</h2>
-            </div>
-            <SectionTable
-              rows={data.assetRows}
-              total={data.totalAssets}
-              totalLabel="Total Assets"
-              headerColor="bg-slate-50/60 dark:bg-slate-800/60"
-              totalColor="bg-emerald-50/60 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-300"
+          {/* ASSETS */}
+          <SectionCard
+            title="Assets"
+            headerStyle="bg-emerald-50/60 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-300"
+            total={data.totalAssets}
+            totalLabel="Total Assets"
+            totalStyle="bg-emerald-50/60 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-300"
+          >
+            <SubSection
+              label="Non-Current Assets"
+              rows={data.nonCurrentAssetRows}
+              total={data.totalNonCurrentAssets}
+              totalLabel="Total Non-Current Assets"
+              accentColor="text-emerald-600 dark:text-emerald-400"
             />
-          </div>
+            <SubSection
+              label="Current Assets"
+              rows={data.currentAssetRows}
+              total={data.totalCurrentAssets}
+              totalLabel="Total Current Assets"
+              accentColor="text-emerald-600 dark:text-emerald-400"
+            />
+          </SectionCard>
 
-          {/* Liabilities */}
-          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-rose-50/60 dark:bg-rose-900/10">
-              <h2 className="text-sm font-semibold text-rose-700 dark:text-rose-300 uppercase tracking-wide">Liabilities</h2>
-            </div>
-            <SectionTable
-              rows={data.liabilityRows}
-              total={data.totalLiabilities}
-              totalLabel="Total Liabilities"
-              headerColor="bg-slate-50/60 dark:bg-slate-800/60"
-              totalColor="bg-rose-50/60 dark:bg-rose-900/10 text-rose-700 dark:text-rose-300"
+          {/* LIABILITIES */}
+          <SectionCard
+            title="Liabilities"
+            headerStyle="bg-rose-50/60 dark:bg-rose-900/10 text-rose-700 dark:text-rose-300"
+            total={data.totalLiabilities}
+            totalLabel="Total Liabilities"
+            totalStyle="bg-rose-50/60 dark:bg-rose-900/10 text-rose-700 dark:text-rose-300"
+          >
+            <SubSection
+              label="Non-Current Liabilities"
+              rows={data.nonCurrentLiabilityRows}
+              total={data.totalNonCurrentLiabilities}
+              totalLabel="Total Non-Current Liabilities"
+              accentColor="text-rose-600 dark:text-rose-400"
             />
-          </div>
+            <SubSection
+              label="Current Liabilities"
+              rows={data.currentLiabilityRows}
+              total={data.totalCurrentLiabilities}
+              totalLabel="Total Current Liabilities"
+              accentColor="text-rose-600 dark:text-rose-400"
+            />
+          </SectionCard>
 
-          {/* Equity */}
-          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-purple-50/60 dark:bg-purple-900/10">
-              <h2 className="text-sm font-semibold text-purple-700 dark:text-purple-300 uppercase tracking-wide">Equity</h2>
-            </div>
-            <SectionTable
-              rows={data.equityRows}
-              extraRows={data.retainedEarnings != null ? [{ name: "Retained Earnings", amount: data.retainedEarnings }] : []}
-              total={data.totalEquity}
-              totalLabel="Total Equity"
-              headerColor="bg-slate-50/60 dark:bg-slate-800/60"
-              totalColor="bg-purple-50/60 dark:bg-purple-900/10 text-purple-700 dark:text-purple-300"
-            />
-          </div>
+          {/* EQUITY */}
+          <SectionCard
+            title="Equity"
+            headerStyle="bg-purple-50/60 dark:bg-purple-900/10 text-purple-700 dark:text-purple-300"
+            total={data.totalEquity}
+            totalLabel="Total Equity"
+            totalStyle="bg-purple-50/60 dark:bg-purple-900/10 text-purple-700 dark:text-purple-300"
+          >
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                {(data.equityRows ?? []).map((row) => (
+                  <tr key={row.accountId} className="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
+                    <td className="px-6 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 w-24">{row.code}</td>
+                    <td className="px-6 py-3 text-slate-800 dark:text-slate-100">{row.name}</td>
+                    <td className="px-6 py-3 text-right font-medium text-slate-700 dark:text-slate-200">{fmt(row.amount)}</td>
+                  </tr>
+                ))}
+                {data.retainedEarnings != null && (
+                  <tr className="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
+                    <td className="px-6 py-3 font-mono text-xs text-slate-500 dark:text-slate-400">—</td>
+                    <td className="px-6 py-3 text-slate-800 dark:text-slate-100 italic">Retained Earnings</td>
+                    <td className="px-6 py-3 text-right font-medium text-slate-700 dark:text-slate-200">{fmt(data.retainedEarnings)}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </SectionCard>
 
           {/* Summary */}
           <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -243,6 +274,14 @@ function BalanceSheet() {
               <div className="flex items-center justify-between px-6 py-4">
                 <span className="text-sm text-slate-600 dark:text-slate-300">Total Assets</span>
                 <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{fmt(data.totalAssets)}</span>
+              </div>
+              <div className="flex items-center justify-between px-6 py-4">
+                <span className="text-sm text-slate-600 dark:text-slate-300">Total Liabilities</span>
+                <span className="text-sm font-semibold text-rose-600 dark:text-rose-400">{fmt(data.totalLiabilities)}</span>
+              </div>
+              <div className="flex items-center justify-between px-6 py-4">
+                <span className="text-sm text-slate-600 dark:text-slate-300">Total Equity</span>
+                <span className="text-sm font-semibold text-purple-600 dark:text-purple-400">{fmt(data.totalEquity)}</span>
               </div>
               <div className="flex items-center justify-between px-6 py-4">
                 <span className="text-sm text-slate-600 dark:text-slate-300">Total Liabilities + Equity</span>

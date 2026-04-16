@@ -7,6 +7,21 @@ import Toast from "../components/Toast";
 
 const ACCOUNT_TYPES = ["ASSET", "LIABILITY", "EQUITY", "INCOME", "EXPENSE"];
 
+const SUB_TYPE_OPTIONS = {
+  ASSET:     ["CURRENT_ASSET", "NON_CURRENT_ASSET"],
+  LIABILITY: ["CURRENT_LIABILITY", "NON_CURRENT_LIABILITY"],
+  EQUITY:    [],
+  INCOME:    [],
+  EXPENSE:   [],
+};
+
+const SUB_TYPE_LABEL = {
+  CURRENT_ASSET:          "Current Asset",
+  NON_CURRENT_ASSET:      "Non-Current Asset",
+  CURRENT_LIABILITY:      "Current Liability",
+  NON_CURRENT_LIABILITY:  "Non-Current Liability",
+};
+
 const TYPE_STYLE = {
   ASSET:     "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300",
   LIABILITY: "bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300",
@@ -23,7 +38,7 @@ const TYPE_HEADER = {
   EXPENSE:   "border-amber-200 dark:border-amber-800 bg-amber-50/70 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300",
 };
 
-const EMPTY = { code: "", name: "", type: "ASSET", description: "" };
+const EMPTY = { code: "", name: "", type: "ASSET", subType: "CURRENT_ASSET", description: "" };
 
 function AccountModal({ initial, onClose, onSaved }) {
   const [form, setForm] = useState(initial ?? EMPTY);
@@ -31,7 +46,15 @@ function AccountModal({ initial, onClose, onSaved }) {
   const [error, setError] = useState("");
   const isEdit = !!initial?.id;
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const set = (k, v) => setForm(f => {
+    const updated = { ...f, [k]: v };
+    // reset subType when type changes
+    if (k === "type") {
+      const opts = SUB_TYPE_OPTIONS[v] ?? [];
+      updated.subType = opts.length > 0 ? opts[0] : "";
+    }
+    return updated;
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -99,6 +122,20 @@ function AccountModal({ initial, onClose, onSaved }) {
               </select>
             </div>
           </div>
+          {(SUB_TYPE_OPTIONS[form.type]?.length > 0) && (
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Classification</label>
+              <select
+                value={form.subType ?? ""}
+                onChange={e => set("subType", e.target.value)}
+                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+              >
+                {SUB_TYPE_OPTIONS[form.type].map(st => (
+                  <option key={st} value={st}>{SUB_TYPE_LABEL[st]}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Account Name *</label>
             <input
