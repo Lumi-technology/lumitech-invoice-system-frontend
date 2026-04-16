@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
+import { setUserType, setRegisteredAs } from "../utils/userType";
 import axios from "axios";
 import { LogIn, User, Lock, Mail, Eye, EyeOff } from "lucide-react";
 
@@ -30,6 +31,13 @@ function Login() {
       localStorage.setItem("token", res.data.token);
       const user = getUserFromToken();
       const role = user?.role || (Array.isArray(user?.roles) ? user.roles[0] : null);
+
+      // Restore userType from JWT — persists across devices and browser clears
+      if (user?.userType) {
+        setUserType(user.userType);
+        setRegisteredAs(user.userType);
+      }
+
       if (role === "STAFF" || role === "ADMIN") {
         navigate("/invoices");
       } else {

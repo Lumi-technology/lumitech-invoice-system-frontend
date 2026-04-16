@@ -24,7 +24,7 @@ function Register() {
     }
     setIsLoading(true);
     try {
-      await api.post("/api/auth/register", form);
+      await api.post("/api/auth/register", { ...form, userType: selectedUserType.toUpperCase() });
       setUserType(selectedUserType);
       setRegisteredAs(selectedUserType);
       setRegistered(true);
