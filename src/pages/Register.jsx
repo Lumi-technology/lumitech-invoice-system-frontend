@@ -2,10 +2,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
-import { UserPlus, Building2, Mail, User, Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { UserPlus, Building2, Mail, User, Lock, Eye, EyeOff, CheckCircle, Briefcase, Calculator } from "lucide-react";
+import { setUserType } from "../utils/userType";
 
 function Register() {
   const [form, setForm] = useState({ orgName: "", email: "", username: "", password: "" });
+  const [selectedUserType, setSelectedUserType] = useState("business_owner");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -23,6 +25,7 @@ function Register() {
     setIsLoading(true);
     try {
       await api.post("/api/auth/register", form);
+      setUserType(selectedUserType);
       setRegistered(true);
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Please try again.");
@@ -144,6 +147,32 @@ function Register() {
                   {confirmPassword && form.password !== confirmPassword && (
                     <p className="text-xs text-rose-500">Passwords do not match</p>
                   )}
+                </div>
+
+                {/* User type selector */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">I am a…</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { value: "business_owner", label: "Business Owner", sub: "I run my own business", Icon: Briefcase },
+                      { value: "accountant",     label: "Accountant",     sub: "I manage client books",  Icon: Calculator },
+                    ].map(({ value, label, sub, Icon }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setSelectedUserType(value)}
+                        className={`flex flex-col items-center gap-1.5 p-4 rounded-xl border-2 transition text-center ${
+                          selectedUserType === value
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                            : "border-slate-200 dark:border-slate-600 hover:border-slate-300"
+                        }`}
+                      >
+                        <Icon size={20} className={selectedUserType === value ? "text-blue-600" : "text-slate-400"} />
+                        <span className={`text-sm font-semibold ${selectedUserType === value ? "text-blue-700 dark:text-blue-300" : "text-slate-700 dark:text-slate-200"}`}>{label}</span>
+                        <span className="text-xs text-slate-400">{sub}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <button

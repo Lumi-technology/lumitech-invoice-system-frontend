@@ -4,9 +4,11 @@ import {
   LayoutDashboard, FileText, PlusCircle, Users, LogOut,
   ChevronLeft, ChevronRight, Building2, FolderOpen, ShieldCheck,
   CreditCard, Wallet, UsersRound, X, BookOpen, BookOpenCheck, Scale, TrendingUp, LayoutList, Landmark, ClipboardList,
+  ChevronDown, Briefcase, Calculator, ArrowLeftRight,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
+import { getUserType, setUserType, USER_TYPES } from "../utils/userType";
 
 const PLAN_BADGE = {
   FREE:    "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400",
@@ -14,10 +16,33 @@ const PLAN_BADGE = {
   PRO:     "bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300",
 };
 
+function NavLink({ item, collapsed, onClick, isActive }) {
+  const active = isActive(item.path);
+  return (
+    <li>
+      <Link
+        to={item.path}
+        onClick={onClick}
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
+          active
+            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
+            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60"
+        }`}
+      >
+        <item.icon size={20} className="flex-shrink-0" />
+        {!collapsed && <span className="text-sm font-medium flex-1">{item.label}</span>}
+      </Link>
+    </li>
+  );
+}
+
 function Navbar({ onClose }) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [plan, setPlan] = useState(null);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [userType, setUserTypeState] = useState(getUserType());
+
   const user = getUserFromToken();
   const role = user?.role || (Array.isArray(user?.roles) ? user.roles[0] : null);
 
@@ -25,6 +50,14 @@ function Navbar({ onClose }) {
   const isPlatformAdmin = role === "PLATFORM_ADMIN" || (Array.isArray(user?.roles) && user.roles.includes("PLATFORM_ADMIN"));
   const isStaff = role === "STAFF";
   const isAdminOrStaff = role === "STAFF" || role === "ADMIN";
+  const isAccountant = userType === USER_TYPES.ACCOUNTANT;
+
+  // React to mode switches from other parts of the app
+  useEffect(() => {
+    const handler = () => setUserTypeState(getUserType());
+    window.addEventListener("userTypeChange", handler);
+    return () => window.removeEventListener("userTypeChange", handler);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -33,25 +66,46 @@ function Navbar({ onClose }) {
       .catch(() => {});
   }, []);
 
-  const navItems = [
-    ...(!isAdminOrStaff ? [{ path: "/dashboard", label: "Dashboard", icon: LayoutDashboard }] : []),
-    { path: "/invoices",      label: "Invoices",      icon: FileText },
-    { path: "/invoices/reports/aging", label: "Aging Report", icon: ClipboardList },
-    { path: "/create",        label: "New Invoice",   icon: PlusCircle },
-    { path: "/projects",      label: "Projects",      icon: FolderOpen },
-    { path: "/clients/create",label: "New Customer",  icon: Users },
-    { path: "/clients",       label: "Customers",     icon: Users },
-    { path: "/finance",       label: "Finance",       icon: Wallet },
-    { path: "/accounting/accounts", label: "Chart of Accounts", icon: BookOpen },
-    { path: "/accounting/entries",  label: "Journal Entries",   icon: BookOpenCheck },
-    { path: "/accounting/reports/trial-balance", label: "Trial Balance",  icon: Scale },
-    { path: "/accounting/reports/profit-loss",    label: "Profit & Loss",  icon: TrendingUp },
-    { path: "/accounting/reports/balance-sheet", label: "Balance Sheet",  icon: LayoutList },
+  const handleSwitchMode = () => {
+    const next = userType === USER_TYPES.BUSINESS_OWNER ? USER_TYPES.ACCOUNTANT : USER_TYPES.BUSINESS_OWNER;
+    setUserType(next);
+    setUserTypeState(next);
+  };
+
+  // ── Primary nav items shared by both modes ──────────────────────────────
+  const coreItems = [
+    ...(!isAdminOrStaff ? [{ path: "/dashboard",   label: "Dashboard",   icon: LayoutDashboard }] : []),
+    { path: "/invoices",                            label: "Invoices",    icon: FileText },
+    { path: "/invoices/reports/aging",              label: "Aging Report",icon: ClipboardList },
+    { path: "/create",                              label: "New Invoice", icon: PlusCircle },
+    { path: "/projects",                            label: "Projects",    icon: FolderOpen },
+    { path: "/clients/create",                      label: "New Customer",icon: Users },
+    { path: "/clients",                             label: "Customers",   icon: Users },
+    { path: "/finance",                             label: isAccountant ? "Finance" : "Expenses", icon: Wallet },
+  ];
+
+  // ── Accounting items (always visible for accountants, hidden for biz owners) ──
+  const accountingItems = [
+    { path: "/accounting/accounts",                  label: "Chart of Accounts", icon: BookOpen },
+    { path: "/accounting/entries",                   label: "Journal Entries",   icon: BookOpenCheck },
+    { path: "/accounting/reports/trial-balance",     label: "Trial Balance",     icon: Scale },
+    { path: "/accounting/reports/profit-loss",       label: "Profit & Loss",     icon: TrendingUp },
+    { path: "/accounting/reports/balance-sheet",     label: "Balance Sheet",     icon: LayoutList },
     ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark }] : []),
-    ...(!isStaff ? [{ path: "/team", label: "Team", icon: UsersRound }] : []),
-    { path: "/settings/org",  label: "Org Settings",  icon: Building2 },
-    { path: "/settings/billing", label: "Billing",    icon: CreditCard },
-    ...(isPlatformAdmin ? [{ path: "/admin", label: "Platform Admin", icon: ShieldCheck }] : []),
+  ];
+
+  // ── Reports visible in primary nav for business owners ──────────────────
+  const reportItems = [
+    { path: "/accounting/reports/trial-balance",     label: "Trial Balance",     icon: Scale },
+    { path: "/accounting/reports/profit-loss",       label: "Profit & Loss",     icon: TrendingUp },
+    { path: "/accounting/reports/balance-sheet",     label: "Balance Sheet",     icon: LayoutList },
+  ];
+
+  const bottomItems = [
+    ...(!isStaff ? [{ path: "/team",         label: "Team",         icon: UsersRound }] : []),
+    { path: "/settings/org",                  label: "Org Settings", icon: Building2 },
+    { path: "/settings/billing",              label: "Billing",      icon: CreditCard },
+    ...(isPlatformAdmin ? [{ path: "/admin",  label: "Platform Admin", icon: ShieldCheck }] : []),
   ];
 
   const handleLogout = () => {
@@ -70,12 +124,11 @@ function Navbar({ onClose }) {
           </div>
           {!collapsed && (
             <span className="font-bold text-lg text-slate-900 dark:text-white">
-              LumiCash<span className="text-blue-600">.</span>
+              LumiLedger<span className="text-blue-600">.</span>
             </span>
           )}
         </div>
         <div className="flex items-center gap-1">
-          {/* Mobile close */}
           {onClose && !collapsed && (
             <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
               <X size={16} className="text-slate-500 dark:text-slate-400" />
@@ -93,9 +146,83 @@ function Navbar({ onClose }) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-3 overflow-y-auto">
+      <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
+
+        {/* Core items */}
         <ul className="space-y-1">
-          {navItems.map((item) => {
+          {coreItems.map(item => (
+            <NavLink key={item.path} item={item} collapsed={collapsed} onClick={onClose} isActive={isActive} />
+          ))}
+        </ul>
+
+        {/* ── ACCOUNTANT: all accounting items inline ────────────────────── */}
+        {isAccountant && (
+          <>
+            {!collapsed && (
+              <p className="px-3 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Accounting</p>
+            )}
+            <ul className="space-y-1">
+              {accountingItems.map(item => (
+                <NavLink key={item.path} item={item} collapsed={collapsed} onClick={onClose} isActive={isActive} />
+              ))}
+            </ul>
+          </>
+        )}
+
+        {/* ── BUSINESS OWNER: reports visible, advanced collapsed ─────────── */}
+        {!isAccountant && (
+          <>
+            {!collapsed && (
+              <p className="px-3 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Reports</p>
+            )}
+            <ul className="space-y-1">
+              {reportItems.map(item => (
+                <NavLink key={item.path} item={item} collapsed={collapsed} onClick={onClose} isActive={isActive} />
+              ))}
+            </ul>
+
+            {/* Advanced Accounting (collapsed by default) */}
+            {!collapsed ? (
+              <div className="pt-2">
+                <button
+                  onClick={() => setAdvancedOpen(o => !o)}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition text-sm font-medium"
+                >
+                  <span>Advanced Accounting</span>
+                  <ChevronDown size={14} className={`transition-transform ${advancedOpen ? "rotate-180" : ""}`} />
+                </button>
+                {advancedOpen && (
+                  <ul className="space-y-1 mt-1 pl-2">
+                    {[
+                      { path: "/accounting/accounts", label: "Chart of Accounts", icon: BookOpen },
+                      { path: "/accounting/entries",  label: "Journal Entries",   icon: BookOpenCheck },
+                      ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark }] : []),
+                    ].map(item => (
+                      <NavLink key={item.path} item={item} collapsed={false} onClick={onClose} isActive={isActive} />
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : (
+              // Collapsed: show advanced items as icons
+              <ul className="space-y-1 pt-1">
+                {[
+                  { path: "/accounting/accounts", label: "Chart of Accounts", icon: BookOpen },
+                  { path: "/accounting/entries",  label: "Journal Entries",   icon: BookOpenCheck },
+                ].map(item => (
+                  <NavLink key={item.path} item={item} collapsed={true} onClick={onClose} isActive={isActive} />
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+
+        {/* Bottom items */}
+        {!collapsed && (
+          <p className="px-3 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Settings</p>
+        )}
+        <ul className="space-y-1">
+          {bottomItems.map(item => {
             const active = isActive(item.path);
             return (
               <li key={item.path}>
@@ -110,14 +237,16 @@ function Navbar({ onClose }) {
                 >
                   <item.icon size={20} className="flex-shrink-0" />
                   {!collapsed && (
-                    <span className="text-sm font-medium flex-1">{item.label}</span>
-                  )}
-                  {!collapsed && item.path === "/settings/billing" && plan && (
-                    <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
-                      active ? "bg-white/20 text-white" : PLAN_BADGE[plan] ?? PLAN_BADGE.FREE
-                    }`}>
-                      {plan}
-                    </span>
+                    <>
+                      <span className="text-sm font-medium flex-1">{item.label}</span>
+                      {item.path === "/settings/billing" && plan && (
+                        <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
+                          active ? "bg-white/20 text-white" : PLAN_BADGE[plan] ?? PLAN_BADGE.FREE
+                        }`}>
+                          {plan}
+                        </span>
+                      )}
+                    </>
                   )}
                 </Link>
               </li>
@@ -126,28 +255,50 @@ function Navbar({ onClose }) {
         </ul>
       </nav>
 
-      {/* User Profile */}
+      {/* User Profile + Mode Switch */}
       <div className="p-4 border-t border-slate-200/60 dark:border-slate-700/60">
-        {user && (
-          <div className={`flex items-center gap-3 mb-3 ${collapsed ? "justify-center" : ""}`}>
+        {user && !collapsed && (
+          <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
               {user.username?.charAt(0).toUpperCase() || "U"}
             </div>
-            {!collapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{user.username}</p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{role || "Members"}</p>
-                  {plan && (
-                    <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${PLAN_BADGE[plan] ?? PLAN_BADGE.FREE}`}>
-                      {plan}
-                    </span>
-                  )}
-                </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{user.username}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className={`inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full font-medium ${
+                  isAccountant
+                    ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300"
+                    : "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300"
+                }`}>
+                  {isAccountant ? <Calculator size={10} /> : <Briefcase size={10} />}
+                  {isAccountant ? "Accountant" : "Business Owner"}
+                </span>
               </div>
-            )}
+            </div>
           </div>
         )}
+        {user && collapsed && (
+          <div className="flex justify-center mb-3">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-medium">
+              {user.username?.charAt(0).toUpperCase() || "U"}
+            </div>
+          </div>
+        )}
+
+        {/* Switch Mode */}
+        <button
+          onClick={handleSwitchMode}
+          title={`Switch to ${isAccountant ? "Business Owner" : "Accountant"} view`}
+          className={`flex items-center gap-3 px-3 py-2 w-full rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition mb-1 ${collapsed ? "justify-center" : ""}`}
+        >
+          <ArrowLeftRight size={16} />
+          {!collapsed && (
+            <span className="text-xs font-medium">
+              Switch to {isAccountant ? "Business Owner" : "Accountant"} view
+            </span>
+          )}
+        </button>
+
         <button
           onClick={handleLogout}
           className={`flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-slate-600 dark:text-slate-300 hover:bg-rose-50 dark:hover:bg-rose-900/30 hover:text-rose-600 dark:hover:text-rose-400 transition ${collapsed ? "justify-center" : ""}`}
