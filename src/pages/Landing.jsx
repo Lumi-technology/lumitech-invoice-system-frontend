@@ -241,7 +241,7 @@ export default function Landing() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-blue-100/40 to-transparent rounded-full blur-3xl pointer-events-none" />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-28">
           <div className="grid lg:grid-cols-2 gap-14 items-center">
-            <div>
+            <div className="text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100 mb-7">
                 <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
                 30-Day Free Trial · No credit card required
@@ -252,18 +252,18 @@ export default function Landing() {
                   and your money inside it.
                 </span>
               </h1>
-              <p className="text-lg sm:text-xl text-slate-500 leading-relaxed mb-8 max-w-lg">
+              <p className="text-lg sm:text-xl text-slate-500 leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
                 Manage invoices, expenses, and see exactly how much your business owes you. Built for business owners and accountants.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <Link to="/register" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-xl shadow-blue-600/30 hover:shadow-2xl hover:scale-[1.02] transition-all text-base">
+              <div className="flex flex-col sm:flex-row gap-3 mb-6 justify-center lg:justify-start">
+                <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-xl shadow-blue-600/30 hover:shadow-2xl hover:scale-[1.02] transition-all text-base">
                   Start Free Trial <ArrowRight className="w-4 h-4" />
                 </Link>
-                <a href="#how-it-works" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition shadow-sm text-base">
+                <a href="#how-it-works" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition shadow-sm text-base">
                   See How It Works
                 </a>
               </div>
-              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs text-slate-400">
                 <div className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-emerald-500" />No credit card required</div>
                 <div className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-emerald-500" />Set up in under 2 minutes</div>
                 <div className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-emerald-500" />Cancel anytime</div>
@@ -330,7 +330,7 @@ export default function Landing() {
                   </div>
                 ))}
               </div>
-              <Link to="/register" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 hover:scale-[1.02] transition-all">
+              <Link to="/register" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 hover:scale-[1.02] transition-all w-full sm:w-auto">
                 Start Tracking Your Capital <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -696,10 +696,10 @@ export default function Landing() {
               Join 100+ businesses already using LumiLedger to understand their money — and track what their business owes them.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/register" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-700 font-extrabold rounded-xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all text-base">
+              <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-700 font-extrabold rounded-xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all text-base">
                 Start Using LumiLedger <ArrowRight className="w-5 h-5" />
               </Link>
-              <a href="#how-it-works" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all text-base backdrop-blur-sm">
+              <a href="#how-it-works" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all text-base backdrop-blur-sm">
                 See How It Works
               </a>
             </div>
