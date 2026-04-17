@@ -90,6 +90,8 @@ function Navbar({ onClose }) {
     setUserTypeState(next);
   };
 
+  const isAccountantPro = plan === "ACCOUNTANT_PRO";
+
   // ── Primary nav items shared by both modes ──────────────────────────────
   const coreItems = [
     ...(!isAdminOrStaff ? [{ path: "/dashboard",   label: "Dashboard",            icon: LayoutDashboard }] : []),
@@ -123,8 +125,6 @@ function Navbar({ onClose }) {
     { path: "/accounting/reports/profit-loss",       label: "Profit & Loss",     icon: TrendingUp },
     { path: "/accounting/reports/balance-sheet",     label: "Balance Sheet",     icon: LayoutList },
   ];
-
-  const isAccountantPro = plan === "ACCOUNTANT_PRO";
 
   const bottomItems = [
     ...(isAccountantPro ? [{ path: "/expenses",  label: "Expenses",    icon: Receipt }] : []),
