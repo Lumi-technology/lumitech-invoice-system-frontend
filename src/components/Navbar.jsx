@@ -50,7 +50,7 @@ function NavLink({ item, collapsed, onClick, isActive }) {
 function Navbar({ onClose }) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const [plan, setPlan] = useState(null);
+  const [plan, setPlan] = useState(getUserFromToken()?.plan ?? null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [userType, setUserTypeState] = useState(getUserType());
 
