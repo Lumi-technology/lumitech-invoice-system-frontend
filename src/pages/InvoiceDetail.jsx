@@ -431,6 +431,36 @@ function InvoiceDetail() {
           </div>
         </div>
 
+        {/* Org Letterhead */}
+        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex items-center gap-4">
+          {invoice.orgLogoUrl ? (
+            <img
+              src={invoice.orgLogoUrl}
+              alt="Organisation logo"
+              className="h-12 w-auto max-w-[120px] object-contain"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shrink-0">
+              <span className="text-white font-bold text-lg leading-none select-none">
+                {invoice.orgName
+                  ? invoice.orgName.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()
+                  : "LL"}
+              </span>
+            </div>
+          )}
+          <div>
+            {invoice.orgName && (
+              <p className="font-semibold text-slate-900 dark:text-white">{invoice.orgName}</p>
+            )}
+            {invoice.orgAddress && (
+              <p className="text-xs text-slate-500 dark:text-slate-400">{invoice.orgAddress}</p>
+            )}
+            {invoice.orgEmail && (
+              <p className="text-xs text-slate-500 dark:text-slate-400">{invoice.orgEmail}</p>
+            )}
+          </div>
+        </div>
+
         {/* Client Info Card */}
         <div className="p-6 border-b border-slate-100 dark:border-slate-700">
           <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">

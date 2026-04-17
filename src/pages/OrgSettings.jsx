@@ -1,7 +1,7 @@
 // OrgSettings.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import api from "../services/api";
-import { Building2, Mail, Phone, MapPin, Globe, Save, FileText, Sun, Moon, Monitor } from "lucide-react";
+import { Building2, Mail, Phone, MapPin, Globe, Save, FileText, Sun, Moon, Monitor, Upload, Trash2 } from "lucide-react";
 import Toast from "../components/Toast";
 import { useTheme } from "../context/ThemeContext";
 
@@ -22,17 +22,56 @@ const THEMES = [
 
 function OrgSettings() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", website: "", taxId: "" });
+  const [logoUrl, setLogoUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
   const { theme, setTheme } = useTheme();
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     api.get("/api/org")
-      .then(res => setForm({ ...form, ...res.data }))
+      .then(res => {
+        setForm({ ...form, ...res.data });
+        setLogoUrl(res.data.logoUrl || null);
+      })
       .catch(() => setToast({ visible: true, message: "Failed to load organisation settings", type: "error" }))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      setUploadingLogo(true);
+      const res = await api.post("/api/org/logo", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setLogoUrl(res.data.logoUrl);
+      setToast({ visible: true, message: "Logo uploaded successfully", type: "success" });
+    } catch (err) {
+      setToast({ visible: true, message: err.response?.data?.message || "Failed to upload logo", type: "error" });
+    } finally {
+      setUploadingLogo(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleLogoDelete = async () => {
+    try {
+      setUploadingLogo(true);
+      await api.delete("/api/org/logo");
+      setLogoUrl(null);
+      setToast({ visible: true, message: "Logo removed", type: "success" });
+    } catch {
+      setToast({ visible: true, message: "Failed to remove logo", type: "error" });
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,6 +108,63 @@ function OrgSettings() {
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
           Manage your organisation details and app preferences.
         </p>
+      </div>
+
+      {/* Logo Card */}
+      <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+            <Upload className="w-4 h-4 text-blue-500" />
+            Organisation Logo
+          </h2>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+            Appears on invoices and PDFs. If not set, your organisation initials are used.
+          </p>
+        </div>
+        <div className="p-6 flex items-center gap-6">
+          {/* Preview */}
+          <div className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-600 flex items-center justify-center bg-slate-50 dark:bg-slate-700/40 overflow-hidden shrink-0">
+            {logoUrl ? (
+              <img src={logoUrl} alt="Org logo" className="w-full h-full object-contain p-1" />
+            ) : (
+              <span className="text-2xl font-bold text-slate-400 dark:text-slate-500 select-none">
+                {form.name ? form.name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase() : "LL"}
+              </span>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-col gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handleLogoUpload}
+            />
+            <button
+              type="button"
+              disabled={uploadingLogo}
+              onClick={() => fileInputRef.current?.click()}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition disabled:opacity-50"
+            >
+              <Upload size={14} />
+              {uploadingLogo ? "Uploading..." : "Upload Logo"}
+            </button>
+            {logoUrl && (
+              <button
+                type="button"
+                disabled={uploadingLogo}
+                onClick={handleLogoDelete}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/30 rounded-xl hover:bg-rose-100 dark:hover:bg-rose-900/40 transition disabled:opacity-50"
+              >
+                <Trash2 size={14} />
+                Remove Logo
+              </button>
+            )}
+            <p className="text-xs text-slate-400 dark:text-slate-500">PNG, JPG or WebP · Max 5 MB</p>
+          </div>
+        </div>
       </div>
 
       {/* Org Details Card */}

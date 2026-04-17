@@ -50,6 +50,8 @@ function NavLink({ item, collapsed, onClick, isActive }) {
 function Navbar({ onClose }) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  // On mobile the nav is a full-width drawer — never show icon-only mode
+  const effectiveCollapsed = onClose ? false : collapsed;
   const [plan, setPlan] = useState(getUserFromToken()?.plan ?? null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [userType, setUserTypeState] = useState(getUserType());
@@ -142,31 +144,31 @@ function Navbar({ onClose }) {
   };
 
   return (
-    <aside className={`h-screen sticky top-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-700/60 flex flex-col transition-all duration-300 ${collapsed ? "w-20" : "w-64"}`}>
+    <aside className={`h-screen sticky top-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-700/60 flex flex-col transition-all duration-300 ${effectiveCollapsed ? "w-20" : "w-64"}`}>
 
       {/* Logo & Toggle */}
       <div className="flex items-center justify-between p-4 border-b border-slate-200/60 dark:border-slate-700/60">
-        <div className={`flex items-center gap-2 ${collapsed ? "justify-center w-full" : ""}`}>
+        <div className={`flex items-center gap-2 ${effectiveCollapsed ? "justify-center w-full" : ""}`}>
           <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg shadow-blue-600/20 flex-shrink-0">
             <FileText className="w-5 h-5 text-white" />
           </div>
-          {!collapsed && (
+          {!effectiveCollapsed && (
             <span className="font-bold text-lg text-slate-900 dark:text-white">
               LumiLedger<span className="text-blue-600">.</span>
             </span>
           )}
         </div>
         <div className="flex items-center gap-1">
-          {onClose && !collapsed && (
+          {onClose && (
             <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-              <X size={16} className="text-slate-500 dark:text-slate-400" />
+              <X size={18} className="text-slate-500 dark:text-slate-400" />
             </button>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="hidden lg:flex p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"
           >
-            {collapsed
+            {effectiveCollapsed
               ? <ChevronRight size={18} className="text-slate-500 dark:text-slate-400" />
               : <ChevronLeft size={18} className="text-slate-500 dark:text-slate-400" />}
           </button>
@@ -179,14 +181,14 @@ function Navbar({ onClose }) {
         {/* Core items */}
         <ul className="space-y-1">
           {coreItems.map(item => (
-            <NavLink key={item.path} item={item} collapsed={collapsed} onClick={onClose} isActive={isActive} />
+            <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} />
           ))}
         </ul>
 
         {/* ── ACCOUNTANT: all accounting items inline ────────────────────── */}
         {isAccountant && (
           <>
-            {!collapsed && (
+            {!effectiveCollapsed && (
               <p className="px-3 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Accounting</p>
             )}
             <ul className="space-y-1">
@@ -197,11 +199,11 @@ function Navbar({ onClose }) {
                   return canAccessAccountingTools || !restricted.includes(item.path);
                 })
                 .map(item => (
-                  <NavLink key={item.path} item={item} collapsed={collapsed} onClick={onClose} isActive={isActive} />
+                  <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} />
                 ))}
             </ul>
             {/* Show upgrade nudge for restricted items if on STARTER */}
-            {!canAccessAccountingTools && !collapsed && (
+            {!canAccessAccountingTools && !effectiveCollapsed && (
               <Link
                 to="/settings/billing"
                 onClick={onClose}
@@ -218,19 +220,19 @@ function Navbar({ onClose }) {
         {/* ── BUSINESS OWNER: reports visible, advanced collapsed ─────────── */}
         {!isAccountant && (
           <>
-            {!collapsed && (
+            {!effectiveCollapsed && (
               <p className="px-3 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Reports</p>
             )}
             <ul className="space-y-1">
               {reportItems.map(item => (
-                <NavLink key={item.path} item={item} collapsed={collapsed} onClick={onClose} isActive={isActive} />
+                <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} />
               ))}
             </ul>
 
             {/* Advanced Accounting — gated by plan */}
             {canAccessAccountingTools ? (
               /* Unlocked: collapsible section */
-              !collapsed ? (
+              !effectiveCollapsed ? (
                 <div className="pt-2">
                   <button
                     onClick={() => setAdvancedOpen(o => !o)}
@@ -263,7 +265,7 @@ function Navbar({ onClose }) {
               )
             ) : (
               /* Locked: upgrade prompt */
-              !collapsed ? (
+              !effectiveCollapsed ? (
                 <div className="pt-2">
                   <Link
                     to="/settings/billing"
@@ -297,7 +299,7 @@ function Navbar({ onClose }) {
         )}
 
         {/* Bottom items */}
-        {!collapsed && (
+        {!effectiveCollapsed && (
           <p className="px-3 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Settings</p>
         )}
         <ul className="space-y-1">
@@ -315,7 +317,7 @@ function Navbar({ onClose }) {
                   }`}
                 >
                   <item.icon size={20} className="flex-shrink-0" />
-                  {!collapsed && (
+                  {!effectiveCollapsed && (
                     <>
                       <span className="text-sm font-medium flex-1">{item.label}</span>
                       {item.path === "/settings/billing" && plan && (
@@ -336,7 +338,7 @@ function Navbar({ onClose }) {
 
       {/* User Profile + Mode Switch */}
       <div className="p-4 border-t border-slate-200/60 dark:border-slate-700/60">
-        {user && !collapsed && (
+        {user && !effectiveCollapsed && (
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
               {user.username?.charAt(0).toUpperCase() || "U"}
@@ -356,7 +358,7 @@ function Navbar({ onClose }) {
             </div>
           </div>
         )}
-        {user && collapsed && (
+        {user && effectiveCollapsed && (
           <div className="flex justify-center mb-3">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-medium">
               {user.username?.charAt(0).toUpperCase() || "U"}
@@ -369,10 +371,10 @@ function Navbar({ onClose }) {
           <button
             onClick={handleSwitchMode}
             title={`Switch to ${isAccountant ? "Business Owner" : "Accountant"} view`}
-            className={`flex items-center gap-3 px-3 py-2 w-full rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition mb-1 ${collapsed ? "justify-center" : ""}`}
+            className={`flex items-center gap-3 px-3 py-2 w-full rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition mb-1 ${effectiveCollapsed ? "justify-center" : ""}`}
           >
             <ArrowLeftRight size={16} />
-            {!collapsed && (
+            {!effectiveCollapsed && (
               <span className="text-xs font-medium">
                 Switch to {isAccountant ? "Business Owner" : "Accountant"} view
               </span>
@@ -382,10 +384,10 @@ function Navbar({ onClose }) {
 
         <button
           onClick={handleLogout}
-          className={`flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-slate-600 dark:text-slate-300 hover:bg-rose-50 dark:hover:bg-rose-900/30 hover:text-rose-600 dark:hover:text-rose-400 transition ${collapsed ? "justify-center" : ""}`}
+          className={`flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-slate-600 dark:text-slate-300 hover:bg-rose-50 dark:hover:bg-rose-900/30 hover:text-rose-600 dark:hover:text-rose-400 transition ${effectiveCollapsed ? "justify-center" : ""}`}
         >
           <LogOut size={20} />
-          {!collapsed && <span className="text-sm font-medium">Logout</span>}
+          {!effectiveCollapsed && <span className="text-sm font-medium">Logout</span>}
         </button>
       </div>
     </aside>
