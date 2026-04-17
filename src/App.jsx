@@ -415,14 +415,10 @@ function App() {
           />
 
           <Route path="/expenses" element={
-            <ProtectedRoute><Layout>
-              {getUserFromToken()?.plan === "ACCOUNTANT_PRO" ? <Expenses /> : <Navigate to="/settings/billing" replace />}
-            </Layout></ProtectedRoute>
+            <ProtectedRoute><Layout><Expenses /></Layout></ProtectedRoute>
           } />
           <Route path="/audit" element={
-            <ProtectedRoute><Layout>
-              {getUserFromToken()?.plan === "ACCOUNTANT_PRO" ? <AuditLogPage /> : <Navigate to="/settings/billing" replace />}
-            </Layout></ProtectedRoute>
+            <ProtectedRoute><Layout><AuditLogPage /></Layout></ProtectedRoute>
           } />
 
           {/* PLATFORM ADMIN */}
