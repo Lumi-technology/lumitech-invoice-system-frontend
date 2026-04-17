@@ -1,10 +1,11 @@
 // Landing.jsx — LumiLedger marketing page
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import {
   FileText, CheckCircle, TrendingUp, BarChart3, Layers, ArrowRight,
   Shield, Zap, Clock, ChevronRight, BookOpen, Landmark, Bell,
   Eye, Users, Star, AlertTriangle, XCircle, Banknote, Lock,
-  Wallet, PiggyBank, Briefcase, Calculator,
+  Wallet, PiggyBank, Briefcase, Calculator, Menu, X as XIcon,
 } from "lucide-react";
 
 /* ─── Mock Dashboard ─────────────────────────────────────────────────────── */
@@ -195,7 +196,7 @@ const features = [
   { icon: <TrendingUp className="w-5 h-5 text-rose-600" />,   bg: "bg-rose-50",    title: "Financial Reports",              desc: "Trial Balance, Profit & Loss, Balance Sheet — real accounting reports built into the platform." },
   { icon: <BookOpen className="w-5 h-5 text-cyan-600" />,     bg: "bg-cyan-50",    title: "Chart of Accounts",              desc: "Full double-entry bookkeeping — assets, liabilities, equity, income, expenses." },
   { icon: <Users className="w-5 h-5 text-teal-600" />,        bg: "bg-teal-50",    title: "Team Access & Roles",            desc: "Add admins and staff. Everyone sees exactly what they need — nothing more." },
-  { icon: <Landmark className="w-5 h-5 text-slate-600" />,    bg: "bg-slate-50",   title: "Bank Statement Import",          desc: "Reconcile your books in minutes by uploading your bank statement directly.", comingSoon: true },
+  { icon: <Landmark className="w-5 h-5 text-slate-600" />,    bg: "bg-slate-50",   title: "Bank Reconciliation",            desc: "Import bank statements, auto-match transactions, and reconcile your books in minutes." },
 ];
 
 const steps = [
@@ -206,6 +207,8 @@ const steps = [
 
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 export default function Landing() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-white font-sans antialiased overflow-x-hidden">
 
@@ -231,22 +234,61 @@ export default function Landing() {
             <Link to="/register" className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-blue-600/25 hover:shadow-xl hover:scale-[1.02] transition-all">
               Start Free <ChevronRight className="w-3.5 h-3.5" />
             </Link>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition"
+            >
+              {mobileMenuOpen ? <XIcon className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-1">
+            {[
+              { label: "Features", href: "#features" },
+              { label: "How it works", href: "#how-it-works" },
+              { label: "Pricing", href: "#pricing" },
+            ].map(item => (
+              <a
+                key={item.label}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition"
+              >
+                {item.label}
+              </a>
+            ))}
+            <Link
+              to="/pricing"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition"
+            >
+              Plans & FAQ
+            </Link>
+            <Link
+              to="/login"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition"
+            >
+              Sign In
+            </Link>
+          </div>
+        )}
       </nav>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-white to-indigo-50/40 pointer-events-none" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-blue-100/40 to-transparent rounded-full blur-3xl pointer-events-none" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-28">
-          <div className="grid lg:grid-cols-2 gap-14 items-center">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 sm:pt-20 pb-20 sm:pb-28">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100 mb-7">
                 <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
                 30-Day Free Trial · No credit card required
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-[52px] font-extrabold text-slate-900 leading-[1.1] tracking-tight mb-6">
+              <h1 className="text-3xl sm:text-4xl lg:text-[52px] font-extrabold text-slate-900 leading-[1.1] tracking-tight mb-5 sm:mb-6">
                 Track your business finances —{" "}
                 <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
                   and your money inside it.
@@ -269,7 +311,9 @@ export default function Landing() {
                 <div className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-emerald-500" />Cancel anytime</div>
               </div>
             </div>
-            <MockDashboard />
+            <div className="hidden sm:block">
+              <MockDashboard />
+            </div>
           </div>
         </div>
       </section>
@@ -304,7 +348,7 @@ export default function Landing() {
       {/* ── OWNER CAPITAL — UNIQUE FEATURE ───────────────────────────────── */}
       <section className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100 mb-6">
                 ✦ What makes LumiLedger different
@@ -334,7 +378,7 @@ export default function Landing() {
                 Start Tracking Your Capital <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center mt-6 lg:mt-0">
               <CapitalCard />
             </div>
           </div>
@@ -464,7 +508,7 @@ export default function Landing() {
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Built for two kinds of people</h2>
             <p className="text-slate-400 max-w-lg mx-auto">Same platform. Different experience. Adapted to how you work.</p>
           </div>
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid sm:grid-cols-2 gap-6 sm:gap-8">
             {/* Business Owners */}
             <div className="bg-slate-800/60 rounded-2xl border border-slate-700 p-8">
               <div className="flex items-center gap-3 mb-5">
@@ -567,7 +611,7 @@ export default function Landing() {
             <p className="text-slate-500 max-w-xl mx-auto">Try everything for 30 days. No restrictions. No card needed.</p>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-5 items-stretch">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
 
             {/* FREE TRIAL */}
             <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-6 flex flex-col">

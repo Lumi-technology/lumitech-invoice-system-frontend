@@ -115,6 +115,7 @@ function Navbar({ onClose }) {
     { path: "/accounting/reports/profit-loss",       label: "Profit & Loss",     icon: TrendingUp },
     { path: "/accounting/reports/balance-sheet",     label: "Balance Sheet",     icon: LayoutList },
     ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark }] : []),
+    { path: "/accounting/reconciliation", label: "Reconciliation", icon: ArrowLeftRight },
   ];
 
   // ── Reports visible in primary nav for business owners ──────────────────
