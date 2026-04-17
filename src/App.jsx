@@ -32,6 +32,8 @@ import ProfitLoss from "./pages/ProfitLoss";
 import BalanceSheet from "./pages/BalanceSheet";
 import BankStatementImport from "./pages/BankStatementImport";
 import AgingReport from "./pages/AgingReport";
+import Expenses from "./pages/Expenses";
+import AuditLogPage from "./pages/AuditLog";
 
 function App() {
   const [planLimitMessage, setPlanLimitMessage] = useState(null);
@@ -384,6 +386,9 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route path="/expenses" element={<ProtectedRoute><Layout><Expenses /></Layout></ProtectedRoute>} />
+          <Route path="/audit" element={<ProtectedRoute><Layout><AuditLogPage /></Layout></ProtectedRoute>} />
 
           {/* PLATFORM ADMIN */}
           <Route

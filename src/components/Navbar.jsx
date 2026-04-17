@@ -4,7 +4,7 @@ import {
   LayoutDashboard, FileText, PlusCircle, Users, LogOut,
   ChevronLeft, ChevronRight, Building2, FolderOpen, ShieldCheck,
   CreditCard, Wallet, UsersRound, X, BookOpen, BookOpenCheck, Scale, TrendingUp, LayoutList, Landmark, ClipboardList,
-  ChevronDown, Briefcase, Calculator, ArrowLeftRight, Banknote, PiggyBank, Lock,
+  ChevronDown, Briefcase, Calculator, ArrowLeftRight, Banknote, PiggyBank, Lock, Receipt,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
@@ -123,9 +123,11 @@ function Navbar({ onClose }) {
   ];
 
   const bottomItems = [
+    { path: "/expenses",                      label: "Expenses",     icon: Receipt },
     ...(!isStaff ? [{ path: "/team",         label: "Team",         icon: UsersRound }] : []),
     { path: "/settings/org",                  label: "Org Settings", icon: Building2 },
     { path: "/settings/billing",              label: "Billing",      icon: CreditCard },
+    ...(!isStaff ? [{ path: "/audit",        label: "Audit Trail",  icon: ShieldCheck }] : []),
     ...(isPlatformAdmin ? [{ path: "/admin",  label: "Platform Admin", icon: ShieldCheck }] : []),
   ];
 
