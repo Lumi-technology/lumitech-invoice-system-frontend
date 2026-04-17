@@ -3,16 +3,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
 import {
-  Users,
-  Plus,
-  Trash2,
-  Mail,
-  Phone,
-  MapPin,
-  MoreVertical,
-  AlertCircle,
-  CheckCircle,
-  Download,
+  Users, Plus, Trash2, Mail, Phone, MapPin, MoreVertical,
+  AlertCircle, CheckCircle, Download, Bell, BellOff, X, Settings2,
 } from "lucide-react";
 
 const exportCsv = async (endpoint, filename) => {
@@ -35,6 +27,9 @@ function ClientList() {
   const [selectedClient, setSelectedClient] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [reminderClient, setReminderClient] = useState(null);
+  const [reminderForm, setReminderForm] = useState({ remindersEnabled: true, reminderDaysBefore: 3, reminderFrequencyDays: 0 });
+  const [savingReminder, setSavingReminder] = useState(false);
   const [page, setPage] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -60,6 +55,28 @@ function ClientList() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const openReminderSettings = (e, client) => {
+    e.stopPropagation();
+    setReminderClient(client);
+    setReminderForm({
+      remindersEnabled: client.remindersEnabled ?? true,
+      reminderDaysBefore: client.reminderDaysBefore ?? 3,
+      reminderFrequencyDays: client.reminderFrequencyDays ?? 0,
+    });
+  };
+
+  const saveReminderSettings = async () => {
+    setSavingReminder(true);
+    try {
+      const res = await api.patch(`/api/clients/${reminderClient.id}/reminders`, reminderForm);
+      setClients(prev => prev.map(c => c.id === reminderClient.id ? { ...c, ...res.data } : c));
+      setToast({ visible: true, message: "Reminder settings saved", type: "success" });
+      setReminderClient(null);
+    } catch {
+      setToast({ visible: true, message: "Failed to save reminder settings", type: "error" });
+    } finally { setSavingReminder(false); }
   };
 
   const handleDeleteClick = (client) => {
@@ -204,15 +221,26 @@ function ClientList() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      {isAdmin && (
+                      <div className="flex items-center justify-end gap-1">
                         <button
-                          onClick={() => handleDeleteClick(client)}
-                          className="p-2 text-slate-400 dark:text-slate-500 hover:text-rose-600 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 transition"
-                          title="Delete client"
+                          onClick={(e) => openReminderSettings(e, client)}
+                          className="p-2 rounded-lg transition hover:bg-slate-100 dark:hover:bg-slate-700"
+                          title="Reminder settings"
                         >
-                          <Trash2 size={18} />
+                          {client.remindersEnabled === false
+                            ? <BellOff size={16} className="text-slate-400" />
+                            : <Bell size={16} className="text-blue-500" />}
                         </button>
-                      )}
+                        {isAdmin && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDeleteClick(client); }}
+                            className="p-2 text-slate-400 dark:text-slate-500 hover:text-rose-600 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 transition"
+                            title="Delete client"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -253,6 +281,90 @@ function ClientList() {
         type={toast.type}
         onClose={() => setToast({ ...toast, visible: false })}
       />
+      {/* Reminder Settings Modal */}
+      {reminderClient && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700">
+              <div>
+                <h2 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Bell size={16} className="text-blue-500" /> Reminder Settings
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">{reminderClient.name}</p>
+              </div>
+              <button onClick={() => setReminderClient(null)} className="p-1 text-slate-400 hover:text-slate-600 rounded-lg transition">
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-5">
+              {/* Master toggle */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">Email reminders</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Send automatic invoice reminders to this client</p>
+                </div>
+                <button
+                  onClick={() => setReminderForm(f => ({ ...f, remindersEnabled: !f.remindersEnabled }))}
+                  className={`relative w-11 h-6 rounded-full transition-all duration-200 ${reminderForm.remindersEnabled ? "bg-blue-600" : "bg-slate-200 dark:bg-slate-600"}`}
+                >
+                  <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all duration-200 ${reminderForm.remindersEnabled ? "left-5" : "left-0.5"}`} />
+                </button>
+              </div>
+
+              {reminderForm.remindersEnabled && (
+                <>
+                  {/* Days before */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      Send reminder <span className="text-blue-600 font-bold">{reminderForm.reminderDaysBefore}</span> day{reminderForm.reminderDaysBefore !== 1 ? "s" : ""} before due date
+                    </label>
+                    <input type="range" min="1" max="14" step="1"
+                      value={reminderForm.reminderDaysBefore}
+                      onChange={e => setReminderForm(f => ({ ...f, reminderDaysBefore: Number(e.target.value) }))}
+                      className="w-full accent-blue-600"
+                    />
+                    <div className="flex justify-between text-xs text-slate-400">
+                      <span>1 day</span><span>7 days</span><span>14 days</span>
+                    </div>
+                  </div>
+
+                  {/* Repeat frequency */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      Repeat overdue reminder
+                    </label>
+                    <select
+                      value={reminderForm.reminderFrequencyDays}
+                      onChange={e => setReminderForm(f => ({ ...f, reminderFrequencyDays: Number(e.target.value) }))}
+                      className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                    >
+                      <option value={0}>Once only (no repeat)</option>
+                      <option value={3}>Every 3 days</option>
+                      <option value={7}>Every week</option>
+                      <option value={14}>Every 2 weeks</option>
+                      <option value={30}>Every month</option>
+                    </select>
+                    <p className="text-xs text-slate-400">After an invoice is overdue, how often to keep reminding</p>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex gap-3 px-5 pb-5">
+              <button onClick={() => setReminderClient(null)}
+                className="flex-1 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                Cancel
+              </button>
+              <button onClick={saveReminderSettings} disabled={savingReminder}
+                className="flex-1 py-2.5 text-sm font-semibold text-white bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow shadow-blue-600/25 hover:scale-[1.02] transition-all disabled:opacity-50">
+                {savingReminder ? "Saving…" : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ConfirmModal
         visible={showDeleteModal}
         title="Delete Customer"
