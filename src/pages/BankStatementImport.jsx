@@ -240,7 +240,7 @@ function BankStatementImport() {
               ? <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
               : <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />}
             <p className={`text-sm font-semibold ${allPassed ? "text-emerald-700 dark:text-emerald-300" : "text-amber-700 dark:text-amber-300"}`}>
-              {result.imported} of {result.total} row{result.total !== 1 ? "s" : ""} imported successfully
+              {result.imported} of {result.totalRows} row{result.totalRows !== 1 ? "s" : ""} imported successfully
             </p>
           </div>
 
