@@ -395,7 +395,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <TaxReport />
+                  {getUserFromToken()?.plan === "ACCOUNTANT_PRO" ? <TaxReport /> : <Navigate to="/settings/billing" replace />}
                 </Layout>
               </ProtectedRoute>
             }

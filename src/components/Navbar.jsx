@@ -108,7 +108,7 @@ function Navbar({ onClose }) {
     { path: "/accounting/accounts",                  label: "Chart of Accounts", icon: BookOpen },
     { path: "/accounting/entries",                   label: "Journal Entries",   icon: BookOpenCheck },
     { path: "/invoices/reports/aging",               label: "Aging Report",      icon: ClipboardList },
-    { path: "/invoices/reports/tax",                 label: "Tax Report",        icon: Calculator },
+    ...(isAccountantPro ? [{ path: "/invoices/reports/tax", label: "Tax Report", icon: Calculator }] : []),
     { path: "/accounting/reports/trial-balance",     label: "Trial Balance",     icon: Scale },
     { path: "/accounting/reports/profit-loss",       label: "Profit & Loss",     icon: TrendingUp },
     { path: "/accounting/reports/balance-sheet",     label: "Balance Sheet",     icon: LayoutList },
@@ -118,7 +118,7 @@ function Navbar({ onClose }) {
   // ── Reports visible in primary nav for business owners ──────────────────
   const reportItems = [
     { path: "/invoices/reports/aging",               label: "Aging Report",      icon: ClipboardList },
-    { path: "/invoices/reports/tax",                 label: "Tax Report",        icon: Calculator },
+    ...(isAccountantPro ? [{ path: "/invoices/reports/tax", label: "Tax Report", icon: Calculator }] : []),
     { path: "/accounting/reports/trial-balance",     label: "Trial Balance",     icon: Scale },
     { path: "/accounting/reports/profit-loss",       label: "Profit & Loss",     icon: TrendingUp },
     { path: "/accounting/reports/balance-sheet",     label: "Balance Sheet",     icon: LayoutList },
