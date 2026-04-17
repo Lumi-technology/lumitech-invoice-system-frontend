@@ -35,6 +35,7 @@ import BankStatementImport from "./pages/BankStatementImport";
 import AgingReport from "./pages/AgingReport";
 import Expenses from "./pages/Expenses";
 import AuditLogPage from "./pages/AuditLog";
+import TaxReport from "./pages/TaxReport";
 
 function App() {
   const [planLimitMessage, setPlanLimitMessage] = useState(null);
@@ -383,6 +384,18 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <AgingReport />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* TAX REPORT */}
+          <Route
+            path="/invoices/reports/tax"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <TaxReport />
                 </Layout>
               </ProtectedRoute>
             }
