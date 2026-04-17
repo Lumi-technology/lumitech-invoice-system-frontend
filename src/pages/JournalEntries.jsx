@@ -15,7 +15,13 @@ const fmtDate = (d) => {
   return new Date(d).toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric" });
 };
 
-const EMPTY_LINE = { accountId: "", description: "", debit: "", credit: "" };
+const EMPTY_LINE = { accountId: "", description: "", type: "DR", amount: "" };
+
+const VAT_OPTIONS = [
+  { value: "",       label: "No VAT" },
+  { value: "7.5",   label: "VAT 7.5%" },
+  { value: "EXEMPT", label: "VAT Exempt" },
+];
 
 // ── New Journal Entry Modal ─────────────────────────────────────────────────
 function NewEntryModal({ accounts, onClose, onSaved }) {
@@ -23,6 +29,7 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
     reference: "",
     description: "",
     date: new Date().toISOString().slice(0, 10),
+    vatRate: "",
     lines: [{ ...EMPTY_LINE }, { ...EMPTY_LINE }],
   });
   const [loading, setLoading] = useState(false);
@@ -30,10 +37,10 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
 
   const setField = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  const setLine = (i, k, v) => setForm(f => {
-    const lines = f.lines.map((l, idx) => idx === i ? { ...l, [k]: v } : l);
-    return { ...f, lines };
-  });
+  const setLine = (i, k, v) => setForm(f => ({
+    ...f,
+    lines: f.lines.map((l, idx) => idx === i ? { ...l, [k]: v } : l),
+  }));
 
   const addLine = () => setForm(f => ({ ...f, lines: [...f.lines, { ...EMPTY_LINE }] }));
 
@@ -42,28 +49,35 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
     lines: f.lines.filter((_, idx) => idx !== i),
   }));
 
-  const totalDebits = form.lines.reduce((s, l) => s + (parseFloat(l.debit) || 0), 0);
-  const totalCredits = form.lines.reduce((s, l) => s + (parseFloat(l.credit) || 0), 0);
+  // Compute totals from type + amount
+  const totalDebits  = form.lines.reduce((s, l) => s + (l.type === "DR" ? parseFloat(l.amount) || 0 : 0), 0);
+  const totalCredits = form.lines.reduce((s, l) => s + (l.type === "CR" ? parseFloat(l.amount) || 0 : 0), 0);
+
+  // VAT breakdown (informational — shown in totals, not auto-posted as a line)
+  const netAmount = totalDebits; // net = DR side (expenditure/revenue base)
+  const vatAmount = form.vatRate === "7.5" ? Math.round(netAmount * 0.075 * 100) / 100 : 0;
+
   const isBalanced = Math.abs(totalDebits - totalCredits) < 0.01;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!isBalanced) { setError("Debits and credits must balance."); return; }
-    const validLines = form.lines.filter(l => l.accountId);
-    if (validLines.length < 2) { setError("At least 2 lines with accounts are required."); return; }
+    if (!isBalanced) { setError("Debits and credits must balance before posting."); return; }
+    const validLines = form.lines.filter(l => l.accountId && parseFloat(l.amount) > 0);
+    if (validLines.length < 2) { setError("At least 2 lines with an account and amount are required."); return; }
 
     setLoading(true);
     try {
+      const vatNote = form.vatRate === "7.5" ? " [VAT 7.5%]" : form.vatRate === "EXEMPT" ? " [VAT Exempt]" : "";
       const payload = {
         reference: form.reference,
-        description: form.description,
+        description: (form.description || "") + vatNote,
         entryDate: form.date,
         lines: validLines.map(l => ({
           accountId: l.accountId,
           description: l.description,
-          debit: parseFloat(l.debit) || 0,
-          credit: parseFloat(l.credit) || 0,
+          debit:  l.type === "DR" ? parseFloat(l.amount) || 0 : 0,
+          credit: l.type === "CR" ? parseFloat(l.amount) || 0 : 0,
         })),
       };
       const { data } = await api.post("/api/accounting/entries", payload);
@@ -100,61 +114,65 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Header fields */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Date *</label>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-wide">Date *</label>
               <input
                 type="date"
                 value={form.date}
                 onChange={e => setField("date", e.target.value)}
                 required
-                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Reference</label>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-wide">Reference</label>
               <input
                 type="text"
                 value={form.reference}
                 onChange={e => setField("reference", e.target.value)}
                 placeholder="e.g. JE-001"
-                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Description</label>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-wide">Description</label>
               <input
                 type="text"
                 value={form.description}
                 onChange={e => setField("description", e.target.value)}
                 placeholder="e.g. Monthly expenses"
-                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
               />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-wide">VAT</label>
+              <select
+                value={form.vatRate}
+                onChange={e => setField("vatRate", e.target.value)}
+                className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+              >
+                {VAT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
             </div>
           </div>
 
           {/* Lines */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Journal Lines</label>
-              <button type="button" onClick={addLine} className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
-                <Plus size={12} />Add Line
-              </button>
-            </div>
             <div className="rounded-xl border border-slate-200 dark:border-slate-600 overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 dark:bg-slate-700/50">
                   <tr>
                     <th className="text-left px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Account</th>
-                    <th className="text-left px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hidden sm:table-cell">Description</th>
-                    <th className="text-right px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Debit</th>
-                    <th className="text-right px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Credit</th>
+                    <th className="text-left px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hidden md:table-cell">Note</th>
+                    <th className="px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 text-center">DR / CR</th>
+                    <th className="text-right px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Amount (₦)</th>
                     <th className="w-8" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                   {form.lines.map((line, i) => (
-                    <tr key={i} className="bg-white dark:bg-slate-800">
+                    <tr key={i} className={`transition-colors ${line.type === "DR" ? "bg-emerald-50/30 dark:bg-emerald-900/10" : "bg-rose-50/30 dark:bg-rose-900/10"}`}>
                       <td className="px-3 py-2">
                         <select
                           value={line.accountId}
@@ -167,7 +185,7 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
                           ))}
                         </select>
                       </td>
-                      <td className="px-3 py-2 hidden sm:table-cell">
+                      <td className="px-3 py-2 hidden md:table-cell">
                         <input
                           type="text"
                           value={line.description}
@@ -177,25 +195,45 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
                         />
                       </td>
                       <td className="px-3 py-2">
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={line.debit}
-                          onChange={e => setLine(i, "debit", e.target.value)}
-                          placeholder="0"
-                          className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white text-xs text-right focus:outline-none focus:ring-1 focus:ring-blue-500 transition"
-                        />
+                        {/* DR / CR Toggle */}
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setLine(i, "type", "DR")}
+                            className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all ${
+                              line.type === "DR"
+                                ? "bg-emerald-600 border-emerald-600 text-white shadow-sm"
+                                : "bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-400 dark:text-slate-500 hover:border-emerald-400 hover:text-emerald-600"
+                            }`}
+                          >
+                            DR
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setLine(i, "type", "CR")}
+                            className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all ${
+                              line.type === "CR"
+                                ? "bg-rose-600 border-rose-600 text-white shadow-sm"
+                                : "bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-400 dark:text-slate-500 hover:border-rose-400 hover:text-rose-600"
+                            }`}
+                          >
+                            CR
+                          </button>
+                        </div>
                       </td>
                       <td className="px-3 py-2">
                         <input
                           type="number"
                           min="0"
                           step="0.01"
-                          value={line.credit}
-                          onChange={e => setLine(i, "credit", e.target.value)}
-                          placeholder="0"
-                          className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white text-xs text-right focus:outline-none focus:ring-1 focus:ring-blue-500 transition"
+                          value={line.amount}
+                          onChange={e => setLine(i, "amount", e.target.value)}
+                          placeholder="0.00"
+                          className={`w-full px-2 py-1.5 border rounded-lg bg-white dark:bg-slate-700 dark:text-white text-xs text-right focus:outline-none focus:ring-1 transition ${
+                            line.type === "DR"
+                              ? "border-emerald-200 dark:border-emerald-700/40 focus:ring-emerald-500"
+                              : "border-rose-200 dark:border-rose-700/40 focus:ring-rose-500"
+                          }`}
                         />
                       </td>
                       <td className="px-2 py-2">
@@ -211,23 +249,54 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="border-t border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50">
+                <tfoot className="border-t-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50">
+                  {/* VAT breakdown row */}
+                  {form.vatRate === "7.5" && vatAmount > 0 && (
+                    <tr className="text-xs text-amber-700 dark:text-amber-400">
+                      <td colSpan={2} className="px-3 py-1.5 hidden md:table-cell font-medium">VAT @ 7.5% (reference)</td>
+                      <td colSpan={2} className="px-3 py-1.5 text-right font-semibold">{fmt(vatAmount)}</td>
+                      <td />
+                    </tr>
+                  )}
+                  {form.vatRate === "EXEMPT" && (
+                    <tr className="text-xs text-slate-500 dark:text-slate-400">
+                      <td colSpan={4} className="px-3 py-1.5">VAT Exempt — no VAT applicable on this entry</td>
+                      <td />
+                    </tr>
+                  )}
+                  {/* Totals */}
                   <tr>
-                    <td colSpan={2} className="px-3 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 hidden sm:table-cell">Totals</td>
-                    <td className="px-3 py-2 text-right text-xs font-semibold text-slate-700 dark:text-slate-200">{fmt(totalDebits)}</td>
-                    <td className="px-3 py-2 text-right text-xs font-semibold text-slate-700 dark:text-slate-200">{fmt(totalCredits)}</td>
+                    <td colSpan={2} className="px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hidden md:table-cell">Totals</td>
+                    <td className="px-3 py-2.5 text-center">
+                      <span className={`text-xs font-bold ${isBalanced ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>
+                        {isBalanced ? "Balanced ✓" : "Out of balance"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2.5 text-right text-xs font-semibold">
+                      <span className="text-emerald-700 dark:text-emerald-300">DR {fmt(totalDebits)}</span>
+                      <span className="mx-1 text-slate-300 dark:text-slate-600">/</span>
+                      <span className="text-rose-700 dark:text-rose-300">CR {fmt(totalCredits)}</span>
+                    </td>
                     <td />
                   </tr>
-                  {!isBalanced && (
+                  {!isBalanced && totalDebits + totalCredits > 0 && (
                     <tr>
                       <td colSpan={5} className="px-3 pb-2 text-xs text-rose-600 dark:text-rose-400 font-medium">
-                        Difference: {fmt(Math.abs(totalDebits - totalCredits))} — debits and credits must balance.
+                        Difference: {fmt(Math.abs(totalDebits - totalCredits))} — debits and credits must balance before posting.
                       </td>
                     </tr>
                   )}
                 </tfoot>
               </table>
             </div>
+            {/* Add line — below the table */}
+            <button
+              type="button"
+              onClick={addLine}
+              className="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+            >
+              <Plus size={12} /> Add Line
+            </button>
           </div>
 
           <div className="flex justify-end gap-3 pt-1">
