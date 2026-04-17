@@ -38,7 +38,6 @@ export default function TaxReport() {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [exporting, setExporting] = useState(false);
 
   const fetchReport = async () => {
     if (!from || !to) return;
@@ -56,24 +55,34 @@ export default function TaxReport() {
 
   useEffect(() => { fetchReport(); }, []);
 
-  const handleExport = async () => {
-    setExporting(true);
-    try {
-      const res = await api.get("/api/invoices/reports/tax/export", {
-        params: { from, to },
-        responseType: "blob",
-      });
-      const url = URL.createObjectURL(new Blob([res.data], { type: "text/csv" }));
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `tax-report-${from}-to-${to}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      setError("Export failed. Please try again.");
-    } finally {
-      setExporting(false);
-    }
+  const handleExport = () => {
+    if (!report) return;
+    const escape = (v) => {
+      const s = v == null ? "" : String(v);
+      return s.includes(",") || s.includes('"') || s.includes("\n") ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const rows = [
+      ["Invoice No", "Client", "Issue Date", "Subtotal (NGN)", "VAT (NGN)", "WHT (NGN)", "WHT Type", "Total (NGN)"],
+      ...report.invoices.map(inv => [
+        inv.invoiceNumber,
+        inv.clientName,
+        inv.issueDate,
+        inv.subtotal ?? 0,
+        inv.vatAmount ?? 0,
+        inv.whtAmount ?? 0,
+        inv.whtType ?? "",
+        inv.total ?? 0,
+      ]),
+      [],
+      ["", "", "TOTALS", "", report.totalVatPayable ?? 0, report.totalWhtWithheld ?? 0, "", ""],
+    ];
+    const csv = rows.map(r => r.map(escape).join(",")).join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `tax-report-${from}-to-${to}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -90,11 +99,11 @@ export default function TaxReport() {
         </div>
         <button
           onClick={handleExport}
-          disabled={!report || exporting}
+          disabled={!report}
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl shadow-sm transition disabled:opacity-50"
         >
           <Download className="w-4 h-4" />
-          {exporting ? "Exporting…" : "Export for FIRS (CSV)"}
+          Export for FIRS (CSV)
         </button>
       </div>
 
