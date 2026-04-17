@@ -90,7 +90,7 @@ function Navbar({ onClose }) {
     setUserTypeState(next);
   };
 
-  const isAccountantPro = plan === "ACCOUNTANT_PRO";
+  const isAccountantPro = getUserFromToken()?.plan === "ACCOUNTANT_PRO";
 
   // ── Primary nav items shared by both modes ──────────────────────────────
   const coreItems = [
