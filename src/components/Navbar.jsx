@@ -122,13 +122,15 @@ function Navbar({ onClose }) {
     { path: "/accounting/reports/balance-sheet",     label: "Balance Sheet",     icon: LayoutList },
   ];
 
+  const isAccountantPro = plan === "ACCOUNTANT_PRO";
+
   const bottomItems = [
-    { path: "/expenses",                      label: "Expenses",     icon: Receipt },
-    ...(!isStaff ? [{ path: "/team",         label: "Team",         icon: UsersRound }] : []),
-    { path: "/settings/org",                  label: "Org Settings", icon: Building2 },
-    { path: "/settings/billing",              label: "Billing",      icon: CreditCard },
-    ...(!isStaff ? [{ path: "/audit",        label: "Audit Trail",  icon: ShieldCheck }] : []),
-    ...(isPlatformAdmin ? [{ path: "/admin",  label: "Platform Admin", icon: ShieldCheck }] : []),
+    ...(isAccountantPro ? [{ path: "/expenses",  label: "Expenses",    icon: Receipt }] : []),
+    ...(!isStaff ? [{ path: "/team",             label: "Team",        icon: UsersRound }] : []),
+    { path: "/settings/org",                      label: "Org Settings", icon: Building2 },
+    { path: "/settings/billing",                  label: "Billing",     icon: CreditCard },
+    ...(isAccountantPro && !isStaff ? [{ path: "/audit", label: "Audit Trail", icon: ShieldCheck }] : []),
+    ...(isPlatformAdmin ? [{ path: "/admin",      label: "Platform Admin", icon: ShieldCheck }] : []),
   ];
 
   const handleLogout = () => {

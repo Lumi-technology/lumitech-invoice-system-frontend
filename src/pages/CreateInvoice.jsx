@@ -1,7 +1,7 @@
 // CreateInvoice.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../services/api";
+import api, { getUserFromToken } from "../services/api";
 import {
   ArrowLeft,
   Plus,
@@ -23,6 +23,7 @@ function CreateInvoice() {
   const navigate = useNavigate();
 
   const today = new Date().toISOString().split("T")[0];
+  const isAccountantPro = getUserFromToken()?.plan === "ACCOUNTANT_PRO";
 
   const [projects, setProjects] = useState([]);
   const [ccInput, setCcInput] = useState("");
@@ -32,6 +33,9 @@ function CreateInvoice() {
     issueDate: today,
     dueDate: "",
     tax: 0,
+    vatRate: 0,
+    whtRate: 0,
+    whtType: "",
     ccEmails: [],
     items: [{ description: "", quantity: 1, unitPrice: 0 }]
   });
@@ -58,7 +62,9 @@ function CreateInvoice() {
   }, []);
 
   const subtotal = form.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
-  const total = subtotal + Number(form.tax || 0);
+  const vatAmount = subtotal * Number(form.vatRate || 0) / 100;
+  const whtAmount = subtotal * Number(form.whtRate || 0) / 100;
+  const total = subtotal + Number(form.tax || 0) + vatAmount;
 
   useEffect(() => {
     if (total > 0 && error) setError("");
@@ -361,7 +367,7 @@ function CreateInvoice() {
               </div>
 
               <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-500">Tax</span>
+                <span className="text-slate-500">Other Tax (₦)</span>
                 <div className="relative w-36">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₦</span>
                   <input
@@ -375,10 +381,87 @@ function CreateInvoice() {
                 </div>
               </div>
 
+              {isAccountantPro && (
+                <>
+                  {/* VAT */}
+                  <div className="flex justify-between items-center text-sm">
+                    <div>
+                      <span className="text-slate-500">VAT Rate (%)</span>
+                      <span className="ml-1.5 text-xs text-emerald-600 font-medium">+added to total</span>
+                    </div>
+                    <div className="relative w-36">
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.5"
+                        placeholder="e.g. 7.5"
+                        value={form.vatRate || ""}
+                        onChange={e => setForm({ ...form, vatRate: Number(e.target.value) })}
+                        className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm text-right"
+                      />
+                    </div>
+                  </div>
+                  {vatAmount > 0 && (
+                    <div className="flex justify-between items-center text-xs text-slate-400 -mt-2">
+                      <span>VAT amount</span>
+                      <span>{formatCurrency(vatAmount)}</span>
+                    </div>
+                  )}
+
+                  {/* WHT */}
+                  <div className="flex justify-between items-center text-sm">
+                    <div>
+                      <span className="text-slate-500">WHT Rate (%)</span>
+                      <span className="ml-1.5 text-xs text-amber-600 font-medium">client withholds</span>
+                    </div>
+                    <div className="relative w-36">
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.5"
+                        placeholder="e.g. 5"
+                        value={form.whtRate || ""}
+                        onChange={e => setForm({ ...form, whtRate: Number(e.target.value) })}
+                        className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm text-right"
+                      />
+                    </div>
+                  </div>
+                  {form.whtRate > 0 && (
+                    <div className="space-y-1 -mt-2">
+                      <div className="flex justify-between items-center text-xs text-slate-400">
+                        <span>WHT amount (withheld)</span>
+                        <span>{formatCurrency(whtAmount)}</span>
+                      </div>
+                      <select
+                        value={form.whtType}
+                        onChange={e => setForm({ ...form, whtType: e.target.value })}
+                        className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-xs text-slate-600"
+                      >
+                        <option value="">WHT Type (optional)</option>
+                        <option value="CONSULTING">Consulting / Professional fees</option>
+                        <option value="RENT">Rent</option>
+                        <option value="DIVIDEND">Dividend</option>
+                        <option value="INTEREST">Interest</option>
+                        <option value="ROYALTY">Royalty</option>
+                        <option value="CONTRACT">Contract / Supply</option>
+                        <option value="OTHER">Other</option>
+                      </select>
+                    </div>
+                  )}
+                </>
+              )}
+
               <div className="border-t border-slate-100 pt-4 flex justify-between items-center">
                 <span className="text-base font-semibold text-slate-900">Total</span>
                 <span className="text-xl font-bold text-blue-600">{formatCurrency(total)}</span>
               </div>
+              {isAccountantPro && whtAmount > 0 && (
+                <p className="text-xs text-amber-600 -mt-2">
+                  Net receivable after WHT: {formatCurrency(total - whtAmount)}
+                </p>
+              )}
             </div>
           </div>
 

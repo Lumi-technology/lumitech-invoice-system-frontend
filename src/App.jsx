@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { getUserFromToken } from "./services/api";
 
 import Dashboard from "./pages/Dashboard";
 import CreateInvoice from "./pages/CreateInvoice";
@@ -387,8 +388,16 @@ function App() {
             }
           />
 
-          <Route path="/expenses" element={<ProtectedRoute><Layout><Expenses /></Layout></ProtectedRoute>} />
-          <Route path="/audit" element={<ProtectedRoute><Layout><AuditLogPage /></Layout></ProtectedRoute>} />
+          <Route path="/expenses" element={
+            <ProtectedRoute><Layout>
+              {getUserFromToken()?.plan === "ACCOUNTANT_PRO" ? <Expenses /> : <Navigate to="/settings/billing" replace />}
+            </Layout></ProtectedRoute>
+          } />
+          <Route path="/audit" element={
+            <ProtectedRoute><Layout>
+              {getUserFromToken()?.plan === "ACCOUNTANT_PRO" ? <AuditLogPage /> : <Navigate to="/settings/billing" replace />}
+            </Layout></ProtectedRoute>
+          } />
 
           {/* PLATFORM ADMIN */}
           <Route

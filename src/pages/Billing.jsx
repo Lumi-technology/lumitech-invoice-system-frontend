@@ -309,10 +309,12 @@ function Billing() {
               <ul className="space-y-2.5 mb-6 flex-1">
                 {[
                   "Everything in Business",
+                  "Expense management + receipts",
+                  "Audit Trail (full activity log)",
+                  "VAT & WHT tracking (FIRS)",
                   "Multi-business management",
                   "Team roles & permissions",
                   "Priority support",
-                  "Advanced controls",
                 ].map(f => (
                   <li key={f} className="flex items-start gap-2 text-xs text-slate-600">
                     <CheckCircle className="w-3.5 h-3.5 text-violet-500 flex-shrink-0 mt-0.5" />

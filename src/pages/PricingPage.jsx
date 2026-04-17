@@ -37,6 +37,14 @@ const features = [
     ],
   },
   {
+    category: "Compliance & Audit",
+    rows: [
+      { label: "Expense management + receipts", values: [false, false, false, true]  },
+      { label: "Audit Trail (full activity log)",values: [false, false, false, true]  },
+      { label: "VAT & WHT tracking (FIRS)",     values: [false, false, false, true]  },
+    ],
+  },
+  {
     category: "Team & Access",
     rows: [
       { label: "Team members (users)",          values: ["2 users", "5 users", "Unlimited", "Unlimited"] },
