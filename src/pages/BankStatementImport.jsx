@@ -71,9 +71,7 @@ function BankStatementImport() {
     formData.append("file", file);
 
     try {
-      const { data } = await api.post("/api/accounting/import", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const { data } = await api.post("/api/accounting/import", formData);
       // Expected: { imported: 9, total: 10, errors: ["Row 3: invalid amount", ...] }
       setResult(data);
       setFile(null);
