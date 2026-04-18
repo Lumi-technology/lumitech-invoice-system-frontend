@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import OnboardingBanner from "./OnboardingBanner";
 import TrialBanner from "./TrialBanner";
+import NotificationBell from "./NotificationBell";
 import { Menu } from "lucide-react";
 
 const PAGE_TITLES = {
@@ -75,6 +76,7 @@ function Layout({ children }) {
             </div>
             <span className="font-semibold text-slate-900 dark:text-white truncate">{pageTitle}</span>
           </div>
+          <NotificationBell />
         </div>
 
         <TrialBanner />

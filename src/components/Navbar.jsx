@@ -9,6 +9,7 @@ import {
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
 import { getUserType, setUserType, getRegisteredAs, USER_TYPES, paymentLabel } from "../utils/userType";
+import NotificationBell from "./NotificationBell";
 
 const PLAN_BADGE = {
   FREE:           "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400",
@@ -164,14 +165,17 @@ function Navbar({ onClose }) {
               <X size={18} className="text-slate-500 dark:text-slate-400" />
             </button>
           )}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="hidden lg:flex p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"
-          >
-            {effectiveCollapsed
-              ? <ChevronRight size={18} className="text-slate-500 dark:text-slate-400" />
-              : <ChevronLeft size={18} className="text-slate-500 dark:text-slate-400" />}
-          </button>
+          <div className="hidden lg:flex items-center gap-1">
+            {!effectiveCollapsed && <NotificationBell />}
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+            >
+              {effectiveCollapsed
+                ? <ChevronRight size={18} className="text-slate-500 dark:text-slate-400" />
+                : <ChevronLeft size={18} className="text-slate-500 dark:text-slate-400" />}
+            </button>
+          </div>
         </div>
       </div>
 
