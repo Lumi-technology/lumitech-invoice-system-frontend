@@ -100,11 +100,11 @@ function InvoiceList() {
   const visibleInvoices = filteredInvoices.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   const StatCard = ({ title, value, icon: Icon, color, trend }) => (
-    <div className="group relative bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
+    <div className="group relative bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
-          <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{value}</p>
+          <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1.5 sm:mt-2">{value}</p>
           {trend && (
             <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1">
               <TrendingUp className="w-3 h-3" /> +{trend}% from last month
@@ -122,8 +122,8 @@ function InvoiceList() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-xl dark:bg-slate-800/80 border-b border-slate-200/60 dark:border-slate-700 sticky top-0 z-20">
+      {/* Header — hidden on mobile (Layout provides the mobile top bar) */}
+      <header className="hidden lg:block bg-white/80 backdrop-blur-xl dark:bg-slate-800/80 border-b border-slate-200/60 dark:border-slate-700 sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             {/* Logo & Title */}
@@ -183,7 +183,25 @@ function InvoiceList() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        {/* Mobile quick actions — only visible below lg breakpoint */}
+        <div className="flex items-center justify-between gap-3 mb-5 lg:hidden">
+          <Link
+            to="/clients/create"
+            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition shadow-sm text-sm font-medium"
+          >
+            <Users className="w-4 h-4" />
+            Add Customer
+          </Link>
+          <Link
+            to="/create"
+            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-medium rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl transition-all text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            New Invoice
+          </Link>
+        </div>
+
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
