@@ -50,8 +50,8 @@ function NavLink({ item, collapsed, onClick, isActive }) {
 function Navbar({ onClose }) {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  // On mobile the nav is a full-width drawer — never show icon-only mode
-  const effectiveCollapsed = onClose ? false : collapsed;
+  // On mobile the collapse button is hidden (lg:hidden), so collapsed only applies on desktop
+  const effectiveCollapsed = collapsed;
   const [plan, setPlan] = useState(getUserFromToken()?.plan ?? null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [userType, setUserTypeState] = useState(getUserType());
