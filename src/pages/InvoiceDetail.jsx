@@ -20,7 +20,6 @@ import {
   CreditCard,
   Wallet,
   RefreshCw,
-  ExternalLink,
   AlertCircle,
   Plus,
 } from "lucide-react";
@@ -62,11 +61,6 @@ function InvoiceDetail() {
   // Send reminder state
   const [isSendingReminder, setIsSendingReminder] = useState(false);
 
-  // Paystack online payment state
-  const [isPayingOnline, setIsPayingOnline] = useState(false);
-  const [isPolling, setIsPolling] = useState(false);
-  const pollRef = useRef(null);
-  const pollCountRef = useRef(0);
 
   const user = getUserFromToken();
   const isAdmin =
@@ -103,17 +97,6 @@ function InvoiceDetail() {
     fetchInvoice();
   }, [fetchInvoice]);
 
-  // Stop polling when invoice becomes PAID or on unmount
-  useEffect(() => {
-    if (invoice?.status === "PAID" && isPolling) {
-      clearInterval(pollRef.current);
-      setIsPolling(false);
-    }
-  }, [invoice?.status, isPolling]);
-
-  useEffect(() => {
-    return () => clearInterval(pollRef.current);
-  }, []);
 
   // Open edit modal pre-filled with current invoice data
   const openEditModal = () => {
@@ -190,32 +173,6 @@ function InvoiceDetail() {
     }
   };
 
-  // Paystack Pay Now handler
-  const handlePayNow = async () => {
-    try {
-      setIsPayingOnline(true);
-      const res = await api.get(`/api/invoices/${id}/pay`);
-      window.open(res.data.paymentUrl, "_blank");
-      // Start polling every 5s for up to 30s
-      pollCountRef.current = 0;
-      setIsPolling(true);
-      pollRef.current = setInterval(async () => {
-        pollCountRef.current += 1;
-        await fetchInvoice();
-        if (pollCountRef.current >= 6) {
-          clearInterval(pollRef.current);
-          setIsPolling(false);
-        }
-      }, 5000);
-    } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        "Failed to initiate payment. Ensure the client has an email address.";
-      setToast({ visible: true, message: msg, type: "error" });
-    } finally {
-      setIsPayingOnline(false);
-    }
-  };
 
   const formatCurrency = (amount) =>
     new Intl.NumberFormat("en-NG", {
@@ -340,8 +297,8 @@ function InvoiceDetail() {
             title="Refresh status"
             className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 transition shadow-sm"
           >
-            <RefreshCw size={16} className={isPolling ? "animate-spin" : ""} />
-            {isPolling ? "Checking..." : "Refresh"}
+            <RefreshCw size={16} />
+            Refresh
           </button>
           <button
             onClick={downloadPdf}
@@ -369,16 +326,6 @@ function InvoiceDetail() {
             >
               <Mail size={16} />
               {isSendingReminder ? "Sending..." : "Send Reminder"}
-            </button>
-          )}
-          {invoice.status !== "PAID" && (
-            <button
-              onClick={handlePayNow}
-              disabled={isPayingOnline}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <CreditCard size={16} />
-              {isPayingOnline ? "Opening..." : "Pay Now"}
             </button>
           )}
           {canMarkPaid && invoice.status !== "PAID" && (
@@ -439,17 +386,6 @@ function InvoiceDetail() {
                       <FileText className="w-3.5 h-3.5" />
                       {invoice.projectName}
                     </span>
-                  )}
-                  {invoice.paystackPaymentUrl && (
-                    <a
-                      href={invoice.paystackPaymentUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium transition-colors"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      Pay Online
-                    </a>
                   )}
                 </div>
               </div>
