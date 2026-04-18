@@ -4,11 +4,16 @@ import { Navigate } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
 import {
   ShieldCheck, Building2, Users, FileText, CheckCircle, XCircle,
-  ChevronDown, FolderOpen, AlertTriangle, X, ChevronRight,
-  Trash2, UserCircle, TrendingUp, CreditCard, Clock,
+  ChevronDown, FolderOpen, AlertTriangle, X,
+  Trash2, UserCircle, Clock,
 } from "lucide-react";
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend,
+  BarChart, Bar,
+} from "recharts";
 
 const PLANS = ["FREE", "STARTER", "GROWTH", "PRO", "ACCOUNTANT_PRO"];
 
@@ -26,6 +31,14 @@ const PLAN_STYLE = {
   GROWTH:         "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300",
   PRO:            "bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300",
   ACCOUNTANT_PRO: "bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300",
+};
+
+const PLAN_COLORS = {
+  FREE:           "#94a3b8",
+  STARTER:        "#3b82f6",
+  GROWTH:         "#10b981",
+  PRO:            "#6366f1",
+  ACCOUNTANT_PRO: "#a855f7",
 };
 
 const fmtDate = (d) => {
@@ -77,7 +90,7 @@ function SuspendModal({ org, onConfirm, onCancel, loading }) {
   );
 }
 
-// ── Org row with expandable users ────────────────────────────────────────────
+// ── Org row ──────────────────────────────────────────────────────────────────
 function OrgRow({ org, isOwnOrg, onSuspend, onUnsuspend, onDelete, onPlanChange }) {
   const [expanded, setExpanded] = useState(false);
   const [users, setUsers] = useState(null);
@@ -115,7 +128,7 @@ function OrgRow({ org, isOwnOrg, onSuspend, onUnsuspend, onDelete, onPlanChange 
         </td>
 
         {/* Joined */}
-        <td className="px-4 py-4 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+        <td className="px-4 py-4 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap hidden sm:table-cell">
           {fmtDate(org.createdAt)}
         </td>
 
@@ -146,10 +159,10 @@ function OrgRow({ org, isOwnOrg, onSuspend, onUnsuspend, onDelete, onPlanChange 
         </td>
 
         {/* Counts */}
-        <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.userCount ?? "—"}</td>
-        <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.clientCount ?? "—"}</td>
-        <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.invoiceCount ?? "—"}</td>
-        <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.projectCount ?? "—"}</td>
+        <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300 hidden md:table-cell">{org.userCount ?? "—"}</td>
+        <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300 hidden lg:table-cell">{org.clientCount ?? "—"}</td>
+        <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300 hidden lg:table-cell">{org.invoiceCount ?? "—"}</td>
+        <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300 hidden xl:table-cell">{org.projectCount ?? "—"}</td>
 
         {/* Actions */}
         <td className="px-4 py-4">
@@ -163,7 +176,9 @@ function OrgRow({ org, isOwnOrg, onSuspend, onUnsuspend, onDelete, onPlanChange 
               {expanded ? "Hide" : "Users"}
             </button>
 
-            {isSuspended ? (
+            {isOwnOrg ? (
+              <span className="text-xs text-slate-400 italic px-2">Your org</span>
+            ) : isSuspended ? (
               <>
                 <button
                   onClick={() => onUnsuspend(org)}
@@ -178,21 +193,27 @@ function OrgRow({ org, isOwnOrg, onSuspend, onUnsuspend, onDelete, onPlanChange 
                   <Trash2 size={12} />Delete
                 </button>
               </>
-            ) : isOwnOrg ? (
-              <span className="text-xs text-slate-400 italic px-2">Your org</span>
             ) : (
-              <button
-                onClick={() => onSuspend(org)}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-700 rounded-lg hover:bg-rose-100 transition"
-              >
-                <XCircle size={12} />Suspend
-              </button>
+              <>
+                <button
+                  onClick={() => onSuspend(org)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg hover:bg-amber-100 transition"
+                >
+                  <XCircle size={12} />Suspend
+                </button>
+                <button
+                  onClick={() => onDelete(org)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-700 rounded-lg hover:bg-rose-100 transition"
+                >
+                  <Trash2 size={12} />Delete
+                </button>
+              </>
             )}
           </div>
         </td>
       </tr>
 
-      {/* Expanded users row */}
+      {/* Expanded users */}
       {expanded && (
         <tr className="bg-slate-50/70 dark:bg-slate-700/30">
           <td colSpan={9} className="px-6 py-3">
@@ -307,7 +328,13 @@ function SuperAdmin() {
     try {
       await api.delete(`/api/superadmin/organisations/${deleteTarget.id}`);
       setOrgs(prev => prev.filter(o => o.id !== deleteTarget.id));
-      if (stats) setStats(s => ({ ...s, totalOrganisations: s.totalOrganisations - 1, suspendedOrganisations: s.suspendedOrganisations - 1 }));
+      if (stats) setStats(s => ({
+        ...s,
+        totalOrganisations: s.totalOrganisations - 1,
+        ...(deleteTarget.suspended
+          ? { suspendedOrganisations: s.suspendedOrganisations - 1 }
+          : { activeOrganisations: s.activeOrganisations - 1 }),
+      }));
       showToast(`${deleteTarget.name} deleted`);
       setDeleteTarget(null);
     } catch (err) {
@@ -316,6 +343,19 @@ function SuperAdmin() {
       setDeleting(false);
     }
   };
+
+  // Build plan distribution data for bar chart
+  const planChartData = stats ? PLANS.map(p => ({
+    name: PLAN_LABEL[p],
+    value: { FREE: stats.freeOrgs, STARTER: stats.starterOrgs, GROWTH: stats.growthOrgs, PRO: stats.proOrgs, ACCOUNTANT_PRO: stats.accountantProOrgs }[p] ?? 0,
+    fill: PLAN_COLORS[p],
+  })) : [];
+
+  // Active vs suspended donut
+  const donutData = stats ? [
+    { name: "Active",    value: stats.activeOrganisations,    fill: "#10b981" },
+    { name: "Suspended", value: stats.suspendedOrganisations, fill: "#f43f5e" },
+  ] : [];
 
   const StatCard = ({ label, value, icon: Icon, color, sub }) => (
     <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
@@ -353,19 +393,78 @@ function SuperAdmin() {
         <StatCard label="Projects"    value={stats?.totalProjects}          icon={FolderOpen}  color="bg-gradient-to-br from-cyan-500 to-sky-600" />
       </div>
 
-      {/* Plan breakdown */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        {PLANS.map(p => {
-          const count = stats
-            ? ({ FREE: stats.freeOrgs, STARTER: stats.starterOrgs, GROWTH: stats.growthOrgs, PRO: stats.proOrgs, ACCOUNTANT_PRO: stats.accountantProOrgs }[p] ?? 0)
-            : "—";
-          return (
-            <div key={p} className={`rounded-2xl border border-current/10 px-5 py-4 flex items-center justify-between ${PLAN_STYLE[p]}`}>
-              <span className="text-sm font-semibold">{PLAN_LABEL[p]}</span>
-              <span className="text-2xl font-bold">{count}</span>
+      {/* Charts row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Signups trend */}
+        <div className="lg:col-span-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">New Signups — Last 6 Months</p>
+          {loading ? (
+            <div className="h-48 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-4 border-slate-200 border-t-blue-600" />
             </div>
-          );
-        })}
+          ) : (
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={stats?.signupsByMonth ?? []} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="signupGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#3b82f6" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: 12 }}
+                  labelStyle={{ fontWeight: 600 }}
+                />
+                <Area type="monotone" dataKey="count" name="Signups" stroke="#3b82f6" strokeWidth={2} fill="url(#signupGrad)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+
+        {/* Active vs Suspended donut */}
+        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">Org Status</p>
+          {loading ? (
+            <div className="h-48 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-4 border-slate-200 border-t-blue-600" />
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie data={donutData} cx="50%" cy="45%" innerRadius={52} outerRadius={76} paddingAngle={3} dataKey="value">
+                  {donutData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
+                </Pie>
+                <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: 12 }} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
+
+      {/* Plan distribution bar chart */}
+      <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
+        <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">Plan Distribution</p>
+        {loading ? (
+          <div className="h-40 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-4 border-slate-200 border-t-blue-600" />
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={160}>
+            <BarChart data={planChartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: 12 }} />
+              <Bar dataKey="value" name="Orgs" radius={[6, 6, 0, 0]}>
+                {planChartData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       {/* Recent Registrations */}
@@ -435,13 +534,13 @@ function SuperAdmin() {
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-800/50">
                   <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Organisation</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Joined</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden sm:table-cell">Joined</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Plan</th>
-                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Users</th>
-                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Clients</th>
-                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Invoices</th>
-                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Projects</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">Users</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">Clients</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">Invoices</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden xl:table-cell">Projects</th>
                   <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -475,7 +574,7 @@ function SuperAdmin() {
       <ConfirmModal
         visible={!!deleteTarget}
         title="Delete Organisation"
-        message={`Permanently delete "${deleteTarget?.name}"? This cannot be undone. All data will be lost.`}
+        message={`Permanently delete "${deleteTarget?.name}"? This will remove all users, invoices, clients, and data. This cannot be undone.`}
         onConfirm={doDelete}
         onCancel={() => setDeleteTarget(null)}
         loading={deleting}
