@@ -3,30 +3,40 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
 import {
-  ArrowLeft,
-  Plus,
-  Trash2,
-  Calendar,
-  User,
-  Save,
-  Mail,
-  X,
-  FolderOpen,
-  FileText,
-  Receipt,
+  ArrowLeft, Plus, Trash2, Calendar, User, Save,
+  Mail, X, FolderOpen, FileText, Receipt,
 } from "lucide-react";
+
+const inputCls = "w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm";
+const labelCls = "block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5";
+
+function Section({ icon: Icon, title, badge, action, children }) {
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {Icon && <Icon className="w-4 h-4 text-blue-500" />}
+          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">{title}</h2>
+          {badge && <span className="text-xs text-slate-400 dark:text-slate-500 font-normal">{badge}</span>}
+        </div>
+        {action}
+      </div>
+      <div className="p-6">{children}</div>
+    </div>
+  );
+}
 
 function CreateInvoice() {
   const [clients, setClients] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [ccInput, setCcInput] = useState("");
   const navigate = useNavigate();
 
   const today = new Date().toISOString().split("T")[0];
   const isAccountantPro = getUserFromToken()?.plan === "ACCOUNTANT_PRO";
 
-  const [projects, setProjects] = useState([]);
-  const [ccInput, setCcInput] = useState("");
   const [form, setForm] = useState({
     clientId: "",
     projectId: "",
@@ -37,8 +47,30 @@ function CreateInvoice() {
     whtRate: 0,
     whtType: "",
     ccEmails: [],
-    items: [{ description: "", quantity: 1, unitPrice: 0 }]
+    items: [{ description: "", quantity: 1, unitPrice: 0 }],
   });
+
+  useEffect(() => {
+    api.get("api/clients", { params: { page: 0, size: 100 } })
+      .then(res => setClients(res.data.content))
+      .catch(() => {});
+    api.get("/api/projects", { params: { page: 0, size: 100 } })
+      .then(res => setProjects(res.data.content ?? res.data ?? []))
+      .catch(() => {});
+  }, []);
+
+  const subtotal = form.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+  const vatAmount = subtotal * Number(form.vatRate || 0) / 100;
+  const whtAmount = subtotal * Number(form.whtRate || 0) / 100;
+  const total = subtotal + Number(form.tax || 0) + vatAmount;
+
+  useEffect(() => { if (total > 0 && error) setError(""); }, [total, error]);
+
+  const handleItemChange = (i, field, value) => {
+    const items = [...form.items];
+    items[i][field] = value;
+    setForm({ ...form, items });
+  };
 
   const addCcEmail = () => {
     const email = ccInput.trim();
@@ -48,41 +80,8 @@ function CreateInvoice() {
     setCcInput("");
   };
 
-  const removeCcEmail = (email) => {
-    setForm({ ...form, ccEmails: form.ccEmails.filter(e => e !== email) });
-  };
-
-  useEffect(() => {
-    api.get("api/clients", { params: { page: 0, size: 100 } })
-      .then(res => setClients(res.data.content))
-      .catch(err => console.error(err));
-    api.get("/api/projects", { params: { page: 0, size: 100 } })
-      .then(res => setProjects(res.data.content ?? res.data ?? []))
-      .catch(() => {});
-  }, []);
-
-  const subtotal = form.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
-  const vatAmount = subtotal * Number(form.vatRate || 0) / 100;
-  const whtAmount = subtotal * Number(form.whtRate || 0) / 100;
-  const total = subtotal + Number(form.tax || 0) + vatAmount;
-
-  useEffect(() => {
-    if (total > 0 && error) setError("");
-  }, [total, error]);
-
-  const handleItemChange = (index, field, value) => {
-    const updatedItems = [...form.items];
-    updatedItems[index][field] = value;
-    setForm({ ...form, items: updatedItems });
-  };
-
-  const addItem = () => {
-    setForm({ ...form, items: [...form.items, { description: "", quantity: 1, unitPrice: 0 }] });
-  };
-
-  const removeItem = (index) => {
-    setForm({ ...form, items: form.items.filter((_, i) => i !== index) });
-  };
+  const fmt = (v) =>
+    new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -92,137 +91,113 @@ function CreateInvoice() {
     try {
       await api.post("api/invoices", { ...form, projectId: form.projectId || null });
       navigate("/invoices");
-    } catch (err) {
-      console.error("CREATE INVOICE ERROR:", err.response?.data || err);
+    } catch {
       setError("Failed to create invoice. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const formatCurrency = (val) =>
-    new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(val || 0);
-
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 pb-10">
 
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <div>
-            <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-              <Receipt className="w-6 h-6 text-blue-600" />
-              New Invoice
-            </h1>
-            <p className="text-sm text-slate-500 mt-0.5">Fill in the details below to create an invoice.</p>
-          </div>
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+            <Receipt className="w-6 h-6 text-blue-600" />
+            New Invoice
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Fill in the details below to create an invoice.</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
 
         {/* Section 1 — Invoice Details */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-            <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-blue-500" />
-              Invoice Details
-            </h2>
-          </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Section icon={FileText} title="Invoice Details">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
-            {/* Client */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <User className="w-4 h-4 text-slate-400" />
-                Client <span className="text-rose-500">*</span>
+            <div>
+              <label className={labelCls}>
+                <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-slate-400" />Client <span className="text-rose-500">*</span></span>
               </label>
               <select
                 value={form.clientId}
                 onChange={e => setForm({ ...form, clientId: e.target.value })}
                 required
-                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                className={inputCls}
               >
                 <option value="">Select a client…</option>
                 {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
 
-            {/* Project */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <FolderOpen className="w-4 h-4 text-slate-400" />
-                Project
-                <span className="text-xs text-slate-400 font-normal ml-1">(optional)</span>
+            <div>
+              <label className={labelCls}>
+                <span className="flex items-center gap-1.5"><FolderOpen className="w-3.5 h-3.5 text-slate-400" />Project <span className="text-slate-400 dark:text-slate-500 font-normal text-xs">(optional)</span></span>
               </label>
               <select
                 value={form.projectId}
                 onChange={e => setForm({ ...form, projectId: e.target.value })}
-                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                className={inputCls}
               >
                 <option value="">No project</option>
                 {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
 
-            {/* Issue Date */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <Calendar className="w-4 h-4 text-slate-400" />
-                Issue Date
+            <div>
+              <label className={labelCls}>
+                <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-slate-400" />Issue Date</span>
               </label>
               <input
                 type="date"
                 value={form.issueDate}
                 onChange={e => setForm({ ...form, issueDate: e.target.value })}
-                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                className={inputCls}
               />
             </div>
 
-            {/* Due Date */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <Calendar className="w-4 h-4 text-slate-400" />
-                Due Date <span className="text-rose-500">*</span>
+            <div>
+              <label className={labelCls}>
+                <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-slate-400" />Due Date <span className="text-rose-500">*</span></span>
               </label>
               <input
                 type="date"
                 value={form.dueDate}
                 onChange={e => setForm({ ...form, dueDate: e.target.value })}
                 required
-                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                className={inputCls}
               />
             </div>
 
           </div>
-        </div>
+        </Section>
 
         {/* Section 2 — Line Items */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-              <Receipt className="w-4 h-4 text-blue-500" />
-              Line Items
-            </h2>
+        <Section
+          icon={Receipt}
+          title="Line Items"
+          action={
             <button
               type="button"
-              onClick={addItem}
+              onClick={() => setForm({ ...form, items: [...form.items, { description: "", quantity: 1, unitPrice: 0 }] })}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shadow-sm"
             >
-              <Plus size={14} />
-              Add Item
+              <Plus size={13} /> Add Item
             </button>
-          </div>
-
-          <div className="p-6 space-y-4">
-            {/* Column headers */}
-            <div className="hidden md:grid grid-cols-12 gap-4 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+          }
+        >
+          <div className="space-y-3">
+            {/* Column headers — desktop only */}
+            <div className="hidden sm:grid grid-cols-12 gap-3 px-1 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
               <div className="col-span-5">Description</div>
               <div className="col-span-2 text-center">Qty</div>
               <div className="col-span-3">Unit Price</div>
@@ -233,41 +208,37 @@ function CreateInvoice() {
             {form.items.map((item, index) => (
               <div
                 key={index}
-                className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-slate-200 transition"
+                className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center p-4 bg-slate-50 dark:bg-slate-700/40 rounded-xl border border-slate-200 dark:border-slate-600 hover:border-blue-200 dark:hover:border-blue-600/50 transition"
               >
-                {/* Description */}
-                <div className="md:col-span-5">
-                  <label className="md:hidden text-xs font-medium text-slate-500 mb-1.5 block">Description</label>
+                <div className="sm:col-span-5">
+                  <label className="sm:hidden text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 block">Description</label>
                   <input
                     type="text"
                     placeholder="e.g. Website design, Consulting…"
                     value={item.description}
                     onChange={e => handleItemChange(index, "description", e.target.value)}
                     required
-                    className="w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                    className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
                   />
                 </div>
 
-                {/* Quantity */}
-                <div className="md:col-span-2">
-                  <label className="md:hidden text-xs font-medium text-slate-500 mb-1.5 block">Quantity</label>
+                <div className="sm:col-span-2">
+                  <label className="sm:hidden text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 block">Qty</label>
                   <input
                     type="number"
                     min="0"
                     step="1"
-                    placeholder="1"
                     value={item.quantity}
                     onChange={e => handleItemChange(index, "quantity", Number(e.target.value))}
                     required
-                    className="w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm text-center"
+                    className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm text-center"
                   />
                 </div>
 
-                {/* Unit Price */}
-                <div className="md:col-span-3">
-                  <label className="md:hidden text-xs font-medium text-slate-500 mb-1.5 block">Unit Price (₦)</label>
+                <div className="sm:col-span-3">
+                  <label className="sm:hidden text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 block">Unit Price (₦)</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₦</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm">₦</span>
                     <input
                       type="number"
                       min="0"
@@ -276,99 +247,95 @@ function CreateInvoice() {
                       value={item.unitPrice}
                       onChange={e => handleItemChange(index, "unitPrice", Number(e.target.value))}
                       required
-                      className="w-full pl-8 pr-3 py-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                      className="w-full pl-8 pr-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
                     />
                   </div>
                 </div>
 
-                {/* Line total */}
-                <div className="md:col-span-1 text-right">
-                  <label className="md:hidden text-xs font-medium text-slate-500 mb-1 block">Total</label>
-                  <span className="text-sm font-semibold text-slate-900">
-                    ₦{(item.quantity * item.unitPrice).toLocaleString()}
+                <div className="sm:col-span-1 flex sm:block items-center justify-between sm:text-right">
+                  <label className="sm:hidden text-xs font-medium text-slate-500 dark:text-slate-400">Total</label>
+                  <span className="text-sm font-bold text-slate-900 dark:text-white">
+                    {fmt(item.quantity * item.unitPrice)}
                   </span>
                 </div>
 
-                {/* Remove */}
-                <div className="md:col-span-1 flex justify-end">
+                <div className="sm:col-span-1 flex justify-end">
                   <button
                     type="button"
-                    onClick={() => removeItem(index)}
+                    onClick={() => setForm({ ...form, items: form.items.filter((_, i) => i !== index) })}
                     disabled={form.items.length === 1}
-                    className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition disabled:opacity-25 disabled:cursor-not-allowed"
+                    className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition disabled:opacity-25 disabled:cursor-not-allowed"
                   >
                     <Trash2 size={16} />
                   </button>
                 </div>
               </div>
             ))}
-          </div>
-        </div>
 
-        {/* Section 3 — CC + Totals */}
+            {/* Subtotal preview */}
+            <div className="flex justify-end px-1 pt-1">
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                Subtotal: <span className="font-semibold text-slate-700 dark:text-slate-200">{fmt(subtotal)}</span>
+              </span>
+            </div>
+          </div>
+        </Section>
+
+        {/* Section 3 — CC + Summary */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-          {/* CC Emails */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-              <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                <Mail className="w-4 h-4 text-blue-500" />
-                CC Recipients
-                <span className="text-xs text-slate-400 font-normal">(optional)</span>
-              </h2>
-            </div>
-            <div className="p-6 space-y-3">
+          {/* CC */}
+          <Section icon={Mail} title="CC Recipients" badge="(optional)">
+            <div className="space-y-3">
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="email"
-                    placeholder="Enter email and press Enter"
+                    placeholder="email@example.com"
                     value={ccInput}
                     onChange={e => setCcInput(e.target.value)}
                     onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addCcEmail(); } }}
-                    className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                    className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={addCcEmail}
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-xl transition"
+                  className="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl transition border border-slate-200 dark:border-slate-600"
                 >
                   Add
                 </button>
               </div>
               {form.ccEmails.length > 0 ? (
-                <div className="flex flex-wrap gap-2 pt-1">
+                <div className="flex flex-wrap gap-2">
                   {form.ccEmails.map(email => (
-                    <span key={email} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-xs font-medium">
+                    <span key={email} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700 rounded-full text-xs font-medium">
                       {email}
-                      <button type="button" onClick={() => removeCcEmail(email)} className="hover:text-blue-900 transition">
-                        <X size={12} />
+                      <button type="button" onClick={() => setForm({ ...form, ccEmails: form.ccEmails.filter(e => e !== email) })} className="hover:text-blue-900 dark:hover:text-blue-100 transition">
+                        <X size={11} />
                       </button>
                     </span>
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-400">No CC recipients added yet.</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">No CC recipients yet.</p>
               )}
             </div>
-          </div>
+          </Section>
 
-          {/* Totals */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-              <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Summary</h2>
-            </div>
-            <div className="p-6 space-y-4">
+          {/* Summary */}
+          <Section icon={FileText} title="Summary">
+            <div className="space-y-3">
+
               <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-500">Subtotal</span>
-                <span className="font-medium text-slate-900">{formatCurrency(subtotal)}</span>
+                <span className="text-slate-500 dark:text-slate-400">Subtotal</span>
+                <span className="font-semibold text-slate-900 dark:text-white">{fmt(subtotal)}</span>
               </div>
 
               <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-500">Other Tax (₦)</span>
-                <div className="relative w-36">
+                <label className="text-slate-500 dark:text-slate-400">Other Tax (₦)</label>
+                <div className="relative w-32">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₦</span>
                   <input
                     type="number"
@@ -376,20 +343,19 @@ function CreateInvoice() {
                     step="0.01"
                     value={form.tax}
                     onChange={e => setForm({ ...form, tax: Number(e.target.value) })}
-                    className="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm text-right"
+                    className="w-full pl-7 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm text-right"
                   />
                 </div>
               </div>
 
               {isAccountantPro && (
                 <>
-                  {/* VAT */}
                   <div className="flex justify-between items-center text-sm">
                     <div>
-                      <span className="text-slate-500">VAT Rate (%)</span>
-                      <span className="ml-1.5 text-xs text-emerald-600 font-medium">+added to total</span>
+                      <span className="text-slate-500 dark:text-slate-400">VAT Rate (%)</span>
+                      <span className="ml-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">+added to total</span>
                     </div>
-                    <div className="relative w-36">
+                    <div className="relative w-32">
                       <input
                         type="number"
                         min="0"
@@ -398,24 +364,22 @@ function CreateInvoice() {
                         placeholder="e.g. 7.5"
                         value={form.vatRate || ""}
                         onChange={e => setForm({ ...form, vatRate: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm text-right"
+                        className="w-full px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm text-right"
                       />
                     </div>
                   </div>
                   {vatAmount > 0 && (
-                    <div className="flex justify-between items-center text-xs text-slate-400 -mt-2">
-                      <span>VAT amount</span>
-                      <span>{formatCurrency(vatAmount)}</span>
+                    <div className="flex justify-between text-xs text-slate-400 dark:text-slate-500">
+                      <span>VAT amount</span><span>{fmt(vatAmount)}</span>
                     </div>
                   )}
 
-                  {/* WHT */}
                   <div className="flex justify-between items-center text-sm">
                     <div>
-                      <span className="text-slate-500">WHT Rate (%)</span>
-                      <span className="ml-1.5 text-xs text-amber-600 font-medium">client withholds</span>
+                      <span className="text-slate-500 dark:text-slate-400">WHT Rate (%)</span>
+                      <span className="ml-1.5 text-xs text-amber-600 dark:text-amber-400 font-medium">client withholds</span>
                     </div>
-                    <div className="relative w-36">
+                    <div className="relative w-32">
                       <input
                         type="number"
                         min="0"
@@ -424,20 +388,19 @@ function CreateInvoice() {
                         placeholder="e.g. 5"
                         value={form.whtRate || ""}
                         onChange={e => setForm({ ...form, whtRate: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm text-right"
+                        className="w-full px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm text-right"
                       />
                     </div>
                   </div>
                   {form.whtRate > 0 && (
-                    <div className="space-y-1 -mt-2">
-                      <div className="flex justify-between items-center text-xs text-slate-400">
-                        <span>WHT amount (withheld)</span>
-                        <span>{formatCurrency(whtAmount)}</span>
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs text-slate-400 dark:text-slate-500">
+                        <span>WHT withheld</span><span>{fmt(whtAmount)}</span>
                       </div>
                       <select
                         value={form.whtType}
                         onChange={e => setForm({ ...form, whtType: e.target.value })}
-                        className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-xs text-slate-600"
+                        className="w-full px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700/60 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-xs"
                       >
                         <option value="">WHT Type (optional)</option>
                         <option value="CONSULTING">Consulting / Professional fees</option>
@@ -453,45 +416,41 @@ function CreateInvoice() {
                 </>
               )}
 
-              <div className="border-t border-slate-100 pt-4 flex justify-between items-center">
-                <span className="text-base font-semibold text-slate-900">Total</span>
-                <span className="text-xl font-bold text-blue-600">{formatCurrency(total)}</span>
+              <div className="border-t border-slate-200 dark:border-slate-700 pt-4 flex justify-between items-center">
+                <span className="text-base font-bold text-slate-900 dark:text-white">Total</span>
+                <span className="text-xl font-bold text-blue-600 dark:text-blue-400">{fmt(total)}</span>
               </div>
               {isAccountantPro && whtAmount > 0 && (
-                <p className="text-xs text-amber-600 -mt-2">
-                  Net receivable after WHT: {formatCurrency(total - whtAmount)}
+                <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                  Net receivable after WHT: {fmt(total - whtAmount)}
                 </p>
               )}
             </div>
-          </div>
+          </Section>
 
         </div>
 
         {/* Error */}
         {error && (
-          <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-600 text-sm text-center">
+          <div className="flex items-center gap-3 p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-300 text-sm">
+            <X className="w-4 h-4 flex-shrink-0" />
             {error}
           </div>
         )}
 
         {/* Submit */}
-        <div className="flex justify-end pb-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2 pb-4">
+          <p className="text-xs text-slate-400 dark:text-slate-500">
+            Invoice will be emailed to the client automatically on creation.
+          </p>
           <button
             type="submit"
             disabled={isLoading || total <= 0}
-            className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 whitespace-nowrap"
           >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Creating…
-              </>
-            ) : (
-              <>
-                <Save size={17} />
-                Create Invoice
-              </>
-            )}
+            {isLoading
+              ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Creating…</>
+              : <><Save size={16} />Create Invoice</>}
           </button>
         </div>
 
