@@ -162,16 +162,25 @@ function AgingReport() {
     setLoading(true);
     setError("");
     api.get("/api/invoices/reports/aging")
-      .then(res => setData(res.data))
+      .then(res => {
+        const d = res.data;
+        // Backend returns { buckets: [{label, invoices, total}, ...], asOf, grandTotal }
+        // Map bucket array (in order) to the keyed shape the UI expects
+        const bucketKeys = ["current", "1_30", "31_60", "61_90", "over_90"];
+        const normalized = { asOf: d.asOf, grandTotal: d.grandTotal };
+        (d.buckets ?? []).forEach((b, i) => {
+          if (bucketKeys[i]) normalized[bucketKeys[i]] = b.invoices ?? [];
+        });
+        setData(normalized);
+      })
       .catch(() => setError("Failed to load aging report. Please try again."))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => { fetchReport(); }, []);
 
-  const grandTotal = data
-    ? BUCKETS.reduce((sum, b) => sum + (data[b.key] ?? []).reduce((s, r) => s + (r.balanceDue ?? 0), 0), 0)
-    : 0;
+  const grandTotal = data?.grandTotal
+    ?? (data ? BUCKETS.reduce((sum, b) => sum + (data[b.key] ?? []).reduce((s, r) => s + (r.balanceDue ?? 0), 0), 0) : 0);
 
   return (
     <div className="space-y-6">
