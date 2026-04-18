@@ -128,7 +128,7 @@ function MockTaxReport() {
           <div className="divide-y divide-slate-100">
             {[
               { inv: "INV-2026-0003", client: "Apex Ventures Ltd",   vat: "₦7,500",  wht: "—",       total: "₦107,500" },
-              { inv: "INV-2026-0002", client: "Apex Ventures Ltd",   vat: "₦3,000",  wht: "₦2,000",  total: "₦43,000"  },
+              { inv: "INV-2026-0002", client: "Crestfield Agency",   vat: "₦3,000",  wht: "₦2,000",  total: "₦43,000"  },
               { inv: "INV-2026-0004", client: "Nova Build Co.",      vat: "—",       wht: "—",       total: "₦50,000"  },
             ].map(r => (
               <div key={r.inv} className="px-3 py-2 flex items-center gap-2 text-xs">
