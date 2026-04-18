@@ -3,28 +3,37 @@ import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
 import {
-  ShieldCheck,
-  Building2,
-  Users,
-  FileText,
-  CheckCircle,
-  XCircle,
-  ChevronDown,
-  FolderOpen,
-  AlertTriangle,
-  X,
+  ShieldCheck, Building2, Users, FileText, CheckCircle, XCircle,
+  ChevronDown, FolderOpen, AlertTriangle, X, ChevronRight,
+  Trash2, UserCircle, TrendingUp, CreditCard, Clock,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import ConfirmModal from "../components/ConfirmModal";
 
-const PLANS = ["FREE", "STARTER", "PRO"];
+const PLANS = ["FREE", "STARTER", "GROWTH", "PRO", "ACCOUNTANT_PRO"];
 
-const PLAN_STYLE = {
-  FREE:    "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
-  STARTER: "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300",
-  PRO:     "bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300",
+const PLAN_LABEL = {
+  FREE:           "Free",
+  STARTER:        "Essential",
+  GROWTH:         "Business",
+  PRO:            "Pro",
+  ACCOUNTANT_PRO: "Accountant Pro",
 };
 
-// ── Suspend-with-reason modal ────────────────────────────────────────────────
+const PLAN_STYLE = {
+  FREE:           "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+  STARTER:        "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300",
+  GROWTH:         "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300",
+  PRO:            "bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300",
+  ACCOUNTANT_PRO: "bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300",
+};
+
+const fmtDate = (d) => {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+};
+
+// ── Suspend modal ────────────────────────────────────────────────────────────
 function SuspendModal({ org, onConfirm, onCancel, loading }) {
   const [reason, setReason] = useState("");
   if (!org) return null;
@@ -47,7 +56,7 @@ function SuspendModal({ org, onConfirm, onCancel, loading }) {
         </p>
         <div className="mb-5">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">
-            Reason <span className="text-slate-400 dark:text-slate-500 font-normal">(optional)</span>
+            Reason <span className="text-slate-400 font-normal">(optional)</span>
           </label>
           <textarea
             rows={3}
@@ -58,18 +67,8 @@ function SuspendModal({ org, onConfirm, onCancel, loading }) {
           />
         </div>
         <div className="flex justify-end gap-3">
-          <button
-            onClick={onCancel}
-            disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => onConfirm(reason)}
-            disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-white bg-rose-600 rounded-xl hover:bg-rose-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
-          >
+          <button onClick={onCancel} disabled={loading} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition">Cancel</button>
+          <button onClick={() => onConfirm(reason)} disabled={loading} className="px-4 py-2 text-sm font-medium text-white bg-rose-600 rounded-xl hover:bg-rose-700 transition disabled:opacity-60">
             {loading ? "Suspending…" : "Suspend"}
           </button>
         </div>
@@ -78,7 +77,155 @@ function SuspendModal({ org, onConfirm, onCancel, loading }) {
   );
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
+// ── Org row with expandable users ────────────────────────────────────────────
+function OrgRow({ org, isOwnOrg, onSuspend, onUnsuspend, onDelete, onPlanChange }) {
+  const [expanded, setExpanded] = useState(false);
+  const [users, setUsers] = useState(null);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
+  const toggleUsers = async () => {
+    if (!expanded && users === null) {
+      setLoadingUsers(true);
+      try {
+        const res = await api.get(`/api/superadmin/organisations/${org.id}/users`);
+        setUsers(res.data);
+      } finally {
+        setLoadingUsers(false);
+      }
+    }
+    setExpanded(e => !e);
+  };
+
+  const isSuspended = org.suspended === true;
+
+  return (
+    <>
+      <tr className={`hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${isSuspended ? "opacity-60" : ""}`}>
+        {/* Name + email */}
+        <td className="px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+              {org.name?.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className="font-medium text-slate-900 dark:text-white">{org.name}</p>
+              {org.email && <p className="text-xs text-slate-400 dark:text-slate-500">{org.email}</p>}
+            </div>
+          </div>
+        </td>
+
+        {/* Joined */}
+        <td className="px-4 py-4 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+          {fmtDate(org.createdAt)}
+        </td>
+
+        {/* Status */}
+        <td className="px-4 py-4">
+          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+            isSuspended
+              ? "bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300"
+              : "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300"
+          }`}>
+            {isSuspended ? <XCircle size={11} /> : <CheckCircle size={11} />}
+            {isSuspended ? "Suspended" : "Active"}
+          </span>
+        </td>
+
+        {/* Plan */}
+        <td className="px-4 py-4">
+          <div className="relative inline-block">
+            <select
+              value={org.plan ?? "FREE"}
+              onChange={e => onPlanChange(org.id, e.target.value)}
+              className={`appearance-none pl-2.5 pr-6 py-1 rounded-full text-xs font-semibold border-0 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer ${PLAN_STYLE[org.plan] ?? PLAN_STYLE.FREE}`}
+            >
+              {PLANS.map(p => <option key={p} value={p}>{PLAN_LABEL[p]}</option>)}
+            </select>
+            <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-60" />
+          </div>
+        </td>
+
+        {/* Counts */}
+        <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.userCount ?? "—"}</td>
+        <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.clientCount ?? "—"}</td>
+        <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.invoiceCount ?? "—"}</td>
+        <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.projectCount ?? "—"}</td>
+
+        {/* Actions */}
+        <td className="px-4 py-4">
+          <div className="flex items-center gap-1.5 justify-end flex-wrap">
+            <button
+              onClick={toggleUsers}
+              title="View users"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition"
+            >
+              <Users size={12} />
+              {expanded ? "Hide" : "Users"}
+            </button>
+
+            {isSuspended ? (
+              <>
+                <button
+                  onClick={() => onUnsuspend(org)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 rounded-lg hover:bg-emerald-100 transition"
+                >
+                  <CheckCircle size={12} />Restore
+                </button>
+                <button
+                  onClick={() => onDelete(org)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-700 rounded-lg hover:bg-rose-100 transition"
+                >
+                  <Trash2 size={12} />Delete
+                </button>
+              </>
+            ) : isOwnOrg ? (
+              <span className="text-xs text-slate-400 italic px-2">Your org</span>
+            ) : (
+              <button
+                onClick={() => onSuspend(org)}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-700 rounded-lg hover:bg-rose-100 transition"
+              >
+                <XCircle size={12} />Suspend
+              </button>
+            )}
+          </div>
+        </td>
+      </tr>
+
+      {/* Expanded users row */}
+      {expanded && (
+        <tr className="bg-slate-50/70 dark:bg-slate-700/30">
+          <td colSpan={9} className="px-6 py-3">
+            {loadingUsers ? (
+              <div className="flex items-center gap-2 text-xs text-slate-400 py-2">
+                <div className="w-3.5 h-3.5 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin" />
+                Loading users…
+              </div>
+            ) : users?.length === 0 ? (
+              <p className="text-xs text-slate-400 py-1">No users in this organisation.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2 py-1">
+                {users?.map(u => (
+                  <div key={u.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg text-xs">
+                    <UserCircle size={13} className="text-slate-400" />
+                    <span className="font-medium text-slate-700 dark:text-slate-200">{u.username}</span>
+                    <span className={`px-1.5 py-0.5 rounded text-xs font-semibold ${
+                      u.role === "SUPER_ADMIN" || u.role === "ADMIN"
+                        ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300"
+                        : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
+                    }`}>{u.role}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}
+
+// ── Main ─────────────────────────────────────────────────────────────────────
 function SuperAdmin() {
   const user = getUserFromToken();
   const isPlatformAdmin =
@@ -87,14 +234,16 @@ function SuperAdmin() {
 
   const [stats, setStats] = useState(null);
   const [orgs, setOrgs] = useState([]);
+  const [recent, setRecent] = useState([]);
   const [loading, setLoading] = useState(true);
   const [suspendTarget, setSuspendTarget] = useState(null);
   const [suspending, setSuspending] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
 
-  const showToast = (message, type = "success") =>
-    setToast({ visible: true, message, type });
+  const showToast = (message, type = "success") => setToast({ visible: true, message, type });
 
   const fetchAll = () => {
     setLoading(true);
@@ -102,10 +251,12 @@ function SuperAdmin() {
     Promise.all([
       api.get("/api/superadmin/stats"),
       api.get("/api/superadmin/organisations"),
+      api.get("/api/superadmin/recent-registrations?limit=8"),
     ])
-      .then(([statsRes, orgsRes]) => {
+      .then(([statsRes, orgsRes, recentRes]) => {
         setStats(statsRes.data);
         setOrgs(orgsRes.data.content ?? orgsRes.data ?? []);
+        setRecent(recentRes.data ?? []);
       })
       .catch(() => showToast("Failed to load platform data", "error"))
       .finally(() => setLoading(false));
@@ -119,7 +270,7 @@ function SuperAdmin() {
     try {
       await api.put(`/api/superadmin/organisations/${orgId}/plan`, { plan });
       setOrgs(prev => prev.map(o => o.id === orgId ? { ...o, plan } : o));
-      showToast(`Plan updated to ${plan}`);
+      showToast(`Plan updated to ${PLAN_LABEL[plan] ?? plan}`);
     } catch (err) {
       showToast(err.response?.data?.message || "Failed to update plan.", "error");
     }
@@ -130,7 +281,7 @@ function SuperAdmin() {
     try {
       await api.post(`/api/superadmin/organisations/${suspendTarget.id}/suspend`, { reason });
       setOrgs(prev => prev.map(o => o.id === suspendTarget.id ? { ...o, suspended: true } : o));
-      if (stats) setStats(s => ({ ...s, activeOrgs: s.activeOrgs - 1, suspendedOrgs: s.suspendedOrgs + 1 }));
+      if (stats) setStats(s => ({ ...s, activeOrganisations: s.activeOrganisations - 1, suspendedOrganisations: s.suspendedOrganisations + 1 }));
       showToast(`${suspendTarget.name} suspended`);
       setSuspendTarget(null);
     } catch (err) {
@@ -144,10 +295,25 @@ function SuperAdmin() {
     try {
       await api.post(`/api/superadmin/organisations/${org.id}/unsuspend`);
       setOrgs(prev => prev.map(o => o.id === org.id ? { ...o, suspended: false } : o));
-      if (stats) setStats(s => ({ ...s, activeOrgs: s.activeOrgs + 1, suspendedOrgs: s.suspendedOrgs - 1 }));
+      if (stats) setStats(s => ({ ...s, activeOrganisations: s.activeOrganisations + 1, suspendedOrganisations: s.suspendedOrganisations - 1 }));
       showToast(`${org.name} restored`);
     } catch (err) {
-      showToast(err.response?.data?.message || "Failed to unsuspend.", "error");
+      showToast(err.response?.data?.message || "Failed to restore.", "error");
+    }
+  };
+
+  const doDelete = async () => {
+    setDeleting(true);
+    try {
+      await api.delete(`/api/superadmin/organisations/${deleteTarget.id}`);
+      setOrgs(prev => prev.filter(o => o.id !== deleteTarget.id));
+      if (stats) setStats(s => ({ ...s, totalOrganisations: s.totalOrganisations - 1, suspendedOrganisations: s.suspendedOrganisations - 1 }));
+      showToast(`${deleteTarget.name} deleted`);
+      setDeleteTarget(null);
+    } catch (err) {
+      showToast(err.response?.data?.message || "Failed to delete.", "error");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -179,29 +345,78 @@ function SuperAdmin() {
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatCard label="Total Orgs"  value={stats?.totalOrgs}     icon={Building2}  color="bg-gradient-to-br from-blue-600 to-indigo-600" />
-        <StatCard label="Active"      value={stats?.activeOrgs}    icon={CheckCircle} color="bg-gradient-to-br from-emerald-500 to-teal-500" />
-        <StatCard label="Suspended"   value={stats?.suspendedOrgs} icon={XCircle}    color="bg-gradient-to-br from-rose-500 to-pink-500" />
-        <StatCard label="Total Users" value={stats?.totalUsers}    icon={Users}      color="bg-gradient-to-br from-violet-500 to-purple-600" />
-        <StatCard label="Invoices"    value={stats?.totalInvoices} icon={FileText}   color="bg-gradient-to-br from-amber-500 to-orange-500" />
-        <StatCard label="Projects"    value={stats?.totalProjects} icon={FolderOpen} color="bg-gradient-to-br from-cyan-500 to-sky-600" />
+        <StatCard label="Total Orgs"  value={stats?.totalOrganisations}     icon={Building2}   color="bg-gradient-to-br from-blue-600 to-indigo-600" />
+        <StatCard label="Active"      value={stats?.activeOrganisations}    icon={CheckCircle} color="bg-gradient-to-br from-emerald-500 to-teal-500" />
+        <StatCard label="Suspended"   value={stats?.suspendedOrganisations} icon={XCircle}     color="bg-gradient-to-br from-rose-500 to-pink-500" />
+        <StatCard label="Total Users" value={stats?.totalUsers}             icon={Users}       color="bg-gradient-to-br from-violet-500 to-purple-600" />
+        <StatCard label="Invoices"    value={stats?.totalInvoices}          icon={FileText}    color="bg-gradient-to-br from-amber-500 to-orange-500" />
+        <StatCard label="Projects"    value={stats?.totalProjects}          icon={FolderOpen}  color="bg-gradient-to-br from-cyan-500 to-sky-600" />
       </div>
 
       {/* Plan breakdown */}
-      <div className="grid grid-cols-3 gap-4">
-        {PLANS.map(p => (
-          <div key={p} className={`rounded-2xl border border-current/10 px-5 py-4 flex items-center justify-between ${PLAN_STYLE[p]}`}>
-            <span className="text-sm font-semibold">{p}</span>
-            <span className="text-2xl font-bold">
-              {stats
-                ? (p === "FREE" ? stats.freeOrgs : p === "STARTER" ? stats.starterOrgs : stats.proOrgs) ?? 0
-                : "—"}
-            </span>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {PLANS.map(p => {
+          const count = stats
+            ? ({ FREE: stats.freeOrgs, STARTER: stats.starterOrgs, GROWTH: stats.growthOrgs, PRO: stats.proOrgs, ACCOUNTANT_PRO: stats.accountantProOrgs }[p] ?? 0)
+            : "—";
+          return (
+            <div key={p} className={`rounded-2xl border border-current/10 px-5 py-4 flex items-center justify-between ${PLAN_STYLE[p]}`}>
+              <span className="text-sm font-semibold">{PLAN_LABEL[p]}</span>
+              <span className="text-2xl font-bold">{count}</span>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Orgs table */}
+      {/* Recent Registrations */}
+      <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center gap-2">
+          <Clock className="w-4 h-4 text-blue-600" />
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Recent Registrations</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-800/50">
+                <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Organisation</th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Joined</th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Plan</th>
+                <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Users</th>
+                <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Invoices</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+              {loading ? (
+                <tr><td colSpan={5} className="px-6 py-10 text-center"><div className="inline-block animate-spin rounded-full h-6 w-6 border-4 border-slate-200 border-t-blue-600" /></td></tr>
+              ) : recent.map(org => (
+                <tr key={org.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                  <td className="px-6 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                        {org.name?.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-900 dark:text-white text-xs">{org.name}</p>
+                        {org.email && <p className="text-xs text-slate-400">{org.email}</p>}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-3 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">{fmtDate(org.createdAt)}</td>
+                  <td className="px-6 py-3">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${PLAN_STYLE[org.plan] ?? PLAN_STYLE.FREE}`}>
+                      {PLAN_LABEL[org.plan] ?? "Free"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center text-xs text-slate-600 dark:text-slate-300">{org.userCount}</td>
+                  <td className="px-4 py-3 text-center text-xs text-slate-600 dark:text-slate-300">{org.invoiceCount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* All Organisations */}
       <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">All Organisations</h2>
@@ -220,89 +435,28 @@ function SuperAdmin() {
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-800/50">
                   <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Organisation</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Plan</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Joined</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Plan</th>
                   <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Users</th>
                   <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Clients</th>
                   <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Invoices</th>
                   <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Projects</th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {orgs.map(org => {
-                  const isSuspended = org.suspended === true;
-                  const isOwnOrg = currentOrgId && org.id === currentOrgId;
-                  return (
-                    <tr key={org.id} className={`hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${isSuspended ? "opacity-60" : ""}`}>
-                      {/* Name + email */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
-                            {org.name?.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="font-medium text-slate-900 dark:text-white">{org.name}</p>
-                            {org.email && <p className="text-xs text-slate-400 dark:text-slate-500">{org.email}</p>}
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Status badge */}
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          isSuspended
-                            ? "bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300"
-                            : "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300"
-                        }`}>
-                          {isSuspended ? <XCircle size={11} /> : <CheckCircle size={11} />}
-                          {isSuspended ? "Suspended" : "Active"}
-                        </span>
-                      </td>
-
-                      {/* Plan dropdown */}
-                      <td className="px-6 py-4">
-                        <div className="relative inline-block">
-                          <select
-                            value={org.plan ?? "FREE"}
-                            onChange={e => changePlan(org.id, e.target.value)}
-                            className={`appearance-none pl-2.5 pr-7 py-1 rounded-full text-xs font-semibold border-0 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer ${PLAN_STYLE[org.plan] ?? PLAN_STYLE.FREE}`}
-                          >
-                            {PLANS.map(p => <option key={p} value={p}>{p}</option>)}
-                          </select>
-                          <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-60" />
-                        </div>
-                      </td>
-
-                      {/* Counts */}
-                      <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.userCount ?? "—"}</td>
-                      <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.clientCount ?? "—"}</td>
-                      <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.invoiceCount ?? "—"}</td>
-                      <td className="px-4 py-4 text-center text-slate-600 dark:text-slate-300">{org.projectCount ?? "—"}</td>
-
-                      {/* Actions */}
-                      <td className="px-6 py-4 text-right">
-                        {isSuspended ? (
-                          <button
-                            onClick={() => doUnsuspend(org)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition"
-                          >
-                            <CheckCircle size={13} />Unsuspend
-                          </button>
-                        ) : isOwnOrg ? (
-                          <span className="text-xs text-slate-400 dark:text-slate-500 italic px-2">Your org</span>
-                        ) : (
-                          <button
-                            onClick={() => setSuspendTarget(org)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-700 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-900/50 transition"
-                          >
-                            <XCircle size={13} />Suspend
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {orgs.map(org => (
+                  <OrgRow
+                    key={org.id}
+                    org={org}
+                    isOwnOrg={currentOrgId && org.id === currentOrgId}
+                    onSuspend={setSuspendTarget}
+                    onUnsuspend={doUnsuspend}
+                    onDelete={setDeleteTarget}
+                    onPlanChange={changePlan}
+                  />
+                ))}
               </tbody>
             </table>
           </div>
@@ -316,6 +470,15 @@ function SuperAdmin() {
         onConfirm={doSuspend}
         onCancel={() => setSuspendTarget(null)}
         loading={suspending}
+      />
+
+      <ConfirmModal
+        visible={!!deleteTarget}
+        title="Delete Organisation"
+        message={`Permanently delete "${deleteTarget?.name}"? This cannot be undone. All data will be lost.`}
+        onConfirm={doDelete}
+        onCancel={() => setDeleteTarget(null)}
+        loading={deleting}
       />
     </div>
   );
