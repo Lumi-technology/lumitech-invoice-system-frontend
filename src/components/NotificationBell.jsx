@@ -3,9 +3,10 @@ import { Bell, Check, CheckCheck, X } from "lucide-react";
 import api from "../services/api";
 
 const TYPE_STYLES = {
-  NEW_REGISTRATION: { dot: "bg-blue-500",   badge: "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" },
-  SUBSCRIPTION:     { dot: "bg-emerald-500", badge: "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300" },
-  EXPIRY_WARNING:   { dot: "bg-amber-500",   badge: "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300" },
+  NEW_REGISTRATION:      { dot: "bg-blue-500",    badge: "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" },
+  SUBSCRIPTION:          { dot: "bg-emerald-500",  badge: "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300" },
+  SUBSCRIPTION_CANCELLED:{ dot: "bg-rose-500",     badge: "bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300" },
+  EXPIRY_WARNING:        { dot: "bg-amber-500",    badge: "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300" },
 };
 
 const dotFor  = (type) => (TYPE_STYLES[type] ?? TYPE_STYLES.NEW_REGISTRATION).dot;
