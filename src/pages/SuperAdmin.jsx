@@ -176,8 +176,8 @@ function OrgRow({ org, isOwnOrg, onSuspend, onUnsuspend, onDelete, onPlanChange 
               {expanded ? "Hide" : "Users"}
             </button>
 
-            {isOwnOrg ? (
-              <span className="text-xs text-slate-400 italic px-2">Your org</span>
+            {isOwnOrg || org.platformAdminOrg ? (
+              <span className="text-xs text-slate-400 italic px-2">{org.platformAdminOrg ? "Platform Admin" : "Your org"}</span>
             ) : isSuspended ? (
               <>
                 <button
