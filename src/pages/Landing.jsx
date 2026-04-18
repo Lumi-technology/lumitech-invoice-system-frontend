@@ -6,6 +6,7 @@ import {
   Shield, Zap, Clock, ChevronRight, BookOpen, Landmark, Bell,
   Eye, Users, Star, AlertTriangle, XCircle, Banknote, Lock,
   Wallet, PiggyBank, Briefcase, Calculator, Menu, X as XIcon,
+  CreditCard,
 } from "lucide-react";
 
 /* ─── Mock Dashboard ─────────────────────────────────────────────────────── */
@@ -190,7 +191,7 @@ const benefits = [
 
 const features = [
   { icon: <PiggyBank className="w-5 h-5 text-blue-600" />,    bg: "bg-blue-50",    title: "Owner Capital Tracking",         desc: "Record money you put in. Track how much comes back. See exactly what your business owes you over time.", highlight: true },
-  { icon: <FileText className="w-5 h-5 text-indigo-600" />,   bg: "bg-indigo-50",  title: "Invoicing & Payments",           desc: "Create, send, and track invoices with Paystack payment links. Partial payments tracked automatically." },
+  { icon: <FileText className="w-5 h-5 text-indigo-600" />,   bg: "bg-indigo-50",  title: "Invoicing & Payments",           desc: "Create, send, and track invoices. Clients pay via Paystack, bank transfer, or cash — your choice." },
   { icon: <BarChart3 className="w-5 h-5 text-violet-600" />,  bg: "bg-violet-50",  title: "Financial Dashboard",            desc: "Revenue, expenses, profit — updated in real time. Understand your business money at a glance." },
   { icon: <Layers className="w-5 h-5 text-amber-600" />,      bg: "bg-amber-50",   title: "Project & Client Tracking",      desc: "Group invoices by project. Track total earned vs balance remaining per client." },
   { icon: <TrendingUp className="w-5 h-5 text-rose-600" />,   bg: "bg-rose-50",    title: "Financial Reports",              desc: "Trial Balance, Profit & Loss, Balance Sheet — real accounting reports built into the platform." },
@@ -445,8 +446,109 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── GET PAID YOUR WAY ────────────────────────────────────────────── */}
+      <section className="py-24 bg-slate-50 border-y border-slate-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-100 mb-5">
+              Built for Nigerian businesses
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 leading-tight">
+              Your clients pay the way{" "}
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                that works for them
+              </span>
+            </h2>
+            <p className="text-slate-500 max-w-xl mx-auto text-base leading-relaxed">
+              Not everyone pays by card. LumiLedger lets you accept Paystack, bank transfer, or cash — and every payment is automatically recorded in your books.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            {/* Paystack */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-600/25 group-hover:scale-110 transition-transform">
+                <CreditCard className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-bold text-slate-900">Paystack</h3>
+                <span className="text-xs font-semibold px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full border border-blue-200">Online</span>
+              </div>
+              <p className="text-sm text-slate-500 leading-relaxed mb-4">
+                Generate a payment link in one click. Clients pay by card, bank transfer, USSD, or QR code — Paystack handles it all.
+              </p>
+              <div className="space-y-2">
+                {["Card payments", "USSD & bank transfer", "QR code payments", "Instant confirmation"].map(f => (
+                  <div key={f} className="flex items-center gap-2 text-xs text-slate-600">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> {f}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bank Transfer */}
+            <div className="bg-white rounded-2xl p-6 border border-emerald-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group ring-1 ring-emerald-100">
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform">
+                <Landmark className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-bold text-slate-900">Bank Transfer</h3>
+                <span className="text-xs font-semibold px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full border border-emerald-200">Most used in NG</span>
+              </div>
+              <p className="text-sm text-slate-500 leading-relaxed mb-4">
+                Display your account number directly on every invoice. Clients transfer and you confirm receipt — no friction, no middleman.
+              </p>
+              <div className="space-y-2">
+                {["Your account on every invoice", "Works with all Nigerian banks", "Manual confirmation flow", "Auto-records in your books"].map(f => (
+                  <div key={f} className="flex items-center gap-2 text-xs text-slate-600">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> {f}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Cash */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group">
+              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-amber-500/25 group-hover:scale-110 transition-transform">
+                <Banknote className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-bold text-slate-900">Cash</h3>
+                <span className="text-xs font-semibold px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full border border-amber-200">Offline</span>
+              </div>
+              <p className="text-sm text-slate-500 leading-relaxed mb-4">
+                Record cash payments instantly. Whether collected in-person or at delivery, your books stay up to date — automatically.
+              </p>
+              <div className="space-y-2">
+                {["Record in seconds", "Updates invoice status", "Reflects in P&L report", "Full audit trail"].map(f => (
+                  <div key={f} className="flex items-center gap-2 text-xs text-slate-600">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> {f}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom callout */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col sm:flex-row items-center gap-6 sm:gap-10">
+            <div className="flex-1">
+              <p className="font-bold text-slate-900 mb-1">Every payment updates your books automatically</p>
+              <p className="text-sm text-slate-500 leading-relaxed">
+                Whether a client pays online, by transfer, or in cash — LumiLedger records it, updates the invoice status, and reflects it in your Profit &amp; Loss and Balance Sheet instantly. No manual entry needed.
+              </p>
+            </div>
+            <Link
+              to="/register"
+              className="flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 hover:scale-[1.02] transition-all text-sm whitespace-nowrap"
+            >
+              Get Started Free <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ── FEATURES GRID ────────────────────────────────────────────────── */}
-      <section id="features" className="py-24 bg-slate-50 border-y border-slate-100">
+      <section id="features" className="py-24 bg-white border-y border-slate-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Everything you need. Nothing you don't.</h2>
