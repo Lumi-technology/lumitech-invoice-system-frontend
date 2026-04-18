@@ -12,9 +12,9 @@ const fmtDate = (d) =>
   d ? new Date(d).toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
 const STATUS_COLOR = {
-  UNMATCHED:  "border-rose-300 bg-rose-50",
-  MATCHED:    "border-amber-300 bg-amber-50",
-  RECONCILED: "border-emerald-300 bg-emerald-50",
+  UNMATCHED:  "border-rose-400 bg-rose-50 dark:bg-rose-900/20",
+  MATCHED:    "border-amber-400 bg-amber-50 dark:bg-amber-900/20",
+  RECONCILED: "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20",
 };
 const STATUS_DOT = {
   UNMATCHED:  "bg-rose-400",
@@ -287,10 +287,10 @@ export default function BankReconciliation() {
                     <div className="flex items-center gap-2 min-w-0">
                       <span className={`w-2 h-2 rounded-full flex-shrink-0 mt-1 ${STATUS_DOT[txn.status]}`} />
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
                           {txn.description || "—"}
                         </p>
-                        <p className="text-xs text-slate-400 mt-0.5">{fmtDate(txn.date)} · {txn.reference || "No ref"}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{fmtDate(txn.date)} · {txn.reference || "No ref"}</p>
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
@@ -367,7 +367,7 @@ export default function BankReconciliation() {
                   className={`px-4 py-3 transition ${
                     selectedTxn
                       ? `cursor-pointer ${isExactMatch ? "bg-emerald-50 dark:bg-emerald-900/20 border-l-4 border-emerald-400 hover:bg-emerald-100" : "hover:bg-slate-50 dark:hover:bg-slate-700/30"}`
-                      : "opacity-75"
+                      : "hover:bg-slate-50 dark:hover:bg-slate-700/20"
                   }`}
                   onClick={() => selectedTxn && handleMatch(selectedTxn.id, sys.id, sys.type)}
                 >
@@ -375,10 +375,10 @@ export default function BankReconciliation() {
                     <div className="flex items-center gap-2 min-w-0">
                       <span className={`w-2 h-2 rounded-full flex-shrink-0 mt-1 ${sys.direction === "CREDIT" ? "bg-emerald-400" : "bg-rose-400"}`} />
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
                           {sys.description}
                         </p>
-                        <p className="text-xs text-slate-400 mt-0.5">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                           {fmtDate(sys.date)} · {sys.type}
                           {isExactMatch && <span className="ml-2 text-emerald-600 font-semibold">✓ Exact match</span>}
                         </p>
