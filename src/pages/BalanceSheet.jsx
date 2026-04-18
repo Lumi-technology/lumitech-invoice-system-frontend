@@ -1,7 +1,7 @@
 // BalanceSheet.jsx — Accounting > Reports > Balance Sheet
 import { useEffect, useState, useCallback } from "react";
 import api from "../services/api";
-import { LayoutList, CheckCircle, AlertTriangle, RefreshCw, Download } from "lucide-react";
+import { LayoutList, CheckCircle, AlertTriangle, RefreshCw, Download, Info } from "lucide-react";
 
 const fmt = (n) =>
   new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(n ?? 0);
@@ -138,6 +138,14 @@ function BalanceSheet() {
             Refresh
           </button>
         </div>
+      </div>
+
+      {/* Info banner */}
+      <div className="flex items-start gap-3 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/60 rounded-xl">
+        <Info className="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+        <p className="text-sm text-blue-700 dark:text-blue-300">
+          A snapshot of your financial position at a point in time. <strong>Assets = Liabilities + Equity.</strong> Change the date to see the balance sheet as of any past date.
+        </p>
       </div>
 
       {/* As-of date picker */}

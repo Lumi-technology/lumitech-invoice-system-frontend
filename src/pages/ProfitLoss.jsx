@@ -1,7 +1,7 @@
 // ProfitLoss.jsx — Accounting > Reports > Profit & Loss
 import { useState } from "react";
 import api from "../services/api";
-import { TrendingUp, TrendingDown, RefreshCw, AlertTriangle, Download } from "lucide-react";
+import { TrendingUp, TrendingDown, RefreshCw, AlertTriangle, Download, Info } from "lucide-react";
 
 const fmt = (n) =>
   new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(n ?? 0);
@@ -87,9 +87,18 @@ function ProfitLoss() {
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Income vs expenses over a selected period.</p>
       </div>
 
+      {/* Info banner */}
+      <div className="flex items-start gap-3 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/60 rounded-xl">
+        <Info className="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+        <p className="text-sm text-blue-700 dark:text-blue-300">
+          Shows all income and expenses over a period. <strong>Net Profit = Total Income − Total Expenses.</strong> Income accounts are credit-normal; expense accounts are debit-normal.
+        </p>
+      </div>
+
       {/* Date range + generate */}
       <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
-        <div className="flex flex-col sm:flex-row items-end gap-4">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">From</label>
             <input
@@ -108,7 +117,8 @@ function ProfitLoss() {
               className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
             />
           </div>
-          <div className="flex items-center gap-2">
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             {data && (
               <>
                 <button

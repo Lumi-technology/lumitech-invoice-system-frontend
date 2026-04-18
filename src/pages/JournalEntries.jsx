@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import api, { getUserFromToken } from "../services/api";
 import {
   BookOpenCheck, Plus, Trash2, X, ChevronDown, ChevronRight,
-  ChevronLeft, AlertCircle,
+  ChevronLeft, AlertCircle, Info,
 } from "lucide-react";
 import Toast from "../components/Toast";
 
@@ -334,10 +334,10 @@ function EntryRow({ entry, canDelete, onDelete }) {
             <span className="font-mono text-xs text-slate-500 dark:text-slate-400">{entry.reference || `JE-${entry.id}`}</span>
           </div>
         </td>
-        <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300">{fmtDate(entry.entryDate)}</td>
-        <td className="px-4 py-4 text-sm text-slate-700 dark:text-slate-200 max-w-xs truncate">{entry.description || "—"}</td>
-        <td className="px-4 py-4 text-sm text-right font-medium text-slate-700 dark:text-slate-200">{fmt(totalDebits)}</td>
-        <td className="px-4 py-4 text-xs text-center">
+        <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300 hidden sm:table-cell">{fmtDate(entry.entryDate)}</td>
+        <td className="px-4 py-4 text-sm text-slate-700 dark:text-slate-200 max-w-[120px] sm:max-w-xs truncate">{entry.description || "—"}</td>
+        <td className="px-4 py-4 text-sm text-right font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">{fmt(totalDebits)}</td>
+        <td className="px-4 py-4 text-xs text-center hidden sm:table-cell">
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
             Posted
           </span>
@@ -458,6 +458,15 @@ function JournalEntries() {
         </button>
       </div>
 
+      {/* Info banner */}
+      <div className="flex items-start gap-3 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/60 rounded-xl">
+        <Info className="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+        <p className="text-sm text-blue-700 dark:text-blue-300">
+          Every transaction uses <strong>double-entry</strong> bookkeeping — each entry must have equal debits and credits.
+          Example: a customer payment debits <em>Bank Account</em> and credits <em>Sales Revenue</em>.
+        </p>
+      </div>
+
       {/* Table */}
       <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
@@ -470,14 +479,22 @@ function JournalEntries() {
             <div className="animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600" />
           </div>
         ) : entries.length === 0 ? (
-          <div className="text-center py-20">
+          <div className="text-center py-16 px-6">
             <div className="inline-flex p-4 bg-slate-100 dark:bg-slate-700 rounded-full mb-4">
               <BookOpenCheck className="w-8 h-8 text-slate-400" />
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mb-2">No journal entries yet.</p>
-            <button onClick={() => setShowModal(true)} className="text-blue-600 dark:text-blue-400 text-sm hover:underline">
-              Post your first entry
-            </button>
+            <p className="text-slate-700 dark:text-slate-200 font-semibold mb-1">No journal entries yet</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mb-5 max-w-sm mx-auto">
+              Journal entries record financial transactions. You can create them manually here, or they are created automatically when you import a bank statement.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
+              <button onClick={() => setShowModal(true)} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-500 transition font-medium">
+                <Plus size={14} /> Post Manual Entry
+              </button>
+              <a href="/accounting/import" className="text-blue-600 dark:text-blue-400 hover:underline">
+                Or import a bank statement →
+              </a>
+            </div>
           </div>
         ) : (
           <>
@@ -486,10 +503,10 @@ function JournalEntries() {
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-slate-700">
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ref</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden sm:table-cell">Date</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Description</th>
                     <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Amount</th>
-                    <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                    <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden sm:table-cell">Status</th>
                     <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>

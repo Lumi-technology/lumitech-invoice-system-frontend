@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import {
   Landmark, Upload, Zap, CheckCircle2, AlertCircle, RefreshCw,
-  X, Link2, Link2Off, ChevronDown, ChevronUp, ShieldCheck,
+  X, Link2, Link2Off, ChevronDown, ChevronUp, ShieldCheck, Info,
 } from "lucide-react";
 
 const fmt = (v) =>
@@ -179,7 +179,7 @@ export default function BankReconciliation() {
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">Match bank transactions against your system records</p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <button
             onClick={() => setImportOpen(true)}
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-50 transition shadow-sm"
@@ -203,6 +203,14 @@ export default function BankReconciliation() {
             {reconciling ? "Reconciling…" : `Reconcile All${confirmedCount > 0 ? ` (${confirmedCount})` : ""}`}
           </button>
         </div>
+      </div>
+
+      {/* Info banner */}
+      <div className="flex items-start gap-3 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/60 rounded-xl">
+        <Info className="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+        <p className="text-sm text-blue-700 dark:text-blue-300">
+          <strong>How it works:</strong> Import your bank statement CSV → click <strong>Auto-Match</strong> to pair transactions with journal entries → confirm suggested matches → click <strong>Reconcile All</strong> to lock them.
+        </p>
       </div>
 
       {/* Alerts */}

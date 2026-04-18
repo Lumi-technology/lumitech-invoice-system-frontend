@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
 import {
   Landmark, Upload, FileText, Download, CheckCircle,
-  XCircle, AlertTriangle, X, CloudUpload,
+  XCircle, AlertTriangle, X, CloudUpload, Info,
 } from "lucide-react";
 
 const SAMPLE_CSV = `date,description,debit_account,credit_account,amount,reference
@@ -95,6 +95,15 @@ function BankStatementImport() {
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
           Upload a CSV file to post journal entries from your bank statement.
+        </p>
+      </div>
+
+      {/* Info banner */}
+      <div className="flex items-start gap-3 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/60 rounded-xl">
+        <Info className="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+        <p className="text-sm text-blue-700 dark:text-blue-300">
+          Each CSV row creates a <strong>journal entry</strong> with a debit on one account and a credit on another.
+          Use the account codes from your <a href="/accounting/accounts" className="underline font-medium">Chart of Accounts</a>. Download the sample file below to see the expected format.
         </p>
       </div>
 

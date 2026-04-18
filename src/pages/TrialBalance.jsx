@@ -1,7 +1,7 @@
 // TrialBalance.jsx — Accounting > Reports > Trial Balance
 import { useEffect, useState } from "react";
 import api from "../services/api";
-import { Scale, CheckCircle, AlertTriangle, RefreshCw, Download } from "lucide-react";
+import { Scale, CheckCircle, AlertTriangle, RefreshCw, Download, Info } from "lucide-react";
 
 const ACCOUNT_TYPES = ["ASSET", "LIABILITY", "EQUITY", "INCOME", "EXPENSE"];
 
@@ -106,6 +106,14 @@ function TrialBalance() {
         </div>
       </div>
 
+      {/* Info banner */}
+      <div className="flex items-start gap-3 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/60 rounded-xl">
+        <Info className="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+        <p className="text-sm text-blue-700 dark:text-blue-300">
+          The trial balance lists all account balances. Total debits must equal total credits — if they don't, there is an error in your journal entries.
+        </p>
+      </div>
+
       {/* Balance status banner */}
       {data && (
         data.balanced
@@ -141,12 +149,12 @@ function TrialBalance() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/70">
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Code</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Account Name</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden sm:table-cell">Type</th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Debit</th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Credit</th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Balance</th>
+                  <th className="text-left px-3 sm:px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden sm:table-cell">Code</th>
+                  <th className="text-left px-3 sm:px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Account Name</th>
+                  <th className="text-left px-3 sm:px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden sm:table-cell">Type</th>
+                  <th className="text-right px-3 sm:px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Debit</th>
+                  <th className="text-right px-3 sm:px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden sm:table-cell">Credit</th>
+                  <th className="text-right px-3 sm:px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Balance</th>
                 </tr>
               </thead>
               <tbody>
@@ -170,16 +178,16 @@ function TrialBalance() {
                     /* Data rows */
                     ...rows.map(row => (
                       <tr key={row.accountId} className="border-t border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
-                        <td className="px-6 py-3 font-mono text-xs text-slate-500 dark:text-slate-400">{row.code}</td>
-                        <td className="px-6 py-3 font-medium text-slate-800 dark:text-slate-100">{row.name}</td>
-                        <td className="px-6 py-3 hidden sm:table-cell">
+                        <td className="px-3 sm:px-6 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 hidden sm:table-cell">{row.code}</td>
+                        <td className="px-3 sm:px-6 py-3 font-medium text-slate-800 dark:text-slate-100">{row.name}</td>
+                        <td className="px-3 sm:px-6 py-3 hidden sm:table-cell">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${TYPE_STYLE[row.type]}`}>
                             {row.type}
                           </span>
                         </td>
-                        <td className="px-6 py-3 text-right text-slate-700 dark:text-slate-200">{row.totalDebits > 0 ? fmt(row.totalDebits) : "—"}</td>
-                        <td className="px-6 py-3 text-right text-slate-700 dark:text-slate-200">{row.totalCredits > 0 ? fmt(row.totalCredits) : "—"}</td>
-                        <td className={`px-6 py-3 text-right font-semibold ${row.balance >= 0 ? "text-slate-900 dark:text-white" : "text-rose-600 dark:text-rose-400"}`}>
+                        <td className="px-3 sm:px-6 py-3 text-right text-slate-700 dark:text-slate-200 whitespace-nowrap">{row.totalDebits > 0 ? fmt(row.totalDebits) : "—"}</td>
+                        <td className="px-3 sm:px-6 py-3 text-right text-slate-700 dark:text-slate-200 whitespace-nowrap hidden sm:table-cell">{row.totalCredits > 0 ? fmt(row.totalCredits) : "—"}</td>
+                        <td className={`px-3 sm:px-6 py-3 text-right font-semibold whitespace-nowrap ${row.balance >= 0 ? "text-slate-900 dark:text-white" : "text-rose-600 dark:text-rose-400"}`}>
                           {fmt(row.balance)}
                         </td>
                       </tr>
