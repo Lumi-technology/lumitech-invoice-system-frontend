@@ -6,7 +6,7 @@ import {
   Shield, Zap, Clock, ChevronRight, BookOpen, Landmark, Bell,
   Eye, Users, Star, AlertTriangle, XCircle, Banknote, Lock,
   Wallet, PiggyBank, Briefcase, Calculator, Menu, X as XIcon,
-  CreditCard,
+  CreditCard, Receipt, Download,
 } from "lucide-react";
 
 /* ─── Mock Dashboard ─────────────────────────────────────────────────────── */
@@ -65,6 +65,88 @@ function MockDashboard() {
           </div>
           <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
             <div className="h-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" style={{ width: "61%" }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Mock Tax Report ────────────────────────────────────────────────────── */
+function MockTaxReport() {
+  return (
+    <div className="relative w-full max-w-lg mx-auto">
+      <div className="absolute -inset-6 bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-blue-500/10 rounded-3xl blur-3xl" />
+      <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-left">
+        {/* Window chrome */}
+        <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2 bg-slate-50">
+          <div className="w-3 h-3 rounded-full bg-rose-400" />
+          <div className="w-3 h-3 rounded-full bg-amber-400" />
+          <div className="w-3 h-3 rounded-full bg-emerald-400" />
+          <span className="ml-2 text-xs text-slate-400 font-medium">LumiLedger — Tax Report</span>
+        </div>
+
+        {/* Header row */}
+        <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold text-slate-900">Tax Report</p>
+            <p className="text-xs text-slate-400">VAT payable &amp; WHT — FIRS compliance</p>
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg">
+            <Download className="w-3 h-3" /> Export for FIRS
+          </div>
+        </div>
+
+        {/* Quarter tabs */}
+        <div className="px-4 pb-3 flex gap-1.5">
+          {["Q1", "Q2", "Q3", "Q4"].map((q, i) => (
+            <span key={q} className={`px-3 py-1 rounded-lg text-xs font-semibold border ${i === 1 ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-500 border-slate-200"}`}>{q}</span>
+          ))}
+        </div>
+
+        {/* Summary cards */}
+        <div className="px-4 pb-3 grid grid-cols-3 gap-2">
+          {[
+            { label: "Total Revenue",  value: "₦840,000", sub: "5 invoices",         color: "text-slate-900", bg: "bg-slate-50",   border: "border-slate-200" },
+            { label: "VAT Payable",    value: "₦10,500",  sub: "Remit to FIRS",      color: "text-rose-600",  bg: "bg-rose-50",    border: "border-rose-200" },
+            { label: "WHT Withheld",   value: "₦2,000",   sub: "Receivable credit",  color: "text-blue-600",  bg: "bg-blue-50",    border: "border-blue-200" },
+          ].map(c => (
+            <div key={c.label} className={`${c.bg} border ${c.border} rounded-xl p-2.5`}>
+              <p className="text-xs text-slate-500 mb-1 leading-tight">{c.label}</p>
+              <p className={`text-sm font-extrabold ${c.color}`}>{c.value}</p>
+              <p className="text-xs text-slate-400 mt-0.5">{c.sub}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Invoice breakdown table */}
+        <div className="mx-4 mb-4 rounded-xl border border-slate-200 overflow-hidden">
+          <div className="bg-slate-800 px-3 py-2 flex items-center justify-between">
+            <span className="text-xs font-semibold text-white">Invoice Breakdown</span>
+            <span className="text-xs text-slate-400">5 records</span>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {[
+              { inv: "INV-2026-0003", client: "Sunday Ocheja",    vat: "₦7,500",  wht: "—",       total: "₦107,500" },
+              { inv: "INV-2026-0002", client: "Sunday Ocheja",    vat: "₦3,000",  wht: "₦2,000",  total: "₦43,000"  },
+              { inv: "INV-2026-0004", client: "Lumitech Systems", vat: "—",       wht: "—",       total: "₦50,000"  },
+            ].map(r => (
+              <div key={r.inv} className="px-3 py-2 flex items-center gap-2 text-xs">
+                <span className="font-mono text-slate-500 w-24 shrink-0">{r.inv}</span>
+                <span className="text-slate-700 flex-1 truncate">{r.client}</span>
+                <span className={`w-14 text-right shrink-0 font-semibold ${r.vat !== "—" ? "text-rose-600" : "text-slate-400"}`}>{r.vat}</span>
+                <span className={`w-14 text-right shrink-0 font-semibold ${r.wht !== "—" ? "text-blue-600" : "text-slate-400"}`}>{r.wht}</span>
+                <span className="w-16 text-right shrink-0 font-bold text-slate-900">{r.total}</span>
+              </div>
+            ))}
+          </div>
+          {/* Totals row */}
+          <div className="bg-slate-50 border-t border-slate-200 px-3 py-2 flex items-center gap-2 text-xs">
+            <span className="font-mono text-slate-400 w-24 shrink-0">Totals</span>
+            <span className="flex-1" />
+            <span className="w-14 text-right font-bold text-rose-600 shrink-0">₦10,500</span>
+            <span className="w-14 text-right font-bold text-blue-600 shrink-0">₦2,000</span>
+            <span className="w-16 text-right font-bold text-slate-900 shrink-0">₦850,500</span>
           </div>
         </div>
       </div>
@@ -547,8 +629,65 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── FIRS TAX COMPLIANCE ──────────────────────────────────────────── */}
+      <section className="py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+            {/* Left: copy */}
+            <div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-100 mb-6">
+                🇳🇬 Built for Nigerian tax law
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-5">
+                Stay{" "}
+                <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                  FIRS-ready
+                </span>{" "}
+                all year round
+              </h2>
+              <p className="text-slate-500 text-lg leading-relaxed mb-8">
+                Every invoice you raise automatically calculates VAT and WHT. No spreadsheets, no scrambling at tax time — just one report and a CSV you can file straight with FIRS.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                {[
+                  { icon: <Receipt className="w-4 h-4 text-emerald-600" />, title: "Auto-calculates VAT on every invoice", desc: "Set your VAT rate once. LumiLedger tracks VAT payable across all invoices, per quarter." },
+                  { icon: <CheckCircle className="w-4 h-4 text-emerald-600" />, title: "WHT withheld tracked by transaction type", desc: "Rent, consulting, contracts — WHT is categorised automatically so you know your receivable credit." },
+                  { icon: <Download className="w-4 h-4 text-emerald-600" />, title: "One-click FIRS CSV export", desc: "Q1–Q4 breakdown ready to go. Export and file — no manual data entry, no missed figures." },
+                ].map(f => (
+                  <div key={f.title} className="flex gap-4">
+                    <div className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center flex-shrink-0 border border-emerald-100 mt-0.5">
+                      {f.icon}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800 mb-0.5">{f.title}</p>
+                      <p className="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Link to="/register" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-emerald-600 to-teal-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/25 hover:scale-[1.02] transition-all text-sm">
+                  Start Filing Smarter <ArrowRight className="w-4 h-4" />
+                </Link>
+                <div className="inline-flex items-center gap-2 px-4 py-3 bg-emerald-50 text-emerald-700 text-sm font-semibold rounded-xl border border-emerald-100">
+                  <CheckCircle className="w-4 h-4" /> VAT &amp; WHT supported
+                </div>
+              </div>
+            </div>
+
+            {/* Right: mock UI */}
+            <div className="flex justify-center mt-6 lg:mt-0">
+              <MockTaxReport />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── FEATURES GRID ────────────────────────────────────────────────── */}
-      <section id="features" className="py-24 bg-white border-y border-slate-100">
+      <section id="features" className="py-24 bg-slate-50 border-y border-slate-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Everything you need. Nothing you don't.</h2>
