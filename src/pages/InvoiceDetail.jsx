@@ -56,6 +56,9 @@ function InvoiceDetail() {
   const [isMarkingPaid, setIsMarkingPaid] = useState(false);
   const [markPaidError, setMarkPaidError] = useState("");
 
+  // Send invoice state
+  const [isSendingInvoice, setIsSendingInvoice] = useState(false);
+
   // Send reminder state
   const [isSendingReminder, setIsSendingReminder] = useState(false);
 
@@ -156,6 +159,20 @@ function InvoiceDetail() {
       setMarkPaidError(err.response?.data?.message || "Failed to record payment.");
     } finally {
       setIsMarkingPaid(false);
+    }
+  };
+
+  // Send invoice handler
+  const handleSendInvoice = async () => {
+    try {
+      setIsSendingInvoice(true);
+      await api.post(`/api/invoices/${id}/send`);
+      setToast({ visible: true, message: "Invoice sent to client's email", type: "success" });
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to send invoice.";
+      setToast({ visible: true, message: msg, type: "error" });
+    } finally {
+      setIsSendingInvoice(false);
     }
   };
 
@@ -334,6 +351,16 @@ function InvoiceDetail() {
             <Download size={16} />
             {isDownloading ? "Downloading..." : "PDF"}
           </button>
+          {invoice.client?.email && invoice.status !== "PAID" && (
+            <button
+              onClick={handleSendInvoice}
+              disabled={isSendingInvoice}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded-xl text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Mail size={16} />
+              {isSendingInvoice ? "Sending..." : "Send Invoice"}
+            </button>
+          )}
           {invoice.status !== "PAID" && (
             <button
               onClick={handleSendReminder}
