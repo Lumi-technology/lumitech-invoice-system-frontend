@@ -166,7 +166,7 @@ function Navbar({ onClose }) {
             </button>
           )}
           <div className="hidden lg:flex items-center gap-1">
-            {!effectiveCollapsed && <NotificationBell />}
+            {!effectiveCollapsed && <NotificationBell align="left" />}
             <button
               onClick={() => setCollapsed(!collapsed)}
               className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"
