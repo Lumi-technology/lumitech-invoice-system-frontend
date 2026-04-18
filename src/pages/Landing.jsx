@@ -87,7 +87,7 @@ function MockTaxReport() {
         </div>
 
         {/* Header row */}
-        <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+        <div className="px-4 pt-4 pb-2 flex flex-wrap items-center justify-between gap-y-2">
           <div>
             <p className="text-xs font-bold text-slate-900">Tax Report</p>
             <p className="text-xs text-slate-400">VAT payable &amp; WHT — FIRS compliance</p>
@@ -125,28 +125,32 @@ function MockTaxReport() {
             <span className="text-xs font-semibold text-white">Invoice Breakdown</span>
             <span className="text-xs text-slate-400">5 records</span>
           </div>
-          <div className="divide-y divide-slate-100">
-            {[
-              { inv: "INV-2026-0003", client: "Apex Ventures Ltd",   vat: "₦7,500",  wht: "—",       total: "₦107,500" },
-              { inv: "INV-2026-0002", client: "Crestfield Agency",   vat: "₦3,000",  wht: "₦2,000",  total: "₦43,000"  },
-              { inv: "INV-2026-0004", client: "Nova Build Co.",      vat: "—",       wht: "—",       total: "₦50,000"  },
-            ].map(r => (
-              <div key={r.inv} className="px-3 py-2 flex items-center gap-2 text-xs">
-                <span className="font-mono text-slate-500 w-24 shrink-0">{r.inv}</span>
-                <span className="text-slate-700 flex-1 truncate">{r.client}</span>
-                <span className={`w-14 text-right shrink-0 font-semibold ${r.vat !== "—" ? "text-rose-600" : "text-slate-400"}`}>{r.vat}</span>
-                <span className={`w-14 text-right shrink-0 font-semibold ${r.wht !== "—" ? "text-blue-600" : "text-slate-400"}`}>{r.wht}</span>
-                <span className="w-16 text-right shrink-0 font-bold text-slate-900">{r.total}</span>
+          <div className="overflow-x-auto">
+            <div className="min-w-[340px]">
+              <div className="divide-y divide-slate-100">
+                {[
+                  { inv: "INV-2026-0003", client: "Apex Ventures Ltd",   vat: "₦7,500",  wht: "—",       total: "₦107,500" },
+                  { inv: "INV-2026-0002", client: "Crestfield Agency",   vat: "₦3,000",  wht: "₦2,000",  total: "₦43,000"  },
+                  { inv: "INV-2026-0004", client: "Nova Build Co.",      vat: "—",       wht: "—",       total: "₦50,000"  },
+                ].map(r => (
+                  <div key={r.inv} className="px-3 py-2 flex items-center gap-2 text-xs">
+                    <span className="font-mono text-slate-500 w-24 shrink-0">{r.inv}</span>
+                    <span className="text-slate-700 flex-1 truncate">{r.client}</span>
+                    <span className={`w-14 text-right shrink-0 font-semibold ${r.vat !== "—" ? "text-rose-600" : "text-slate-400"}`}>{r.vat}</span>
+                    <span className={`w-14 text-right shrink-0 font-semibold ${r.wht !== "—" ? "text-blue-600" : "text-slate-400"}`}>{r.wht}</span>
+                    <span className="w-16 text-right shrink-0 font-bold text-slate-900">{r.total}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          {/* Totals row */}
-          <div className="bg-slate-50 border-t border-slate-200 px-3 py-2 flex items-center gap-2 text-xs">
-            <span className="font-mono text-slate-400 w-24 shrink-0">Totals</span>
-            <span className="flex-1" />
-            <span className="w-14 text-right font-bold text-rose-600 shrink-0">₦10,500</span>
-            <span className="w-14 text-right font-bold text-blue-600 shrink-0">₦2,000</span>
-            <span className="w-16 text-right font-bold text-slate-900 shrink-0">₦850,500</span>
+              {/* Totals row */}
+              <div className="bg-slate-50 border-t border-slate-200 px-3 py-2 flex items-center gap-2 text-xs">
+                <span className="font-mono text-slate-400 w-24 shrink-0">Totals</span>
+                <span className="flex-1" />
+                <span className="w-14 text-right font-bold text-rose-600 shrink-0">₦10,500</span>
+                <span className="w-14 text-right font-bold text-blue-600 shrink-0">₦2,000</span>
+                <span className="w-16 text-right font-bold text-slate-900 shrink-0">₦850,500</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -394,7 +398,7 @@ export default function Landing() {
                 <div className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-emerald-500" />Cancel anytime</div>
               </div>
             </div>
-            <div className="hidden sm:block">
+            <div className="hidden lg:block">
               <MockDashboard />
             </div>
           </div>
@@ -967,7 +971,7 @@ export default function Landing() {
 
       {/* ── FINAL CTA ────────────────────────────────────────────────────── */}
       <section className="py-24 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 rounded-3xl px-8 py-20 shadow-2xl shadow-blue-600/30 overflow-hidden text-center">
+        <div className="relative bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 rounded-3xl px-5 sm:px-8 py-14 sm:py-20 shadow-2xl shadow-blue-600/30 overflow-hidden text-center">
           <div className="absolute -top-20 -right-20 w-80 h-80 bg-white/5 rounded-full pointer-events-none" />
           <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-white/5 rounded-full pointer-events-none" />
           <div className="relative z-10 max-w-2xl mx-auto">
