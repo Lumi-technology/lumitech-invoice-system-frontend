@@ -15,6 +15,8 @@ import {
   X,
   Save,
   FolderOpen,
+  Send,
+  Plus,
 } from "lucide-react";
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
@@ -52,6 +54,12 @@ function ClientDetail() {
   const [editForm, setEditForm] = useState({ name: "", email: "", phone: "", address: "" });
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
+  // Send statement state
+  const [showStatementModal, setShowStatementModal] = useState(false);
+  const [ccInput, setCcInput] = useState("");
+  const [ccList, setCcList] = useState([]);
+  const [isSendingStatement, setIsSendingStatement] = useState(false);
+
   useEffect(() => {
     api
       .get(`/api/clients/${id}`)
@@ -88,6 +96,28 @@ function ClientDetail() {
       setToast({ visible: true, message: msg, type: "error" });
     } finally {
       setIsSavingEdit(false);
+    }
+  };
+
+  const addCc = () => {
+    const email = ccInput.trim();
+    if (email && !ccList.includes(email)) setCcList([...ccList, email]);
+    setCcInput("");
+  };
+
+  const handleSendStatement = async () => {
+    try {
+      setIsSendingStatement(true);
+      await api.post(`/api/clients/${id}/send-statement`, { cc: ccList });
+      setShowStatementModal(false);
+      setCcList([]);
+      setCcInput("");
+      setToast({ visible: true, message: "Statement sent to client's email", type: "success" });
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to send statement.";
+      setToast({ visible: true, message: msg, type: "error" });
+    } finally {
+      setIsSendingStatement(false);
     }
   };
 
@@ -136,7 +166,16 @@ function ClientDetail() {
           <ArrowLeft size={20} />
           <span className="text-sm font-medium">Back</span>
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {client?.email && (
+            <button
+              onClick={() => { setCcList([]); setCcInput(""); setShowStatementModal(true); }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition-all text-sm font-medium"
+            >
+              <Send size={16} />
+              Send Statement
+            </button>
+          )}
           {isAdmin && (
             <button
               onClick={openEditModal}
@@ -346,6 +385,80 @@ function ClientDetail() {
               >
                 <Save size={15} />
                 {isSavingEdit ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Send Statement Modal */}
+      {showStatementModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/90 backdrop-blur-xl dark:bg-slate-800/80 dark:border-slate-700 rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                <Send className="w-5 h-5 text-blue-600" />
+                Send Statement
+              </h3>
+              <button onClick={() => setShowStatementModal(false)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">
+              An email with all outstanding invoices and payment links will be sent to{" "}
+              <span className="font-semibold text-slate-700 dark:text-slate-200">{client.email}</span>.
+            </p>
+
+            {/* CC Field */}
+            <div className="mb-5">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">
+                CC (optional)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={ccInput}
+                  onChange={e => setCcInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addCc(); } }}
+                  placeholder="colleague@example.com"
+                  className="flex-1 px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white dark:placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                />
+                <button
+                  type="button"
+                  onClick={addCc}
+                  disabled={!ccInput.trim()}
+                  className="inline-flex items-center gap-1 px-3 py-2.5 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition text-sm disabled:opacity-40"
+                >
+                  <Plus size={15} /> Add
+                </button>
+              </div>
+              {ccList.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {ccList.map(email => (
+                    <span key={email} className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-full text-xs text-blue-700 dark:text-blue-300 font-medium">
+                      {email}
+                      <button type="button" onClick={() => setCcList(ccList.filter(e => e !== email))} className="ml-0.5 hover:text-blue-900 dark:hover:text-blue-100">
+                        <X size={11} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setShowStatementModal(false)} disabled={isSendingStatement} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition">
+                Cancel
+              </button>
+              <button
+                onClick={handleSendStatement}
+                disabled={isSendingStatement}
+                className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all disabled:opacity-60"
+              >
+                {isSendingStatement
+                  ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Sending...</>
+                  : <><Send size={15} />Send Statement</>}
               </button>
             </div>
           </div>
