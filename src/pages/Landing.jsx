@@ -76,7 +76,7 @@ function MockDashboard() {
 function MockTaxReport() {
   return (
     <div className="relative w-full max-w-lg mx-auto">
-      <div className="absolute -inset-6 bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-blue-500/10 rounded-3xl blur-3xl" />
+      <div className="absolute -inset-y-6 inset-x-0 bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-blue-500/10 rounded-3xl blur-3xl" />
       <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-left">
         {/* Window chrome */}
         <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2 bg-slate-50">
@@ -533,7 +533,7 @@ export default function Landing() {
       </section>
 
       {/* ── GET PAID YOUR WAY ────────────────────────────────────────────── */}
-      <section className="py-24 bg-slate-50 border-y border-slate-100">
+      <section className="py-24 bg-slate-50 border-y border-slate-100 overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-100 mb-5">
@@ -634,7 +634,7 @@ export default function Landing() {
       </section>
 
       {/* ── FIRS TAX COMPLIANCE ──────────────────────────────────────────── */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
