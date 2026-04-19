@@ -75,83 +75,106 @@ function MockDashboard() {
 /* ─── Mock Tax Report ────────────────────────────────────────────────────── */
 function MockTaxReport() {
   return (
-    <div className="relative w-full max-w-lg mx-auto">
+    <div className="relative w-full mx-auto">
       <div className="absolute -inset-y-6 inset-x-0 bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-blue-500/10 rounded-3xl blur-3xl" />
       <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-left">
         {/* Window chrome */}
         <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2 bg-slate-50">
-          <div className="w-3 h-3 rounded-full bg-rose-400" />
-          <div className="w-3 h-3 rounded-full bg-amber-400" />
-          <div className="w-3 h-3 rounded-full bg-emerald-400" />
-          <span className="ml-2 text-xs text-slate-400 font-medium">LumiLedger — Tax Report</span>
+          <div className="w-3 h-3 rounded-full bg-rose-400 shrink-0" />
+          <div className="w-3 h-3 rounded-full bg-amber-400 shrink-0" />
+          <div className="w-3 h-3 rounded-full bg-emerald-400 shrink-0" />
+          <span className="ml-2 text-xs text-slate-400 font-medium truncate">LumiLedger — Tax Report</span>
         </div>
 
         {/* Header row */}
-        <div className="px-4 pt-4 pb-2 flex flex-wrap items-center justify-between gap-y-2">
+        <div className="px-4 pt-4 pb-2 flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-xs font-bold text-slate-900">Tax Report</p>
             <p className="text-xs text-slate-400">VAT payable &amp; WHT — FIRS compliance</p>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg">
-            <Download className="w-3 h-3" /> Export for FIRS
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg shrink-0">
+            <Download className="w-3 h-3 shrink-0" /> <span>Export for FIRS</span>
           </div>
         </div>
 
         {/* Quarter tabs */}
-        <div className="px-4 pb-3 flex gap-1.5">
+        <div className="px-4 pb-3 flex items-center gap-1.5">
           {["Q1", "Q2", "Q3", "Q4"].map((q, i) => (
             <span key={q} className={`px-3 py-1 rounded-lg text-xs font-semibold border ${i === 1 ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-500 border-slate-200"}`}>{q}</span>
           ))}
+          <span className="ml-auto text-[10px] text-slate-400 font-medium">FY 2026</span>
         </div>
 
         {/* Summary cards */}
         <div className="px-4 pb-3 grid grid-cols-3 gap-2">
           {[
-            { label: "Total Revenue",  value: "₦840,000", sub: "5 invoices",         color: "text-slate-900", bg: "bg-slate-50",   border: "border-slate-200" },
-            { label: "VAT Payable",    value: "₦10,500",  sub: "Remit to FIRS",      color: "text-rose-600",  bg: "bg-rose-50",    border: "border-rose-200" },
-            { label: "WHT Withheld",   value: "₦2,000",   sub: "Receivable credit",  color: "text-blue-600",  bg: "bg-blue-50",    border: "border-blue-200" },
+            { label: "Total Revenue", value: "₦840,000", sub: "5 invoices",       color: "text-slate-900", bg: "bg-slate-50",  border: "border-slate-200" },
+            { label: "VAT Payable",   value: "₦10,500",  sub: "Remit to FIRS",    color: "text-rose-600",  bg: "bg-rose-50",   border: "border-rose-200"  },
+            { label: "WHT Withheld",  value: "₦2,000",   sub: "Credit receivable",color: "text-blue-600",  bg: "bg-blue-50",   border: "border-blue-200"  },
           ].map(c => (
-            <div key={c.label} className={`${c.bg} border ${c.border} rounded-xl p-2.5`}>
-              <p className="text-xs text-slate-500 mb-1 leading-tight">{c.label}</p>
-              <p className={`text-sm font-extrabold ${c.color}`}>{c.value}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{c.sub}</p>
+            <div key={c.label} className={`${c.bg} border ${c.border} rounded-xl p-2`}>
+              <p className="text-[10px] text-slate-500 mb-1 leading-tight">{c.label}</p>
+              <p className={`text-xs font-extrabold ${c.color}`}>{c.value}</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">{c.sub}</p>
             </div>
           ))}
         </div>
 
         {/* Invoice breakdown table */}
-        <div className="mx-4 mb-4 rounded-xl border border-slate-200 overflow-hidden">
+        <div className="mx-3 mb-3 rounded-xl border border-slate-200 overflow-hidden">
           <div className="bg-slate-800 px-3 py-2 flex items-center justify-between">
             <span className="text-xs font-semibold text-white">Invoice Breakdown</span>
-            <span className="text-xs text-slate-400">5 records</span>
+            <span className="text-[10px] text-slate-400">5 records · Q2 2026</span>
+          </div>
+          {/* Column headers */}
+          <div className="bg-slate-100 px-3 py-1.5 flex items-center gap-2">
+            <span className="w-16 shrink-0 text-[10px] font-bold text-slate-400 uppercase tracking-wide">Ref</span>
+            <span className="flex-1 text-[10px] font-bold text-slate-400 uppercase tracking-wide">Description</span>
+            <span className="w-12 text-right shrink-0 text-[10px] font-bold text-rose-400 uppercase tracking-wide">VAT</span>
+            <span className="w-12 text-right shrink-0 text-[10px] font-bold text-blue-400 uppercase tracking-wide">WHT</span>
+            <span className="w-14 text-right shrink-0 text-[10px] font-bold text-slate-400 uppercase tracking-wide">Total</span>
           </div>
           <div className="overflow-x-auto">
-            <div className="min-w-[340px]">
+            <div className="min-w-[320px]">
               <div className="divide-y divide-slate-100">
                 {[
-                  { inv: "INV-2026-0003", client: "Apex Ventures Ltd",   vat: "₦7,500",  wht: "—",       total: "₦107,500" },
-                  { inv: "INV-2026-0002", client: "Crestfield Agency",   vat: "₦3,000",  wht: "₦2,000",  total: "₦43,000"  },
-                  { inv: "INV-2026-0004", client: "Nova Build Co.",      vat: "—",       wht: "—",       total: "₦50,000"  },
+                  { inv: "INV-003", desc: "Web Design Services",  client: "Apex Ventures",    vat: "₦7,500", wht: "—",      total: "₦107,500" },
+                  { inv: "INV-002", desc: "Consulting — Q2",      client: "Crestfield Agency", vat: "₦3,000", wht: "₦2,000", total: "₦43,000"  },
+                  { inv: "INV-004", desc: "Construction Works",   client: "Nova Build Co.",    vat: "—",      wht: "—",      total: "₦50,000"  },
                 ].map(r => (
-                  <div key={r.inv} className="px-3 py-2 flex items-center gap-2 text-xs">
-                    <span className="font-mono text-slate-500 w-24 shrink-0">{r.inv}</span>
-                    <span className="text-slate-700 flex-1 truncate">{r.client}</span>
-                    <span className={`w-14 text-right shrink-0 font-semibold ${r.vat !== "—" ? "text-rose-600" : "text-slate-400"}`}>{r.vat}</span>
-                    <span className={`w-14 text-right shrink-0 font-semibold ${r.wht !== "—" ? "text-blue-600" : "text-slate-400"}`}>{r.wht}</span>
-                    <span className="w-16 text-right shrink-0 font-bold text-slate-900">{r.total}</span>
+                  <div key={r.inv} className="px-3 py-2 flex items-center gap-2">
+                    <span className="font-mono text-slate-400 w-16 shrink-0 text-[10px]">{r.inv}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-slate-700 font-semibold truncate text-[11px]">{r.desc}</p>
+                      <p className="text-slate-400 text-[10px] truncate">{r.client}</p>
+                    </div>
+                    <span className={`w-12 text-right shrink-0 text-xs font-semibold ${r.vat !== "—" ? "text-rose-600" : "text-slate-300"}`}>{r.vat}</span>
+                    <span className={`w-12 text-right shrink-0 text-xs font-semibold ${r.wht !== "—" ? "text-blue-600" : "text-slate-300"}`}>{r.wht}</span>
+                    <span className="w-14 text-right shrink-0 text-xs font-bold text-slate-900">{r.total}</span>
                   </div>
                 ))}
               </div>
               {/* Totals row */}
-              <div className="bg-slate-50 border-t border-slate-200 px-3 py-2 flex items-center gap-2 text-xs">
-                <span className="font-mono text-slate-400 w-24 shrink-0">Totals</span>
+              <div className="bg-slate-50 border-t-2 border-slate-200 px-3 py-2 flex items-center gap-2">
+                <span className="w-16 shrink-0 text-[10px] font-bold text-slate-500 uppercase tracking-wide">Totals</span>
                 <span className="flex-1" />
-                <span className="w-14 text-right font-bold text-rose-600 shrink-0">₦10,500</span>
-                <span className="w-14 text-right font-bold text-blue-600 shrink-0">₦2,000</span>
-                <span className="w-16 text-right font-bold text-slate-900 shrink-0">₦850,500</span>
+                <span className="w-12 text-right font-bold text-rose-600 shrink-0 text-xs">₦10,500</span>
+                <span className="w-12 text-right font-bold text-blue-600 shrink-0 text-xs">₦2,000</span>
+                <span className="w-14 text-right font-bold text-slate-900 shrink-0 text-xs">₦850,500</span>
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Action footer */}
+        <div className="mx-3 mb-3 flex items-center justify-between px-3 py-2.5 bg-emerald-50 border border-emerald-200 rounded-xl">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+            <span className="text-xs font-semibold text-emerald-700">Q2 report ready to file</span>
+          </div>
+          <span className="text-xs font-bold text-emerald-700 flex items-center gap-1 shrink-0">
+            Review &amp; File <ArrowRight className="w-3 h-3" />
+          </span>
         </div>
       </div>
     </div>
@@ -420,7 +443,7 @@ export default function Landing() {
             </div>
             <div className="hidden sm:block w-px h-10 bg-slate-100" />
             <div className="text-center">
-              <p className="text-3xl font-extrabold text-slate-900">SMEs + Accountants</p>
+              <p className="text-xl sm:text-3xl font-extrabold text-slate-900">SMEs + Accountants</p>
               <p className="text-sm text-slate-500 mt-0.5">Two modes, one platform</p>
             </div>
             <div className="hidden sm:block w-px h-10 bg-slate-100" />
@@ -465,7 +488,7 @@ export default function Landing() {
                 Start Tracking Your Capital <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-            <div className="flex justify-center mt-6 lg:mt-0">
+            <div className="mt-6 lg:mt-0 flex justify-center">
               <CapitalCard />
             </div>
           </div>
@@ -519,8 +542,8 @@ export default function Landing() {
                 <div className={`w-12 h-12 ${b.bg} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
                   {b.icon}
                 </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-1.5">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-1.5">
                     <h3 className="font-bold text-slate-900 leading-snug">{b.title}</h3>
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${b.badge}`}>{b.badgeText}</span>
                   </div>
@@ -616,7 +639,7 @@ export default function Landing() {
           </div>
 
           {/* Bottom callout */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col sm:flex-row items-center gap-6 sm:gap-10">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-10">
             <div className="flex-1">
               <p className="font-bold text-slate-900 mb-1">Every payment updates your books automatically</p>
               <p className="text-sm text-slate-500 leading-relaxed">
@@ -625,7 +648,7 @@ export default function Landing() {
             </div>
             <Link
               to="/register"
-              className="flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 hover:scale-[1.02] transition-all text-sm whitespace-nowrap"
+              className="w-full sm:w-auto flex-shrink-0 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 hover:scale-[1.02] transition-all text-sm"
             >
               Get Started Free <ArrowRight className="w-4 h-4" />
             </Link>
@@ -683,7 +706,7 @@ export default function Landing() {
             </div>
 
             {/* Right: mock UI */}
-            <div className="flex justify-center mt-6 lg:mt-0">
+            <div className="mt-6 lg:mt-0 w-full">
               <MockTaxReport />
             </div>
           </div>
@@ -755,7 +778,7 @@ export default function Landing() {
           </div>
           <div className="grid sm:grid-cols-2 gap-6 sm:gap-8">
             {/* Business Owners */}
-            <div className="bg-slate-800/60 rounded-2xl border border-slate-700 p-8">
+            <div className="bg-slate-800/60 rounded-2xl border border-slate-700 p-5 sm:p-8">
               <div className="flex items-center gap-3 mb-5">
                 <div className="p-2.5 bg-emerald-500/20 rounded-xl border border-emerald-500/20">
                   <Briefcase className="w-5 h-5 text-emerald-400" />
@@ -781,7 +804,7 @@ export default function Landing() {
               <p className="text-xs text-emerald-400 font-semibold italic">"I understand my money in seconds"</p>
             </div>
             {/* Accountants */}
-            <div className="bg-slate-800/60 rounded-2xl border border-indigo-500/30 p-8">
+            <div className="bg-slate-800/60 rounded-2xl border border-indigo-500/30 p-5 sm:p-8">
               <div className="flex items-center gap-3 mb-5">
                 <div className="p-2.5 bg-indigo-500/20 rounded-xl border border-indigo-500/20">
                   <Calculator className="w-5 h-5 text-indigo-400" />
@@ -882,8 +905,8 @@ export default function Landing() {
             </div>
 
             {/* ESSENTIAL — hero */}
-            <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 rounded-2xl p-6 shadow-2xl shadow-blue-600/40 flex flex-col md:-mt-4 md:-mb-4">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+            <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 rounded-2xl p-6 pt-8 shadow-2xl shadow-blue-600/40 flex flex-col sm:-mt-4 sm:-mb-4">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-blue-700 text-xs font-extrabold rounded-full shadow-lg border border-blue-100">⭐ Most Popular</span>
               </div>
               <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full mb-5 self-start tracking-widest uppercase">Essential</div>
