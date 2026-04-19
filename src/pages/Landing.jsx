@@ -1,4 +1,4 @@
-// Landing.jsx — LumiLedger marketing page
+// Landing.jsx — LumiLedger marketing page (fully mobile responsive + support)
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import {
@@ -6,13 +6,13 @@ import {
   Shield, Zap, Clock, ChevronRight, BookOpen, Landmark, Bell,
   Eye, Users, Star, AlertTriangle, XCircle, Banknote, Lock,
   Wallet, PiggyBank, Briefcase, Calculator, Menu, X as XIcon,
-  CreditCard, Receipt, Download,
+  CreditCard, Receipt, Download, LifeBuoy, Mail, Ticket,
 } from "lucide-react";
 
 /* ─── Mock Dashboard ─────────────────────────────────────────────────────── */
 function MockDashboard() {
   return (
-    <div className="relative w-full max-w-lg mx-auto">
+    <div className="relative w-full max-w-lg mx-auto overflow-hidden">
       <div className="absolute -inset-6 bg-gradient-to-br from-blue-500/20 via-indigo-500/15 to-purple-500/10 rounded-3xl blur-3xl" />
       <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2 bg-slate-50">
@@ -21,7 +21,6 @@ function MockDashboard() {
           <div className="w-3 h-3 rounded-full bg-emerald-400" />
           <span className="ml-2 text-xs text-slate-400 font-medium">LumiLedger — Dashboard</span>
         </div>
-        {/* Capital tracking hero */}
         <div className="mx-4 mt-4 mb-2 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
           <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">Your Capital Overview</p>
           <div className="grid grid-cols-3 gap-2">
@@ -37,7 +36,6 @@ function MockDashboard() {
             ))}
           </div>
         </div>
-        {/* Invoice rows */}
         <div className="divide-y divide-slate-50">
           {[
             { label: "Phoenix Plus — Web Redesign",  amount: "₦550,000", status: "Paid",    color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
@@ -72,13 +70,20 @@ function MockDashboard() {
   );
 }
 
-/* ─── Mock Tax Report ────────────────────────────────────────────────────── */
+/* ─── Mock Tax Report (fully responsive with horizontal scroll) ────────── */
+const TAX_ROWS = [
+  { inv: "INV-003", desc: "Web Design Services",  client: "Apex Ventures",    vat: "₦7,500", wht: "—",      total: "₦107,500" },
+  { inv: "INV-002", desc: "Consulting — Q2",      client: "Crestfield Agency", vat: "₦3,000", wht: "₦2,000", total: "₦43,000"  },
+  { inv: "INV-004", desc: "Construction Works",   client: "Nova Build Co.",    vat: "—",      wht: "—",      total: "₦50,000"  },
+];
+
 function MockTaxReport() {
   return (
-    <div className="relative w-full mx-auto">
-      <div className="absolute -inset-y-6 inset-x-0 bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-blue-500/10 rounded-3xl blur-3xl" />
+    <div className="relative w-full max-w-full">
+      <div className="absolute -inset-y-6 inset-x-0 bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-blue-500/10 rounded-3xl blur-3xl pointer-events-none" />
       <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-left">
-        {/* Window chrome */}
+
+        {/* title bar */}
         <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2 bg-slate-50">
           <div className="w-3 h-3 rounded-full bg-rose-400 shrink-0" />
           <div className="w-3 h-3 rounded-full bg-amber-400 shrink-0" />
@@ -86,7 +91,7 @@ function MockTaxReport() {
           <span className="ml-2 text-xs text-slate-400 font-medium truncate">LumiLedger — Tax Report</span>
         </div>
 
-        {/* Header row */}
+        {/* header row */}
         <div className="px-4 pt-4 pb-2 flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-xs font-bold text-slate-900">Tax Report</p>
@@ -97,20 +102,20 @@ function MockTaxReport() {
           </div>
         </div>
 
-        {/* Quarter tabs */}
-        <div className="px-4 pb-3 flex items-center gap-1.5">
+        {/* quarter tabs */}
+        <div className="px-4 pb-3 flex flex-wrap items-center gap-1.5">
           {["Q1", "Q2", "Q3", "Q4"].map((q, i) => (
             <span key={q} className={`px-3 py-1 rounded-lg text-xs font-semibold border ${i === 1 ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-500 border-slate-200"}`}>{q}</span>
           ))}
           <span className="ml-auto text-[10px] text-slate-400 font-medium">FY 2026</span>
         </div>
 
-        {/* Summary cards */}
+        {/* summary cards — 3 columns on all sizes */}
         <div className="px-4 pb-3 grid grid-cols-3 gap-2">
           {[
-            { label: "Total Revenue", value: "₦840,000", sub: "5 invoices",       color: "text-slate-900", bg: "bg-slate-50",  border: "border-slate-200" },
-            { label: "VAT Payable",   value: "₦10,500",  sub: "Remit to FIRS",    color: "text-rose-600",  bg: "bg-rose-50",   border: "border-rose-200"  },
-            { label: "WHT Withheld",  value: "₦2,000",   sub: "Credit receivable",color: "text-blue-600",  bg: "bg-blue-50",   border: "border-blue-200"  },
+            { label: "Total Revenue", value: "₦840,000", sub: "5 invoices",        color: "text-slate-900", bg: "bg-slate-50",  border: "border-slate-200" },
+            { label: "VAT Payable",   value: "₦10,500",  sub: "Remit to FIRS",     color: "text-rose-600",  bg: "bg-rose-50",   border: "border-rose-200"  },
+            { label: "WHT Withheld",  value: "₦2,000",   sub: "Credit receivable", color: "text-blue-600",  bg: "bg-blue-50",   border: "border-blue-200"  },
           ].map(c => (
             <div key={c.label} className={`${c.bg} border ${c.border} rounded-xl p-2`}>
               <p className="text-[10px] text-slate-500 mb-1 leading-tight">{c.label}</p>
@@ -120,54 +125,83 @@ function MockTaxReport() {
           ))}
         </div>
 
-        {/* Invoice breakdown table */}
-        <div className="mx-3 mb-3 rounded-xl border border-slate-200 overflow-hidden">
+        {/* ── Mobile invoice list (shown below sm) ── */}
+        <div className="sm:hidden mx-3 mb-3 rounded-xl border border-slate-200 overflow-hidden">
           <div className="bg-slate-800 px-3 py-2 flex items-center justify-between">
             <span className="text-xs font-semibold text-white">Invoice Breakdown</span>
-            <span className="text-[10px] text-slate-400">5 records · Q2 2026</span>
+            <span className="text-[10px] text-slate-400">Q2 2026</span>
           </div>
-          {/* Column headers */}
-          <div className="bg-slate-100 px-3 py-1.5 flex items-center gap-2">
-            <span className="w-16 shrink-0 text-[10px] font-bold text-slate-400 uppercase tracking-wide">Ref</span>
-            <span className="flex-1 text-[10px] font-bold text-slate-400 uppercase tracking-wide">Description</span>
-            <span className="w-12 text-right shrink-0 text-[10px] font-bold text-rose-400 uppercase tracking-wide">VAT</span>
-            <span className="w-12 text-right shrink-0 text-[10px] font-bold text-blue-400 uppercase tracking-wide">WHT</span>
-            <span className="w-14 text-right shrink-0 text-[10px] font-bold text-slate-400 uppercase tracking-wide">Total</span>
+          <div className="divide-y divide-slate-100">
+            {TAX_ROWS.map(r => (
+              <div key={r.inv} className="px-3 py-2.5 flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold text-slate-700 truncate">{r.desc}</p>
+                  <p className="text-[10px] text-slate-400 truncate">{r.client}</p>
+                  <p className="text-[10px] font-mono text-slate-400 mt-0.5">{r.inv}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-xs font-bold text-slate-900">{r.total}</p>
+                  {r.vat !== "—" && <p className="text-[10px] text-rose-600">VAT {r.vat}</p>}
+                  {r.wht !== "—" && <p className="text-[10px] text-blue-600">WHT {r.wht}</p>}
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="overflow-x-auto">
-            <div className="min-w-[320px]">
-              <div className="divide-y divide-slate-100">
-                {[
-                  { inv: "INV-003", desc: "Web Design Services",  client: "Apex Ventures",    vat: "₦7,500", wht: "—",      total: "₦107,500" },
-                  { inv: "INV-002", desc: "Consulting — Q2",      client: "Crestfield Agency", vat: "₦3,000", wht: "₦2,000", total: "₦43,000"  },
-                  { inv: "INV-004", desc: "Construction Works",   client: "Nova Build Co.",    vat: "—",      wht: "—",      total: "₦50,000"  },
-                ].map(r => (
-                  <div key={r.inv} className="px-3 py-2 flex items-center gap-2">
-                    <span className="font-mono text-slate-400 w-16 shrink-0 text-[10px]">{r.inv}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-slate-700 font-semibold truncate text-[11px]">{r.desc}</p>
-                      <p className="text-slate-400 text-[10px] truncate">{r.client}</p>
-                    </div>
-                    <span className={`w-12 text-right shrink-0 text-xs font-semibold ${r.vat !== "—" ? "text-rose-600" : "text-slate-300"}`}>{r.vat}</span>
-                    <span className={`w-12 text-right shrink-0 text-xs font-semibold ${r.wht !== "—" ? "text-blue-600" : "text-slate-300"}`}>{r.wht}</span>
-                    <span className="w-14 text-right shrink-0 text-xs font-bold text-slate-900">{r.total}</span>
-                  </div>
-                ))}
-              </div>
-              {/* Totals row */}
-              <div className="bg-slate-50 border-t-2 border-slate-200 px-3 py-2 flex items-center gap-2">
-                <span className="w-16 shrink-0 text-[10px] font-bold text-slate-500 uppercase tracking-wide">Totals</span>
-                <span className="flex-1" />
-                <span className="w-12 text-right font-bold text-rose-600 shrink-0 text-xs">₦10,500</span>
-                <span className="w-12 text-right font-bold text-blue-600 shrink-0 text-xs">₦2,000</span>
-                <span className="w-14 text-right font-bold text-slate-900 shrink-0 text-xs">₦850,500</span>
-              </div>
+          <div className="bg-slate-50 border-t-2 border-slate-200 px-3 py-2 flex items-center justify-between">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Totals</span>
+            <div className="text-right">
+              <p className="text-xs font-bold text-slate-900">₦850,500</p>
+              <p className="text-[10px] text-rose-600">VAT ₦10,500</p>
             </div>
           </div>
         </div>
 
-        {/* Action footer */}
-        <div className="mx-3 mb-3 flex items-center justify-between px-3 py-2.5 bg-emerald-50 border border-emerald-200 rounded-xl">
+        {/* ── Desktop table (hidden below sm) ── */}
+        <div className="hidden sm:block mx-3 mb-3 rounded-xl border border-slate-200 overflow-hidden">
+          <div className="bg-slate-800 px-3 py-2 flex items-center justify-between">
+            <span className="text-xs font-semibold text-white">Invoice Breakdown</span>
+            <span className="text-[10px] text-slate-400">5 records · Q2 2026</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[480px] text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-100">
+                  <th className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wide w-16">Ref</th>
+                  <th className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wide">Description</th>
+                  <th className="px-3 py-1.5 text-[10px] font-bold text-rose-400 uppercase tracking-wide text-right w-14">VAT</th>
+                  <th className="px-3 py-1.5 text-[10px] font-bold text-blue-400 uppercase tracking-wide text-right w-14">WHT</th>
+                  <th className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wide text-right w-16">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {TAX_ROWS.map(r => (
+                  <tr key={r.inv}>
+                    <td className="px-3 py-2 font-mono text-slate-400 text-[10px]">{r.inv}</td>
+                    <td className="px-3 py-2">
+                      <p className="text-slate-700 font-semibold text-[11px] truncate max-w-[160px]">{r.desc}</p>
+                      <p className="text-slate-400 text-[10px] truncate max-w-[160px]">{r.client}</p>
+                    </td>
+                    <td className={`px-3 py-2 text-right text-xs font-semibold ${r.vat !== "—" ? "text-rose-600" : "text-slate-300"}`}>{r.vat}</td>
+                    <td className={`px-3 py-2 text-right text-xs font-semibold ${r.wht !== "—" ? "text-blue-600" : "text-slate-300"}`}>{r.wht}</td>
+                    <td className="px-3 py-2 text-right text-xs font-bold text-slate-900">{r.total}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="bg-slate-50 border-t-2 border-slate-200">
+                  <td className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wide">Totals</td>
+                  <td />
+                  <td className="px-3 py-2 text-right font-bold text-rose-600 text-xs">₦10,500</td>
+                  <td className="px-3 py-2 text-right font-bold text-blue-600 text-xs">₦2,000</td>
+                  <td className="px-3 py-2 text-right font-bold text-slate-900 text-xs">₦850,500</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        {/* filing status */}
+        <div className="mx-3 mb-3 flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 bg-emerald-50 border border-emerald-200 rounded-xl">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
             <span className="text-xs font-semibold text-emerald-700">Q2 report ready to file</span>
@@ -176,6 +210,7 @@ function MockTaxReport() {
             Review &amp; File <ArrowRight className="w-3 h-3" />
           </span>
         </div>
+
       </div>
     </div>
   );
@@ -321,7 +356,6 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-white font-sans antialiased overflow-x-hidden">
-
       {/* ── NAV ──────────────────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
@@ -338,6 +372,7 @@ export default function Landing() {
             <a href="#how-it-works" className="text-sm font-medium text-slate-500 hover:text-slate-900 transition">How it works</a>
             <a href="#pricing"      className="text-sm font-medium text-slate-500 hover:text-slate-900 transition">Pricing</a>
             <Link to="/pricing"     className="text-sm font-medium text-slate-500 hover:text-slate-900 transition">Plans & FAQ</Link>
+            <a href="#support"      className="text-sm font-medium text-slate-500 hover:text-slate-900 transition">Support</a>
           </div>
           <div className="flex items-center gap-3">
             <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition hidden sm:block">Sign In</Link>
@@ -359,6 +394,7 @@ export default function Landing() {
               { label: "Features", href: "#features" },
               { label: "How it works", href: "#how-it-works" },
               { label: "Pricing", href: "#pricing" },
+              { label: "Support", href: "#support" },
             ].map(item => (
               <a
                 key={item.label}
@@ -536,7 +572,7 @@ export default function Landing() {
             </h2>
             <p className="text-slate-500 max-w-xl mx-auto">Built for how African businesses actually operate — invoicing, expenses, accounting, and capital tracking all in one place.</p>
           </div>
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {benefits.map(b => (
               <div key={b.title} className="flex gap-5 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all group">
                 <div className={`w-12 h-12 ${b.bg} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
@@ -573,8 +609,7 @@ export default function Landing() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {/* Paystack */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-600/25 group-hover:scale-110 transition-transform">
                 <CreditCard className="w-5 h-5 text-white" />
@@ -595,7 +630,6 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Bank Transfer */}
             <div className="bg-white rounded-2xl p-6 border border-emerald-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group ring-1 ring-emerald-100">
               <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform">
                 <Landmark className="w-5 h-5 text-white" />
@@ -616,7 +650,6 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Cash */}
             <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group">
               <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-amber-500/25 group-hover:scale-110 transition-transform">
                 <Banknote className="w-5 h-5 text-white" />
@@ -638,7 +671,6 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Bottom callout */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-10">
             <div className="flex-1">
               <p className="font-bold text-slate-900 mb-1">Every payment updates your books automatically</p>
@@ -657,12 +689,10 @@ export default function Landing() {
       </section>
 
       {/* ── FIRS TAX COMPLIANCE ──────────────────────────────────────────── */}
-      <section className="py-24 bg-white overflow-hidden">
+      <section className="py-16 sm:py-24 bg-white overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-
-            {/* Left: copy */}
-            <div>
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+            <div className="text-center lg:text-left min-w-0">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-100 mb-6">
                 🇳🇬 Built for Nigerian tax law
               </span>
@@ -683,7 +713,7 @@ export default function Landing() {
                   { icon: <CheckCircle className="w-4 h-4 text-emerald-600" />, title: "WHT withheld tracked by transaction type", desc: "Rent, consulting, contracts — WHT is categorised automatically so you know your receivable credit." },
                   { icon: <Download className="w-4 h-4 text-emerald-600" />, title: "One-click FIRS CSV export", desc: "Q1–Q4 breakdown ready to go. Export and file — no manual data entry, no missed figures." },
                 ].map(f => (
-                  <div key={f.title} className="flex gap-4">
+                  <div key={f.title} className="flex gap-4 text-left">
                     <div className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center flex-shrink-0 border border-emerald-100 mt-0.5">
                       {f.icon}
                     </div>
@@ -695,7 +725,7 @@ export default function Landing() {
                 ))}
               </div>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
                 <Link to="/register" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-emerald-600 to-teal-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/25 hover:scale-[1.02] transition-all text-sm">
                   Start Filing Smarter <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -705,8 +735,7 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Right: mock UI */}
-            <div className="mt-6 lg:mt-0 w-full">
+            <div className="mt-4 lg:mt-0 w-full min-w-0">
               <MockTaxReport />
             </div>
           </div>
@@ -720,16 +749,13 @@ export default function Landing() {
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Everything you need. Nothing you don't.</h2>
             <p className="text-slate-500 max-w-xl mx-auto">Built for SMEs, freelancers, agencies, and accountants who need financial clarity without complexity.</p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map(f => (
               <div key={f.title} className={`relative bg-white rounded-2xl p-5 border transition-all hover:shadow-md hover:-translate-y-0.5 ${
-                f.highlight ? "border-blue-300 shadow-md ring-1 ring-blue-100" : f.comingSoon ? "border-dashed border-slate-300" : "border-slate-200 shadow-sm"
+                f.highlight ? "border-blue-300 shadow-md ring-1 ring-blue-100" : "border-slate-200 shadow-sm"
               }`}>
                 {f.highlight && (
                   <span className="absolute top-3 right-3 text-xs font-bold px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full border border-blue-200">★ Unique</span>
-                )}
-                {f.comingSoon && (
-                  <span className="absolute top-3 right-3 text-xs font-bold px-2 py-0.5 bg-violet-100 text-violet-700 rounded-full border border-violet-200">Soon</span>
                 )}
                 <div className={`w-10 h-10 ${f.bg} rounded-xl flex items-center justify-center mb-4 border border-slate-100`}>{f.icon}</div>
                 <h3 className="font-bold text-slate-900 text-sm mb-1.5 leading-snug">{f.title}</h3>
@@ -750,7 +776,7 @@ export default function Landing() {
           </div>
           <div className="relative">
             <div className="hidden md:block absolute top-10 left-[calc(16.67%+1.5rem)] right-[calc(16.67%+1.5rem)] h-px bg-gradient-to-r from-blue-200 via-indigo-200 to-violet-200" />
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {steps.map(s => (
                 <div key={s.n} className="relative text-center">
                   <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${s.color} flex items-center justify-center text-white font-extrabold text-3xl shadow-xl ${s.glow} mx-auto mb-5 relative z-10`}>{s.n}</div>
@@ -777,7 +803,6 @@ export default function Landing() {
             <p className="text-slate-400 max-w-lg mx-auto">Same platform. Different experience. Adapted to how you work.</p>
           </div>
           <div className="grid sm:grid-cols-2 gap-6 sm:gap-8">
-            {/* Business Owners */}
             <div className="bg-slate-800/60 rounded-2xl border border-slate-700 p-5 sm:p-8">
               <div className="flex items-center gap-3 mb-5">
                 <div className="p-2.5 bg-emerald-500/20 rounded-xl border border-emerald-500/20">
@@ -803,7 +828,6 @@ export default function Landing() {
               </div>
               <p className="text-xs text-emerald-400 font-semibold italic">"I understand my money in seconds"</p>
             </div>
-            {/* Accountants */}
             <div className="bg-slate-800/60 rounded-2xl border border-indigo-500/30 p-5 sm:p-8">
               <div className="flex items-center gap-3 mb-5">
                 <div className="p-2.5 bg-indigo-500/20 rounded-xl border border-indigo-500/20">
@@ -843,7 +867,7 @@ export default function Landing() {
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Trusted by 100+ businesses</h2>
             <p className="text-slate-500 max-w-lg mx-auto">₦50M+ tracked. Real businesses. Real clarity.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {testimonials.map(t => (
               <div key={t.name} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col">
                 <div className="flex items-center justify-between mb-4">
@@ -879,8 +903,7 @@ export default function Landing() {
             <p className="text-slate-500 max-w-xl mx-auto">Try everything for 30 days. No restrictions. No card needed.</p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
-
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
             {/* FREE TRIAL */}
             <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-6 flex flex-col">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full mb-5 self-start border border-emerald-100">
@@ -1021,6 +1044,44 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── SUPPORT SECTION ──────────────────────────────────────────────── */}
+      <section id="support" className="py-16 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-4">
+              <LifeBuoy className="w-4 h-4" /> Help & Support
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">We're here to help</h2>
+            <p className="text-slate-500 mt-2 max-w-md mx-auto">Questions? Issues? Reach out to our support team.</p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <a
+              href="mailto:support@lumitechsystems.com"
+              className="inline-flex items-center gap-3 px-6 py-3 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all hover:border-blue-300 group"
+            >
+              <Mail className="w-5 h-5 text-blue-600 group-hover:scale-110 transition" />
+              <div className="text-left">
+                <p className="text-sm font-semibold text-slate-800">Email us</p>
+                <p className="text-xs text-slate-500">support@lumitechsystems.com</p>
+              </div>
+            </a>
+            <Link
+              to="/support/new-ticket"
+              className="inline-flex items-center gap-3 px-6 py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-all group"
+            >
+              <Ticket className="w-5 h-5 group-hover:rotate-12 transition" />
+              <div className="text-left">
+                <p className="text-sm font-semibold">Create a support ticket</p>
+                <p className="text-xs text-blue-200">Get dedicated help</p>
+              </div>
+            </Link>
+          </div>
+          <p className="text-center text-xs text-slate-400 mt-8">
+            Typical response time: within 24 hours (business days)
+          </p>
+        </div>
+      </section>
+
       {/* ── FOOTER ───────────────────────────────────────────────────────── */}
       <footer className="border-t border-slate-100 py-10 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1037,6 +1098,7 @@ export default function Landing() {
             <div className="flex items-center gap-4">
               <Link to="/login"    className="text-xs text-slate-500 hover:text-blue-600 transition">Sign In</Link>
               <Link to="/register" className="text-xs text-slate-500 hover:text-blue-600 transition">Register</Link>
+              <a href="#support"   className="text-xs text-slate-500 hover:text-blue-600 transition">Support</a>
             </div>
           </div>
         </div>
