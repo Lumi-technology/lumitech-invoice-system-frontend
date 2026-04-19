@@ -1065,8 +1065,10 @@ export default function Landing() {
                 <p className="text-xs text-slate-500">support@lumitechsystems.com</p>
               </div>
             </a>
-            <Link
-              to="/support/new-ticket"
+            <a
+              href="https://www.issuetask.com/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-3 px-6 py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-all group"
             >
               <Ticket className="w-5 h-5 group-hover:rotate-12 transition" />
@@ -1074,7 +1076,7 @@ export default function Landing() {
                 <p className="text-sm font-semibold">Create a support ticket</p>
                 <p className="text-xs text-blue-200">Get dedicated help</p>
               </div>
-            </Link>
+            </a>
           </div>
           <p className="text-center text-xs text-slate-400 mt-8">
             Typical response time: within 24 hours (business days)
