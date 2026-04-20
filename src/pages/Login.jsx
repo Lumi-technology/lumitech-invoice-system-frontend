@@ -38,7 +38,9 @@ function Login() {
         setRegisteredAs(user.userType);
       }
 
-      if (role === "STAFF" || role === "ADMIN") {
+      if (role === "STAFF" || role === "STAFF_EXPENSE") {
+        navigate("/staff-home");
+      } else if (role === "ADMIN") {
         navigate("/invoices");
       } else {
         navigate("/dashboard");

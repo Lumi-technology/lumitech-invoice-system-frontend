@@ -183,7 +183,7 @@ function ReceiptUpload({ file, setFile, existingUrl }) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export default function Expenses() {
+export default function Expenses({ view }) {
   const userInfo     = getUserFromToken();
   const isStaff      = userInfo?.role === "STAFF" || userInfo?.role === "STAFF_EXPENSE";
   const isAccountant = ["ADMIN","SUPER_ADMIN"].includes(userInfo?.role);
@@ -465,15 +465,16 @@ export default function Expenses() {
   const reportTotal = reportData.reduce((s,e)=>s+Number(e.amount),0);
 
   // ─────────────────────────────────────────────────────────────────────────
-  // STAFF LAYOUT — Concur-style single page
   // ─────────────────────────────────────────────────────────────────────────
-  if (isStaff) return (
+  // STAFF — "Manage Expenses" view (/expenses/manage) — claims only
+  // ─────────────────────────────────────────────────────────────────────────
+  if (isStaff && view === "manage") return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
         <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-          <Receipt className="w-6 h-6 text-blue-600" /> Manage Expenses
+          <FolderOpen className="w-6 h-6 text-blue-600" /> Manage Expenses
         </h1>
-        <p className="text-sm text-slate-400 mt-0.5">Create expense claims and track your submissions</p>
+        <p className="text-sm text-slate-400 mt-0.5">Group your expenses into claims and submit for approval</p>
       </div>
 
       {/* ── SECTION 1: Expense Claims ── */}
@@ -713,6 +714,127 @@ export default function Expenses() {
       {showForm && <ExpenseModal title="Record Expense" form={form} setForm={setForm} receipt={receipt} setReceipt={setReceipt} submitting={submitting} onSubmit={handleSubmit} onClose={()=>{setShowForm(false);setForm(emptyForm());setReceipt(null);}} submitLabel="Save Expense" />}
       {showEditModal && editingExpense && <ExpenseModal title="Edit Expense" form={editForm} setForm={setEditForm} receipt={editReceipt} setReceipt={setEditReceipt} submitting={editSubmitting} onSubmit={handleEditSubmit} onClose={()=>setShowEditModal(false)} submitLabel="Save Changes" existingReceiptUrl={editingExpense.receiptUrl}/>}
 
+      <Toast {...toast} onClose={()=>setToast({...toast,visible:false})}/>
+    </div>
+  );
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // STAFF — "Expenses" view (/expenses) — record + available expenses only
+  // ─────────────────────────────────────────────────────────────────────────
+  if (isStaff) return (
+    <div className="space-y-6 max-w-5xl mx-auto">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+            <Receipt className="w-6 h-6 text-blue-600" /> Expenses
+          </h1>
+          <p className="text-sm text-slate-400 mt-0.5">Record expenses and add them to a claim for approval</p>
+        </div>
+        <button onClick={()=>setShowForm(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl shadow shadow-blue-600/25 hover:scale-[1.02] transition-all">
+          <Plus size={14}/> Record Expense
+        </button>
+      </div>
+
+      {/* Add-to-claim bar */}
+      {selectedAvailable.size > 0 && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+          <span className="text-sm font-medium text-blue-700 dark:text-blue-300">{selectedAvailable.size} selected</span>
+          <div className="ml-auto flex gap-2">
+            {showAssignPicker ? (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-blue-600 font-medium">Add to claim:</span>
+                {expReports.filter(r=>r.status==="DRAFT").map(r=>(
+                  <button key={r.id} onClick={()=>handleAssignToReport(r.id)} disabled={addingToReport}
+                    className="px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50">
+                    {r.name}
+                  </button>
+                ))}
+                {expReports.filter(r=>r.status==="DRAFT").length===0 && (
+                  <span className="text-xs text-slate-500">No draft claims — <a href="/expenses/manage" className="text-blue-600 underline">create one first</a>.</span>
+                )}
+                <button onClick={()=>setShowAssignPicker(false)} className="text-xs text-slate-400 hover:text-slate-600">Cancel</button>
+              </div>
+            ) : (
+              <>
+                <button onClick={()=>setShowAssignPicker(true)}
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+                  <FolderOpen size={12}/> Add to Claim
+                </button>
+                <button onClick={()=>setSelectedAvailable(new Set())} className="text-xs text-slate-400 hover:text-slate-600 transition">Clear</button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+        {availableExpenses.length > 0 && (
+          <div className="flex items-center gap-3 px-5 py-2.5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/30">
+            <input type="checkbox"
+              checked={selectedAvailable.size>0 && selectedAvailable.size===availableExpenses.length}
+              onChange={()=>setSelectedAvailable(selectedAvailable.size===availableExpenses.length?new Set():new Set(availableExpenses.map(e=>e.id)))}
+              className="rounded border-slate-300 text-blue-600"/>
+            <span className="text-xs text-slate-400">Select all</span>
+          </div>
+        )}
+        {loading ? (
+          <div className="flex items-center justify-center py-12"><div className="w-7 h-7 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"/></div>
+        ) : availableExpenses.length === 0 ? (
+          <div className="text-center py-12 text-slate-400">
+            <Receipt className="w-9 h-9 mx-auto mb-2 opacity-30"/>
+            <p className="text-sm font-medium">No expenses yet</p>
+            <p className="text-xs mt-1">All your expenses are in a claim, or record a new one.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100 dark:divide-slate-700">
+            {availableExpenses.map(exp => {
+              const sc = STATUS_CFG[exp.status]||STATUS_CFG.PENDING;
+              return (
+                <div key={exp.id} className={`flex items-start gap-3 px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/40 transition group ${selectedAvailable.has(exp.id)?"bg-blue-50/60 dark:bg-blue-900/10":""}`}>
+                  <input type="checkbox" checked={selectedAvailable.has(exp.id)} onChange={()=>toggleAvailable(exp.id)}
+                    className="mt-1 rounded border-slate-300 text-blue-600 shrink-0"/>
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center shrink-0 mt-0.5">
+                    <Receipt size={14} className="text-blue-600"/>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold text-slate-800 dark:text-white text-sm truncate">{exp.vendorName||CAT_LABEL(exp.category)}</p>
+                      <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 text-xs rounded-full">{CAT_LABEL(exp.category)}</span>
+                      <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${sc.cls}`}>{sc.label}</span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-0.5">{exp.expenseDate}{exp.paymentType?` · ${PAY_LABEL(exp.paymentType)}`:""}</p>
+                    {exp.status==="REJECTED" && exp.rejectionReason && (
+                      <div className="mt-1.5 p-2 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg">
+                        <p className="text-xs text-rose-600"><span className="font-semibold">Rejected: </span>{exp.rejectionReason}</p>
+                        {exp.accountantComment && <p className="text-xs text-rose-500 mt-0.5">{exp.accountantComment}</p>}
+                      </div>
+                    )}
+                  </div>
+                  <p className="font-bold text-slate-900 dark:text-white shrink-0 text-sm">{fmt(exp.amount)}</p>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {exp.status==="REJECTED" && (
+                      <>
+                        <button onClick={()=>openEditModal(exp)} className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition"><Edit2 size={11}/> Edit</button>
+                        <button onClick={()=>handleResubmit(exp.id)} disabled={resubmitting===exp.id} className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition">
+                          {resubmitting===exp.id?<div className="w-3 h-3 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"/>:<RotateCcw size={11}/>} Resubmit
+                        </button>
+                      </>
+                    )}
+                    <button onClick={()=>handleDelete(exp.id)} disabled={deleting===exp.id}
+                      className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-300 hover:text-rose-500 rounded-lg transition-all">
+                      {deleting===exp.id?<div className="w-4 h-4 border-2 border-slate-200 border-t-rose-500 rounded-full animate-spin"/>:<Trash2 size={14}/>}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {showForm && <ExpenseModal title="Record Expense" form={form} setForm={setForm} receipt={receipt} setReceipt={setReceipt} submitting={submitting} onSubmit={handleSubmit} onClose={()=>{setShowForm(false);setForm(emptyForm());setReceipt(null);}} submitLabel="Save Expense" />}
+      {showEditModal && editingExpense && <ExpenseModal title="Edit Expense" form={editForm} setForm={setEditForm} receipt={editReceipt} setReceipt={setEditReceipt} submitting={editSubmitting} onSubmit={handleEditSubmit} onClose={()=>setShowEditModal(false)} submitLabel="Save Changes" existingReceiptUrl={editingExpense.receiptUrl}/>}
       <Toast {...toast} onClose={()=>setToast({...toast,visible:false})}/>
     </div>
   );

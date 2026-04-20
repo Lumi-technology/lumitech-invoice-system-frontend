@@ -34,6 +34,7 @@ import BalanceSheet from "./pages/BalanceSheet";
 import BankStatementImport from "./pages/BankStatementImport";
 import AgingReport from "./pages/AgingReport";
 import Expenses from "./pages/Expenses";
+import StaffHome from "./pages/StaffHome";
 import AuditLogPage from "./pages/AuditLog";
 import TaxReport from "./pages/TaxReport";
 import BankReconciliation from "./pages/BankReconciliation";
@@ -414,8 +415,17 @@ function App() {
             }
           />
 
+          {/* STAFF HOME */}
+          <Route path="/staff-home" element={
+            <ProtectedRoute><Layout><StaffHome /></Layout></ProtectedRoute>
+          } />
+
+          {/* EXPENSES — /expenses = record & available, /expenses/manage = claims */}
           <Route path="/expenses" element={
-            <ProtectedRoute><Layout><Expenses /></Layout></ProtectedRoute>
+            <ProtectedRoute><Layout><Expenses view="expenses" /></Layout></ProtectedRoute>
+          } />
+          <Route path="/expenses/manage" element={
+            <ProtectedRoute><Layout><Expenses view="manage" /></Layout></ProtectedRoute>
           } />
           <Route path="/audit" element={
             <ProtectedRoute><Layout><AuditLogPage /></Layout></ProtectedRoute>

@@ -4,7 +4,7 @@ import {
   LayoutDashboard, FileText, PlusCircle, Users, LogOut,
   ChevronLeft, ChevronRight, Building2, FolderOpen, ShieldCheck,
   CreditCard, Wallet, UsersRound, X, BookOpen, BookOpenCheck, Scale, TrendingUp, LayoutList, Landmark, ClipboardList,
-  ChevronDown, Briefcase, Calculator, ArrowLeftRight, Banknote, PiggyBank, Lock, Receipt,
+  ChevronDown, Briefcase, Calculator, ArrowLeftRight, Banknote, PiggyBank, Lock, Receipt, Home,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
@@ -129,12 +129,15 @@ function Navbar({ onClose }) {
     { path: "/accounting/reports/balance-sheet",     label: "Balance Sheet",     icon: LayoutList },
   ];
 
+  const staffItems = [
+    { path: "/staff-home",      label: "Home",            icon: Home },
+    { path: "/expenses",        label: "Expenses",        icon: Receipt },
+    { path: "/expenses/manage", label: "Manage Expenses", icon: FolderOpen },
+    { path: "/settings/org",    label: "Org Settings",    icon: Building2 },
+  ];
+
   const bottomItems = isStaff
-    // Staff: expenses + org settings only
-    ? [
-        { path: "/expenses",    label: "Expenses",     icon: Receipt },
-        { path: "/settings/org", label: "Org Settings", icon: Building2 },
-      ]
+    ? []  // staff nav is handled separately via staffItems
     : [
         ...(isAccountantPro ? [{ path: "/expenses",  label: "Expenses",    icon: Receipt }] : []),
         { path: "/team",                              label: "Team",        icon: UsersRound },
@@ -187,12 +190,23 @@ function Navbar({ onClose }) {
       {/* Navigation */}
       <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
 
-        {/* Core items */}
-        <ul className="space-y-1">
-          {coreItems.map(item => (
-            <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} />
-          ))}
-        </ul>
+        {/* ── STAFF: simple 4-item nav ──────────────────────────────────── */}
+        {isStaff && (
+          <ul className="space-y-1">
+            {staffItems.map(item => (
+              <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} />
+            ))}
+          </ul>
+        )}
+
+        {/* Core items (non-staff only) */}
+        {!isStaff && (
+          <ul className="space-y-1">
+            {coreItems.map(item => (
+              <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} />
+            ))}
+          </ul>
+        )}
 
         {/* ── ACCOUNTANT: all accounting items inline ────────────────────── */}
         {isAccountant && !isStaff && (
@@ -307,10 +321,11 @@ function Navbar({ onClose }) {
           </>
         )}
 
-        {/* Bottom items */}
-        {!effectiveCollapsed && (
+        {/* Bottom items (non-staff only) */}
+        {!isStaff && !effectiveCollapsed && (
           <p className="px-3 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Settings</p>
         )}
+        {!isStaff && (
         <ul className="space-y-1">
           {bottomItems.map(item => {
             const active = isActive(item.path);
@@ -343,6 +358,7 @@ function Navbar({ onClose }) {
             );
           })}
         </ul>
+        )}
       </nav>
 
       {/* User Profile + Mode Switch */}
