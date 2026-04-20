@@ -96,15 +96,14 @@ function Navbar({ onClose }) {
   const isAccountantPro = getUserFromToken()?.plan === "ACCOUNTANT_PRO";
 
   // ── Primary nav items shared by both modes ──────────────────────────────
-  const coreItems = [
+  // Staff only see expenses — no invoicing, accounting, or finance features
+  const coreItems = isStaff ? [] : [
     ...(!isAdminOrStaff ? [{ path: "/dashboard",   label: "Dashboard",            icon: LayoutDashboard }] : []),
     { path: "/invoices",                            label: "Invoices",             icon: FileText },
     { path: "/create",                              label: "New Invoice",          icon: PlusCircle },
     { path: "/clients",                             label: "Customers",            icon: Users },
     { path: "/projects",                            label: "Projects",             icon: FolderOpen },
-    // Collections (business owner) / Payments (accountant)
     { path: "/finance",                             label: paymentLabel("module"), icon: Banknote },
-    // Capital — business owner primary, accountant secondary
     ...(!isAccountant ? [{ path: "/dashboard", label: "Capital", icon: PiggyBank }] : []),
   ];
 
@@ -130,14 +129,20 @@ function Navbar({ onClose }) {
     { path: "/accounting/reports/balance-sheet",     label: "Balance Sheet",     icon: LayoutList },
   ];
 
-  const bottomItems = [
-    ...(isAccountantPro ? [{ path: "/expenses",  label: "Expenses",    icon: Receipt }] : []),
-    ...(!isStaff ? [{ path: "/team",             label: "Team",        icon: UsersRound }] : []),
-    { path: "/settings/org",                      label: "Org Settings", icon: Building2 },
-    { path: "/settings/billing",                  label: "Billing",     icon: CreditCard },
-    ...(isAccountantPro && !isStaff ? [{ path: "/audit", label: "Audit Trail", icon: ShieldCheck }] : []),
-    ...(isPlatformAdmin ? [{ path: "/admin",      label: "Platform Admin", icon: ShieldCheck }] : []),
-  ];
+  const bottomItems = isStaff
+    // Staff: expenses + org settings only
+    ? [
+        { path: "/expenses",    label: "Expenses",     icon: Receipt },
+        { path: "/settings/org", label: "Org Settings", icon: Building2 },
+      ]
+    : [
+        ...(isAccountantPro ? [{ path: "/expenses",  label: "Expenses",    icon: Receipt }] : []),
+        { path: "/team",                              label: "Team",        icon: UsersRound },
+        { path: "/settings/org",                      label: "Org Settings", icon: Building2 },
+        { path: "/settings/billing",                  label: "Billing",     icon: CreditCard },
+        ...(isAccountantPro ? [{ path: "/audit",      label: "Audit Trail", icon: ShieldCheck }] : []),
+        ...(isPlatformAdmin  ? [{ path: "/admin",     label: "Platform Admin", icon: ShieldCheck }] : []),
+      ];
 
   const handleLogout = () => {
     localStorage.removeItem("token");

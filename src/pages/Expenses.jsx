@@ -427,9 +427,12 @@ export default function Expenses() {
         ))}
       </div>
 
-      {/* Tabs */}
+      {/* Tabs — Report hidden from staff */}
       <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
-        {[{ key: "list", label: "Expenses", icon: List }, { key: "report", label: "Report", icon: BarChart2 }].map(({ key, label, icon: Icon }) => (
+        {[
+          { key: "list",   label: "Expenses", icon: List },
+          ...(!isStaff ? [{ key: "report", label: "Report", icon: BarChart2 }] : []),
+        ].map(({ key, label, icon: Icon }) => (
           <button key={key} onClick={() => setTab(key)}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition ${tab === key ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}>
             <Icon size={14} />{label}
