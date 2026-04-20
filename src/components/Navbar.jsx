@@ -195,7 +195,7 @@ function Navbar({ onClose }) {
         </ul>
 
         {/* ── ACCOUNTANT: all accounting items inline ────────────────────── */}
-        {isAccountant && (
+        {isAccountant && !isStaff && (
           <>
             {!effectiveCollapsed && (
               <p className="px-3 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Accounting</p>
@@ -227,7 +227,7 @@ function Navbar({ onClose }) {
         )}
 
         {/* ── BUSINESS OWNER: reports visible, advanced collapsed ─────────── */}
-        {!isAccountant && (
+        {!isAccountant && !isStaff && (
           <>
             {!effectiveCollapsed && (
               <p className="px-3 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Reports</p>
@@ -356,12 +356,14 @@ function Navbar({ onClose }) {
               <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{user.username}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className={`inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full font-medium ${
-                  isAccountant
+                  isStaff
+                    ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300"
+                    : isAccountant
                     ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300"
                     : "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300"
                 }`}>
-                  {isAccountant ? <Calculator size={10} /> : <Briefcase size={10} />}
-                  {isAccountant ? "Accountant" : "Business Owner"}
+                  {isStaff ? <Receipt size={10} /> : isAccountant ? <Calculator size={10} /> : <Briefcase size={10} />}
+                  {isStaff ? "Staff (Expense)" : isAccountant ? "Accountant" : "Business Owner"}
                 </span>
               </div>
             </div>
@@ -375,8 +377,8 @@ function Navbar({ onClose }) {
           </div>
         )}
 
-        {/* Switch Mode — only available for accountant-registered users */}
-        {canSwitchMode && (
+        {/* Switch Mode — only available for accountant-registered users, never for staff */}
+        {canSwitchMode && !isStaff && (
           <button
             onClick={handleSwitchMode}
             title={`Switch to ${isAccountant ? "Business Owner" : "Accountant"} view`}
