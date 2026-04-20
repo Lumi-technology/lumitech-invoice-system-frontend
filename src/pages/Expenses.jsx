@@ -4,6 +4,7 @@ import {
   Plus, Trash2, Receipt, Upload, X, Search,
   RefreshCw, BarChart2, List, Download, CalendarRange,
   Check, XCircle, AlertTriangle, Edit2, RotateCcw,
+  FolderOpen, ChevronDown, ChevronRight, Send, FileText,
 } from "lucide-react";
 import Toast from "../components/Toast";
 import {
@@ -82,7 +83,25 @@ export default function Expenses() {
   const [selected, setSelected]         = useState(new Set());
   const [bulkSubmitting, setBulkSubmitting] = useState(false);
 
-  // Report
+  // Expense Reports (grouped submissions)
+  const [expReports, setExpReports]               = useState([]);
+  const [expReportsLoading, setExpReportsLoading] = useState(false);
+  const [expandedReports, setExpandedReports]     = useState(new Set());
+  const [reportDetails, setReportDetails]         = useState({}); // id → full report with expenses
+  const [showCreateReport, setShowCreateReport]   = useState(false);
+  const [newReportName, setNewReportName]         = useState("");
+  const [newReportDesc, setNewReportDesc]         = useState("");
+  const [creatingReport, setCreatingReport]       = useState(false);
+  const [showAddToReport, setShowAddToReport]     = useState(null); // expenseId being assigned
+  const [approvingReport, setApprovingReport]     = useState(null);
+  const [showRejectReportModal, setShowRejectReportModal] = useState(false);
+  const [rejectReportTarget, setRejectReportTarget]       = useState(null);
+  const [rejectReportReason, setRejectReportReason]       = useState("");
+  const [rejectReportComment, setRejectReportComment]     = useState("");
+  const [rejectingReport, setRejectingReport]             = useState(false);
+  const [submittingReport, setSubmittingReport]   = useState(null);
+
+  // Analytics Report
   const [reportFrom, setReportFrom]       = useState(monthStart());
   const [reportTo, setReportTo]           = useState(today());
   const [reportCat, setReportCat]         = useState("");
@@ -91,6 +110,7 @@ export default function Expenses() {
 
   useEffect(() => {
     fetchExpenses();
+    fetchExpReports();
     if (isAccountant) fetchDuplicates();
   }, []);
 
@@ -112,6 +132,109 @@ export default function Expenses() {
     } catch { /* silent */ }
   }
 
+  async function fetchExpReports() {
+    setExpReportsLoading(true);
+    try {
+      const res = await api.get("/api/expense-reports");
+      setExpReports(res.data || []);
+    } catch { showToast("Failed to load expense reports", "error"); }
+    finally { setExpReportsLoading(false); }
+  }
+
+  async function fetchReportDetail(id) {
+    try {
+      const res = await api.get(`/api/expense-reports/${id}`);
+      setReportDetails(prev => ({ ...prev, [id]: res.data }));
+    } catch { showToast("Failed to load report details", "error"); }
+  }
+
+  function toggleReportExpand(id) {
+    setExpandedReports(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) { next.delete(id); }
+      else { next.add(id); fetchReportDetail(id); }
+      return next;
+    });
+  }
+
+  async function handleCreateReport(e) {
+    e.preventDefault();
+    if (!newReportName.trim()) return;
+    setCreatingReport(true);
+    try {
+      await api.post("/api/expense-reports", { name: newReportName, description: newReportDesc });
+      setShowCreateReport(false); setNewReportName(""); setNewReportDesc("");
+      fetchExpReports();
+      showToast("Expense report created");
+    } catch (err) { showToast(err.response?.data?.message || "Failed to create report", "error"); }
+    finally { setCreatingReport(false); }
+  }
+
+  async function handleAddToReport(reportId, expenseId) {
+    try {
+      await api.post(`/api/expense-reports/${reportId}/expenses/${expenseId}`);
+      fetchExpenses(); fetchExpReports();
+      if (expandedReports.has(reportId)) fetchReportDetail(reportId);
+      setShowAddToReport(null);
+      showToast("Expense added to report");
+    } catch (err) { showToast(err.response?.data?.message || "Failed to add expense", "error"); }
+  }
+
+  async function handleRemoveFromReport(reportId, expenseId) {
+    try {
+      await api.delete(`/api/expense-reports/${reportId}/expenses/${expenseId}`);
+      fetchExpenses(); fetchExpReports();
+      fetchReportDetail(reportId);
+      showToast("Expense removed from report");
+    } catch (err) { showToast(err.response?.data?.message || "Failed to remove expense", "error"); }
+  }
+
+  async function handleSubmitReport(id) {
+    setSubmittingReport(id);
+    try {
+      await api.post(`/api/expense-reports/${id}/submit`);
+      fetchExpReports(); fetchExpenses();
+      showToast("Report submitted for review");
+    } catch (err) { showToast(err.response?.data?.message || "Failed to submit report", "error"); }
+    finally { setSubmittingReport(null); }
+  }
+
+  async function handleApproveReport(id) {
+    setApprovingReport(id);
+    try {
+      await api.post(`/api/expense-reports/${id}/approve`);
+      fetchExpReports(); fetchExpenses();
+      showToast("Report approved — journal entries posted");
+    } catch (err) { showToast(err.response?.data?.message || "Failed to approve report", "error"); }
+    finally { setApprovingReport(null); }
+  }
+
+  function openRejectReportModal(id) {
+    setRejectReportTarget(id); setRejectReportReason(""); setRejectReportComment(""); setShowRejectReportModal(true);
+  }
+
+  async function handleRejectReport() {
+    if (!rejectReportReason.trim()) { showToast("Rejection reason is required", "error"); return; }
+    setRejectingReport(true);
+    try {
+      await api.post(`/api/expense-reports/${rejectReportTarget}/reject`, {
+        rejectionReason: rejectReportReason, accountantComment: rejectReportComment,
+      });
+      fetchExpReports(); fetchExpenses();
+      setShowRejectReportModal(false);
+      showToast("Report rejected — submitter notified");
+    } catch (err) { showToast(err.response?.data?.message || "Failed to reject report", "error"); }
+    finally { setRejectingReport(false); }
+  }
+
+  async function handleDeleteReport(id) {
+    try {
+      await api.delete(`/api/expense-reports/${id}`);
+      fetchExpReports();
+      showToast("Report deleted");
+    } catch (err) { showToast(err.response?.data?.message || "Failed to delete report", "error"); }
+  }
+
   async function fetchReport() {
     try {
       setReportLoading(true);
@@ -123,7 +246,7 @@ export default function Expenses() {
     finally { setReportLoading(false); }
   }
 
-  useEffect(() => { if (tab === "report") fetchReport(); }, [tab]);
+  useEffect(() => { if (tab === "analytics") fetchReport(); }, [tab]);
 
   // ── Create ─────────────────────────────────────────────────────────────────
   async function handleSubmit(e) {
@@ -427,11 +550,12 @@ export default function Expenses() {
         ))}
       </div>
 
-      {/* Tabs — Report hidden from staff */}
+      {/* Tabs */}
       <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
         {[
-          { key: "list",   label: "Expenses", icon: List },
-          ...(!isStaff ? [{ key: "report", label: "Report", icon: BarChart2 }] : []),
+          { key: "list",    label: "Expenses",        icon: List },
+          { key: "reports", label: "Expense Reports", icon: FolderOpen },
+          ...(!isStaff ? [{ key: "analytics", label: "Analytics", icon: BarChart2 }] : []),
         ].map(({ key, label, icon: Icon }) => (
           <button key={key} onClick={() => setTab(key)}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition ${tab === key ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}>
@@ -626,8 +750,259 @@ export default function Expenses() {
         </>
       )}
 
-      {/* ── REPORT TAB ── */}
-      {tab === "report" && (
+      {/* ── EXPENSE REPORTS TAB ── */}
+      {tab === "reports" && (
+        <div className="space-y-4">
+          {/* Header row */}
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              {isStaff ? "Group your expenses into named reports and submit them for review." : "Review submitted expense reports from your team."}
+            </p>
+            {isStaff && (
+              <button onClick={() => setShowCreateReport(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl shadow shadow-blue-600/25 hover:scale-[1.02] transition-all">
+                <Plus size={14} /> New Report
+              </button>
+            )}
+          </div>
+
+          {expReportsLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
+            </div>
+          ) : expReports.length === 0 ? (
+            <div className="text-center py-16 text-slate-400 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+              <FolderOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
+              <p className="font-medium">No expense reports yet</p>
+              {isStaff && <p className="text-sm mt-1">Create a report, add your expenses, then submit for approval.</p>}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {expReports.map(report => {
+                const isExpanded = expandedReports.has(report.id);
+                const detail = reportDetails[report.id];
+                const statusCfg = {
+                  DRAFT:     { label: "Draft",     cls: "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400" },
+                  SUBMITTED: { label: "Submitted", cls: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400" },
+                  APPROVED:  { label: "Approved",  cls: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400" },
+                  REJECTED:  { label: "Rejected",  cls: "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400" },
+                }[report.status] || { label: report.status, cls: "" };
+
+                return (
+                  <div key={report.id} className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    {/* Report header block */}
+                    <div
+                      className="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40 transition select-none"
+                      onClick={() => toggleReportExpand(report.id)}
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                        <FolderOpen size={16} className="text-blue-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-semibold text-slate-800 dark:text-white text-sm">{report.name}</p>
+                          <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${statusCfg.cls}`}>{statusCfg.label}</span>
+                        </div>
+                        <div className="flex items-center gap-3 mt-0.5 flex-wrap">
+                          <span className="text-xs text-slate-400">{report.expenseCount} expense{report.expenseCount !== 1 ? "s" : ""}</span>
+                          {isAccountant && <span className="text-xs text-slate-400">by {report.submittedBy}</span>}
+                          {report.description && <span className="text-xs text-slate-400 truncate max-w-xs">{report.description}</span>}
+                        </div>
+                        {report.status === "REJECTED" && report.rejectionReason && (
+                          <div className="mt-1.5 px-2.5 py-1.5 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg">
+                            <p className="text-xs text-rose-600 dark:text-rose-300"><span className="font-semibold">Rejected: </span>{report.rejectionReason}</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-right shrink-0 mr-2">
+                        <p className="font-bold text-slate-900 dark:text-white">{fmt(report.totalAmount)}</p>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-1 shrink-0" onClick={e => e.stopPropagation()}>
+                        {isStaff && (report.status === "DRAFT" || report.status === "REJECTED") && (
+                          <button onClick={() => handleSubmitReport(report.id)} disabled={submittingReport === report.id}
+                            className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition disabled:opacity-50">
+                            {submittingReport === report.id
+                              ? <div className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                              : <Send size={11} />}
+                            Submit
+                          </button>
+                        )}
+                        {isAccountant && report.status === "SUBMITTED" && (
+                          <>
+                            <button onClick={() => handleApproveReport(report.id)} disabled={approvingReport === report.id}
+                              className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition disabled:opacity-50">
+                              {approvingReport === report.id
+                                ? <div className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                                : <Check size={11} />}
+                              Approve
+                            </button>
+                            <button onClick={() => openRejectReportModal(report.id)}
+                              className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition">
+                              <XCircle size={11} /> Reject
+                            </button>
+                          </>
+                        )}
+                        {isStaff && report.status === "DRAFT" && (
+                          <button onClick={() => handleDeleteReport(report.id)}
+                            className="p-1.5 text-slate-300 hover:text-rose-500 rounded-lg transition">
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                        {isExpanded ? <ChevronDown size={16} className="text-slate-400 ml-1" /> : <ChevronRight size={16} className="text-slate-400 ml-1" />}
+                      </div>
+                    </div>
+
+                    {/* Expanded expense line items */}
+                    {isExpanded && (
+                      <div className="border-t border-slate-100 dark:border-slate-700">
+                        {!detail ? (
+                          <div className="flex items-center justify-center py-8">
+                            <div className="w-6 h-6 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
+                          </div>
+                        ) : detail.expenses?.length === 0 ? (
+                          <div className="text-center py-8 text-slate-400 text-sm">No expenses in this report yet.</div>
+                        ) : (
+                          <div className="divide-y divide-slate-100 dark:divide-slate-700">
+                            {detail.expenses.map(exp => (
+                              <div key={exp.id} className="flex items-center gap-3 px-6 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
+                                  <FileText size={13} className="text-slate-400" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">
+                                    {exp.vendorName || CAT_LABEL(exp.category)}
+                                  </p>
+                                  <p className="text-xs text-slate-400">{exp.expenseDate} · {CAT_LABEL(exp.category)}</p>
+                                </div>
+                                <p className="text-sm font-semibold text-slate-800 dark:text-white shrink-0">{fmt(exp.amount)}</p>
+                                {exp.receiptUrl && (
+                                  <a href={exp.receiptUrl} target="_blank" rel="noreferrer"
+                                    className="text-xs text-blue-500 hover:text-blue-700 shrink-0"><Upload size={12} /></a>
+                                )}
+                                {isStaff && report.status === "DRAFT" && (
+                                  <button onClick={() => handleRemoveFromReport(report.id, exp.id)}
+                                    className="p-1 text-slate-300 hover:text-rose-500 rounded transition shrink-0" title="Remove from report">
+                                    <X size={13} />
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Add expense to this report (staff, DRAFT only) */}
+                        {isStaff && report.status === "DRAFT" && (
+                          <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-700">
+                            {showAddToReport === report.id ? (
+                              <div className="space-y-2">
+                                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Select an unassigned expense to add:</p>
+                                <div className="space-y-1 max-h-40 overflow-y-auto">
+                                  {expenses.filter(e => !e.expenseReportId && e.status !== "APPROVED").length === 0 ? (
+                                    <p className="text-xs text-slate-400">No unassigned expenses available.</p>
+                                  ) : (
+                                    expenses.filter(e => !e.expenseReportId && e.status !== "APPROVED").map(e => (
+                                      <button key={e.id} onClick={() => handleAddToReport(report.id, e.id)}
+                                        className="w-full flex items-center justify-between px-3 py-2 bg-slate-50 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg text-left transition">
+                                        <span className="text-xs text-slate-700 dark:text-slate-200 truncate">
+                                          {e.vendorName || CAT_LABEL(e.category)} · {e.expenseDate}
+                                        </span>
+                                        <span className="text-xs font-semibold text-slate-900 dark:text-white shrink-0 ml-2">{fmt(e.amount)}</span>
+                                      </button>
+                                    ))
+                                  )}
+                                </div>
+                                <button onClick={() => setShowAddToReport(null)} className="text-xs text-slate-400 hover:text-slate-600 transition">Cancel</button>
+                              </div>
+                            ) : (
+                              <button onClick={() => setShowAddToReport(report.id)}
+                                className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 font-medium transition">
+                                <Plus size={13} /> Add expense to this report
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Create Report Modal */}
+          {showCreateReport && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+                  <h2 className="font-semibold text-slate-900 dark:text-white">New Expense Report</h2>
+                  <button onClick={() => setShowCreateReport(false)} className="p-1 text-slate-400 hover:text-slate-600 rounded-lg transition"><X size={18} /></button>
+                </div>
+                <form onSubmit={handleCreateReport} className="p-6 space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Report Name *</label>
+                    <input type="text" required placeholder="e.g. January 2026 Expenses"
+                      value={newReportName} onChange={e => setNewReportName(e.target.value)}
+                      className={inputCls} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Description (optional)</label>
+                    <textarea rows={2} placeholder="What's this report for?"
+                      value={newReportDesc} onChange={e => setNewReportDesc(e.target.value)}
+                      className={`${inputCls} resize-none`} />
+                  </div>
+                  <div className="flex gap-3 pt-1">
+                    <button type="button" onClick={() => setShowCreateReport(false)}
+                      className="flex-1 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">Cancel</button>
+                    <button type="submit" disabled={creatingReport}
+                      className="flex-1 py-2.5 text-sm font-semibold text-white bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow shadow-blue-600/25 hover:scale-[1.02] transition-all disabled:opacity-50">
+                      {creatingReport ? "Creating…" : "Create Report"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Reject Report Modal */}
+          {showRejectReportModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+                  <h2 className="font-semibold text-slate-900 dark:text-white">Reject Report</h2>
+                  <button onClick={() => setShowRejectReportModal(false)} className="p-1 text-slate-400 hover:text-slate600 rounded-lg transition"><X size={18} /></button>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Rejection Reason <span className="text-rose-500">*</span></label>
+                    <textarea rows={3} placeholder="e.g. Missing receipts, incorrect amounts…"
+                      value={rejectReportReason} onChange={e => setRejectReportReason(e.target.value)}
+                      className={`${inputCls} resize-none`} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Additional Note (optional)</label>
+                    <textarea rows={2} placeholder="Extra guidance…"
+                      value={rejectReportComment} onChange={e => setRejectReportComment(e.target.value)}
+                      className={`${inputCls} resize-none`} />
+                  </div>
+                  <div className="flex gap-3">
+                    <button onClick={() => setShowRejectReportModal(false)}
+                      className="flex-1 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">Cancel</button>
+                    <button onClick={handleRejectReport} disabled={rejectingReport}
+                      className="flex-1 py-2.5 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition disabled:opacity-50">
+                      {rejectingReport ? "Rejecting…" : "Reject"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── ANALYTICS TAB ── */}
+      {tab === "analytics" && (
         <div className="space-y-5">
           <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
             <div className="flex flex-wrap gap-3 items-end">
