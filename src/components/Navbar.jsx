@@ -62,8 +62,8 @@ function Navbar({ onClose }) {
 
   const isActive = (path) => location.pathname === path;
   const isPlatformAdmin = role === "PLATFORM_ADMIN" || (Array.isArray(user?.roles) && user.roles.includes("PLATFORM_ADMIN"));
-  const isStaff = role === "STAFF";
-  const isAdminOrStaff = role === "STAFF" || role === "ADMIN";
+  const isStaff = role === "STAFF" || role === "STAFF_EXPENSE";
+  const isAdminOrStaff = role === "STAFF" || role === "STAFF_EXPENSE" || role === "ADMIN";
   const isAccountant = userType === USER_TYPES.ACCOUNTANT;
 
   // React to mode switches from other parts of the app

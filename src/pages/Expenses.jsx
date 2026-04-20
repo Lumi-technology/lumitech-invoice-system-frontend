@@ -185,7 +185,7 @@ function ReceiptUpload({ file, setFile, existingUrl }) {
 
 export default function Expenses() {
   const userInfo     = getUserFromToken();
-  const isStaff      = userInfo?.role === "STAFF";
+  const isStaff      = userInfo?.role === "STAFF" || userInfo?.role === "STAFF_EXPENSE";
   const isAccountant = ["ADMIN","SUPER_ADMIN"].includes(userInfo?.role);
 
   // ── Shared state ─────────────────────────────────────────────────────────

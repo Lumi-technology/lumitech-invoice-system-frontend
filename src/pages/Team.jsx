@@ -9,9 +9,17 @@ import {
 import Toast from "../components/Toast";
 
 const ROLE_STYLE = {
-  SUPER_ADMIN: "bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300",
-  ADMIN:       "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300",
-  STAFF:       "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+  SUPER_ADMIN:   "bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300",
+  ADMIN:         "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300",
+  STAFF:         "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+  STAFF_EXPENSE: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300",
+};
+
+const ROLE_LABEL = {
+  SUPER_ADMIN:   "Super Admin",
+  ADMIN:         "Admin",
+  STAFF:         "Staff",
+  STAFF_EXPENSE: "Staff (Expense)",
 };
 
 // ── Add Member Modal ──────────────────────────────────────────────────────────
@@ -26,7 +34,9 @@ function AddMemberModal({ roleToCreate, onClose, onSuccess }) {
     setError("");
     if (form.password.length < 6) { setError("Password must be at least 6 characters."); return; }
     setLoading(true);
-    const endpoint = roleToCreate === "ADMIN" ? "/api/auth/admin" : "/api/auth/staff";
+    const endpoint = roleToCreate === "ADMIN" ? "/api/auth/admin"
+      : roleToCreate === "STAFF_EXPENSE" ? "/api/auth/staff-expense"
+      : "/api/auth/staff";
     try {
       await api.post(endpoint, { username: form.username, password: form.password });
       onSuccess(`${roleToCreate} "${form.username}" created successfully`);
@@ -150,6 +160,11 @@ function Team() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {isAdmin && (
+            <button onClick={() => setAddRole("STAFF_EXPENSE")} className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm">
+              <UserPlus size={16} />Add Staff (Expense)
+            </button>
+          )}
+          {isAdmin && (
             <button onClick={() => setAddRole("STAFF")} className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm">
               <UserPlus size={16} />Add Staff
             </button>
@@ -193,7 +208,7 @@ function Team() {
                 {members.map(member => {
                   const isSelf = member.username === user?.username;
                   const isProtected = member.role === "SUPER_ADMIN";
-                  const RoleIcon = member.role === "STAFF" ? User : ShieldCheck;
+                  const RoleIcon = (member.role === "STAFF" || member.role === "STAFF_EXPENSE") ? User : ShieldCheck;
                   return (
                     <tr key={member.id ?? member.username} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                       <td className="px-6 py-4">
@@ -210,7 +225,7 @@ function Team() {
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${ROLE_STYLE[member.role] ?? ROLE_STYLE.STAFF}`}>
                           <RoleIcon size={11} />
-                          {member.role?.replace("_", " ")}
+                          {ROLE_LABEL[member.role] ?? member.role?.replace("_", " ")}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-center">
