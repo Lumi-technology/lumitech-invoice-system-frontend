@@ -297,6 +297,9 @@ export default function ClaimDetail() {
   const [toast, setToast]           = useState({ visible:false, message:"", type:"info" });
   const showToast = (msg, type="success") => setToast({ visible:true, message:msg, type });
 
+  // Receipt preview panel
+  const [previewUrl, setPreviewUrl]           = useState(null);
+
   // Modals
   const [showTypePicker, setShowTypePicker]   = useState(false);
   const [selectedType, setSelectedType]       = useState(null);   // after type picker — new expense
@@ -444,8 +447,13 @@ export default function ClaimDetail() {
   const backPath = isAccountant ? "/expenses" : "/expenses/manage";
   const backLabel = isAccountant ? "← Expense Claims" : "← Manage Expenses";
 
+  const isPdf = previewUrl && (previewUrl.includes('.pdf') || previewUrl.includes('/raw/'));
+
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className={`flex gap-6 items-start ${previewUrl ? "max-w-7xl" : "max-w-5xl"} mx-auto transition-all`}>
+
+    {/* ── Left column (main content) ── */}
+    <div className={`space-y-6 min-w-0 ${previewUrl ? "flex-1" : "w-full"}`}>
 
       {/* ── Top bar ── */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -581,10 +589,11 @@ export default function ClaimDetail() {
                     <p className="text-sm font-bold text-slate-900 dark:text-white">{fmt(exp.amount)}</p>
                     {exp.personal && <span className="text-xs text-amber-600 font-medium">Personal</span>}
                     {exp.receiptUrl && (
-                      <a href={exp.receiptUrl} target="_blank" rel="noreferrer"
-                        className="block text-xs text-blue-500 hover:text-blue-700 mt-0.5">
-                        View receipt
-                      </a>
+                      <button
+                        onClick={() => setPreviewUrl(previewUrl === exp.receiptUrl ? null : exp.receiptUrl)}
+                        className={`block text-xs mt-0.5 font-medium transition ${previewUrl === exp.receiptUrl ? "text-indigo-600 dark:text-indigo-400" : "text-blue-500 hover:text-blue-700"}`}>
+                        {previewUrl === exp.receiptUrl ? "▸ Viewing" : "View receipt"}
+                      </button>
                     )}
                   </div>
 
@@ -665,6 +674,48 @@ export default function ClaimDetail() {
       )}
 
       <Toast {...toast} onClose={() => setToast({ ...toast, visible: false })} />
+    </div>
+
+    {/* ── Right column: receipt preview ── */}
+    {previewUrl && (
+      <div className="w-[420px] shrink-0 sticky top-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-lg">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+            <div className="flex items-center gap-2">
+              <Receipt size={14} className="text-blue-500"/>
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Receipt Preview</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <a href={previewUrl} target="_blank" rel="noreferrer"
+                className="text-xs text-blue-500 hover:text-blue-700 font-medium transition">
+                Open in tab ↗
+              </a>
+              <button onClick={() => setPreviewUrl(null)}
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg transition">
+                <X size={16}/>
+              </button>
+            </div>
+          </div>
+
+          {isPdf ? (
+            <iframe
+              src={previewUrl}
+              title="Receipt"
+              className="w-full"
+              style={{ height: "70vh", border: "none" }}
+            />
+          ) : (
+            <img
+              src={previewUrl}
+              alt="Receipt"
+              className="w-full object-contain"
+              style={{ maxHeight: "70vh" }}
+            />
+          )}
+        </div>
+      </div>
+    )}
+
     </div>
   );
 }
