@@ -126,7 +126,7 @@ function TypePickerModal({ onSelect, onClose }) {
 
 // ── Expense Form Modal ────────────────────────────────────────────────────────
 
-function ExpenseFormModal({ expenseType, initial, onSave, onClose, saving }) {
+function ExpenseFormModal({ expenseType, initial, mode, onSave, onClose, saving }) {
   const today = new Date().toISOString().slice(0,10);
   const [form, setForm] = useState(initial || {
     expenseDate: today, businessPurpose: "", vendorName: "",
@@ -153,7 +153,7 @@ function ExpenseFormModal({ expenseType, initial, onSave, onClose, saving }) {
             </div>
             <div>
               <h2 className="font-semibold text-slate-900 dark:text-white">{expenseType.label}</h2>
-              <p className="text-xs text-slate-400">New expense</p>
+              <p className="text-xs text-slate-400">{mode === "edit" ? "Edit expense" : "New expense"}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg transition"><X size={18}/></button>
@@ -239,7 +239,7 @@ function ExpenseFormModal({ expenseType, initial, onSave, onClose, saving }) {
           <button type="button" onClick={onClose} className="flex-1 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 rounded-xl transition">Cancel</button>
           <button form="expense-form" type="submit" disabled={saving}
             className="flex-1 py-2.5 text-sm font-semibold text-white bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow shadow-blue-600/25 hover:scale-[1.01] transition disabled:opacity-50">
-            {saving ? "Saving…" : "Save Expense"}
+            {saving ? "Saving…" : mode === "edit" ? "Update Expense" : "Save Expense"}
           </button>
         </div>
       </div>
@@ -299,7 +299,9 @@ export default function ClaimDetail() {
 
   // Modals
   const [showTypePicker, setShowTypePicker]   = useState(false);
-  const [selectedType, setSelectedType]       = useState(null);   // after type picker
+  const [selectedType, setSelectedType]       = useState(null);   // after type picker — new expense
+  const [editingExpense, setEditingExpense]   = useState(null);   // expense being edited
+  const [editingType, setEditingType]         = useState(null);   // its EXPENSE_TYPES config
   const [savingExpense, setSavingExpense]      = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
 
@@ -345,6 +347,44 @@ export default function ClaimDetail() {
       await fetchClaim();
       showToast("Expense added to claim");
     } catch(err) { showToast(err.response?.data?.message || "Failed to save","error"); }
+    finally { setSavingExpense(false); }
+  }
+
+  // ── Edit expense ──────────────────────────────────────────────────────────
+  function openEditExpense(exp) {
+    const typeCfg = EXPENSE_TYPES.find(t => t.id === exp.expenseType)
+      || EXPENSE_TYPES.find(t => t.category === exp.category)
+      || EXPENSE_TYPES[EXPENSE_TYPES.length - 1]; // fallback: Other
+    setEditingType(typeCfg);
+    setEditingExpense(exp);
+  }
+
+  async function handleUpdateExpense(form, receipt) {
+    setSavingExpense(true);
+    try {
+      const fd = new FormData();
+      fd.append("data", new Blob([JSON.stringify({
+        amount: parseFloat(form.amount),
+        category: editingType.category,
+        expenseType: editingType.id,
+        vendorName: form.vendorName || null,
+        description: form.comment || null,
+        businessPurpose: form.businessPurpose || null,
+        cityOfPurchase: form.cityOfPurchase || null,
+        expenseDate: form.expenseDate,
+        paymentType: form.paymentType || null,
+        personal: form.personal,
+        comment: form.comment || null,
+        recurring: false,
+      })], { type: "application/json" }));
+      if (receipt) fd.append("receipt", receipt);
+
+      await api.put(`/api/expenses/${editingExpense.id}`, fd, { headers: { "Content-Type": "multipart/form-data" } });
+      setEditingExpense(null);
+      setEditingType(null);
+      await fetchClaim();
+      showToast("Expense updated");
+    } catch(err) { showToast(err.response?.data?.message || "Failed to update","error"); }
     finally { setSavingExpense(false); }
   }
 
@@ -486,7 +526,7 @@ export default function ClaimDetail() {
         {/* Table header */}
         {expenses.length > 0 && (
           <div className="grid gap-4 px-6 py-3 bg-slate-50 dark:bg-slate-700/40 border-b border-slate-100 dark:border-slate-700 text-xs font-semibold text-slate-400 uppercase tracking-wider"
-            style={{gridTemplateColumns:"100px 1fr 1fr 100px 100px 120px 40px"}}>
+            style={{gridTemplateColumns:"100px 1fr 1fr 100px 100px 120px 72px"}}>
             <span>Date</span>
             <span>Type / Vendor</span>
             <span>Purpose</span>
@@ -517,7 +557,7 @@ export default function ClaimDetail() {
               return (
                 <div key={exp.id}
                   className="grid gap-4 px-6 py-4 items-center hover:bg-slate-50 dark:hover:bg-slate-700/30 transition group"
-                  style={{gridTemplateColumns:"100px 1fr 1fr 100px 100px 120px 40px"}}>
+                  style={{gridTemplateColumns:"100px 1fr 1fr 100px 100px 120px 72px"}}>
 
                   <span className="text-sm text-slate-600 dark:text-slate-300 font-medium">{fmtDate(exp.expenseDate)}</span>
 
@@ -548,14 +588,20 @@ export default function ClaimDetail() {
                     )}
                   </div>
 
-                  <div className="flex justify-end">
+                  <div className="flex items-center justify-end gap-1">
                     {isStaff && canEdit && (
-                      <button onClick={()=>handleRemoveExpense(exp.id)} disabled={deletingId===exp.id}
-                        className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-300 hover:text-rose-500 rounded-lg transition-all">
-                        {deletingId===exp.id
-                          ? <div className="w-4 h-4 border-2 border-slate-200 border-t-rose-500 rounded-full animate-spin"/>
-                          : <Trash2 size={14}/>}
-                      </button>
+                      <>
+                        <button onClick={()=>openEditExpense(exp)}
+                          className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-300 hover:text-blue-500 rounded-lg transition-all" title="Edit">
+                          <Edit2 size={13}/>
+                        </button>
+                        <button onClick={()=>handleRemoveExpense(exp.id)} disabled={deletingId===exp.id}
+                          className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-300 hover:text-rose-500 rounded-lg transition-all" title="Remove">
+                          {deletingId===exp.id
+                            ? <div className="w-4 h-4 border-2 border-slate-200 border-t-rose-500 rounded-full animate-spin"/>
+                            : <Trash2 size={13}/>}
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -586,6 +632,26 @@ export default function ClaimDetail() {
           expenseType={selectedType}
           onClose={() => setSelectedType(null)}
           onSave={handleSaveExpense}
+          saving={savingExpense}
+        />
+      )}
+
+      {editingExpense && editingType && (
+        <ExpenseFormModal
+          expenseType={editingType}
+          mode="edit"
+          initial={{
+            expenseDate:      editingExpense.expenseDate     || "",
+            businessPurpose:  editingExpense.businessPurpose || "",
+            vendorName:       editingExpense.vendorName      || "",
+            cityOfPurchase:   editingExpense.cityOfPurchase  || "",
+            paymentType:      editingExpense.paymentType     || "",
+            amount:           editingExpense.amount          ? String(editingExpense.amount) : "",
+            personal:         editingExpense.personal        || false,
+            comment:          editingExpense.comment         || editingExpense.description || "",
+          }}
+          onClose={() => { setEditingExpense(null); setEditingType(null); }}
+          onSave={handleUpdateExpense}
           saving={savingExpense}
         />
       )}
