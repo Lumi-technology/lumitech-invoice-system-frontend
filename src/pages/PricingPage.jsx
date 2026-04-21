@@ -37,9 +37,17 @@ const features = [
     ],
   },
   {
+    category: "Expense Reporting",
+    rows: [
+      { label: "Expense claims & approvals",     values: [false, false, false, true]  },
+      { label: "Receipt upload & storage",       values: [false, false, false, true]  },
+      { label: "Staff expense roles",            values: [false, false, false, true]  },
+      { label: "Auto journal on approval",       values: [false, false, false, true]  },
+    ],
+  },
+  {
     category: "Compliance & Audit",
     rows: [
-      { label: "Expense management + receipts", values: [false, false, false, true]  },
       { label: "Audit Trail (full activity log)",values: [false, false, false, true]  },
       { label: "VAT & WHT tracking (FIRS)",     values: [false, false, false, true]  },
     ],

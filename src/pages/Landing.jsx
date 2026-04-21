@@ -6,7 +6,7 @@ import {
   Shield, Zap, Clock, ChevronRight, BookOpen, Landmark, Bell,
   Eye, Users, Star, AlertTriangle, XCircle, Banknote, Lock,
   Wallet, PiggyBank, Briefcase, Calculator, Menu, X as XIcon,
-  CreditCard, Receipt, Download, LifeBuoy, Mail, Ticket,
+  CreditCard, Receipt, Download, LifeBuoy, Mail, Ticket, FolderOpen,
 } from "lucide-react";
 
 /* ─── Mock Dashboard ─────────────────────────────────────────────────────── */
@@ -270,6 +270,151 @@ function CapitalCard() {
   );
 }
 
+/* ─── Hero Visual (African businesswoman + floating cards) ──────────────── */
+function HeroVisual() {
+  const [imgError, setImgError] = useState(false);
+  return (
+    <div className="relative w-full max-w-lg mx-auto select-none">
+      {/* Ambient glow */}
+      <div className="absolute -inset-10 bg-gradient-to-br from-blue-400/30 via-violet-400/20 to-rose-400/15 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative">
+        {/* Photo frame */}
+        <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-900/25" style={{aspectRatio:"4/5"}}>
+          {!imgError ? (
+            <img
+              src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=700&q=85&auto=format&fit=crop&crop=top"
+              alt="Business owner delighted by LumiLedger"
+              className="w-full h-full object-cover"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-blue-600 via-indigo-700 to-violet-800 flex items-center justify-center">
+              <div className="text-center text-white/80 px-8">
+                <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4">
+                  <Briefcase className="w-10 h-10 text-white" />
+                </div>
+                <p className="text-lg font-bold">Your finances,<br/>finally clear.</p>
+              </div>
+            </div>
+          )}
+          {/* Bottom gradient overlay */}
+          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-slate-900/50 to-transparent" />
+        </div>
+
+        {/* Floating card: Revenue */}
+        <div className="absolute -right-4 sm:-right-8 top-8 bg-white rounded-2xl shadow-2xl border border-slate-100 p-3.5 z-10 min-w-[155px]">
+          <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide mb-1">This month</p>
+          <p className="text-xl font-extrabold text-slate-900">₦840,000</p>
+          <div className="flex items-center gap-1 mt-1">
+            <TrendingUp className="w-3 h-3 text-emerald-500 shrink-0" />
+            <span className="text-[10px] text-emerald-600 font-bold">+23% vs last month</span>
+          </div>
+        </div>
+
+        {/* Floating card: Claim approved */}
+        <div className="absolute -left-4 sm:-left-8 bottom-20 bg-white rounded-2xl shadow-2xl border border-slate-100 p-3.5 z-10 max-w-[195px]">
+          <div className="flex items-center gap-2.5 mb-2">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+              <CheckCircle className="w-4 h-4 text-emerald-500" />
+            </div>
+            <div>
+              <p className="text-[10px] text-slate-400 font-medium leading-tight">Expense claim approved</p>
+              <p className="text-sm font-extrabold text-slate-900">₦125,000 ✓</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="text-[10px] text-slate-500">Just now · January 2026</span>
+          </div>
+        </div>
+
+        {/* Floating card: Star rating */}
+        <div className="absolute -right-2 sm:-right-6 bottom-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-xl p-3.5 z-10">
+          <div className="flex items-center gap-0.5 mb-1">
+            {Array.from({length:5},(_,i)=><Star key={i} className="w-3 h-3 text-amber-300 fill-amber-300"/>)}
+          </div>
+          <p className="text-[10px] text-blue-200 font-medium">100+ businesses</p>
+          <p className="text-xs text-white font-extrabold">trust LumiLedger</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Mock Expense Claim (for expense reporting section) ─────────────────── */
+function MockExpenseClaim() {
+  return (
+    <div className="relative w-full max-w-lg mx-auto">
+      <div className="absolute -inset-6 bg-gradient-to-br from-violet-500/15 via-rose-500/8 to-blue-500/10 rounded-3xl blur-3xl pointer-events-none" />
+      <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden text-left">
+        {/* Browser bar */}
+        <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2 bg-slate-50">
+          <div className="w-3 h-3 rounded-full bg-rose-400 shrink-0" />
+          <div className="w-3 h-3 rounded-full bg-amber-400 shrink-0" />
+          <div className="w-3 h-3 rounded-full bg-emerald-400 shrink-0" />
+          <span className="ml-2 text-xs text-slate-400 font-medium truncate">LumiLedger — February 2026 Expenses</span>
+        </div>
+
+        {/* Claim header */}
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <p className="text-sm font-bold text-slate-900">February 2026 Expenses</p>
+            <p className="text-xs text-slate-400 mt-0.5">Submitted by Adaeze O. · 3 expenses</p>
+          </div>
+          <span className="text-xs px-3 py-1.5 bg-emerald-50 text-emerald-700 font-bold rounded-full border border-emerald-200 shrink-0">✓ Approved</span>
+        </div>
+
+        {/* Expense rows */}
+        <div className="divide-y divide-slate-50">
+          {[
+            { label: "Bolt – Client Site Visit", type: "Transport",  date: "Feb 3",  amount: "₦15,000",  icon: "🚖", receipt: true },
+            { label: "Transcorp Hilton",          type: "Hotel",      date: "Feb 8",  amount: "₦120,000", icon: "🏨", receipt: true },
+            { label: "Client Business Dinner",    type: "Meals",      date: "Feb 15", amount: "₦40,000",  icon: "🍽️", receipt: true },
+          ].map(exp => (
+            <div key={exp.label} className="px-5 py-3 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-base">
+                  {exp.icon}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-slate-800 truncate">{exp.label}</p>
+                  <p className="text-[10px] text-slate-400">{exp.type} · {exp.date}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {exp.receipt && (
+                  <span className="hidden sm:flex items-center gap-1 text-[10px] px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full font-medium">
+                    📎 receipt
+                  </span>
+                )}
+                <p className="text-sm font-bold text-slate-900">{exp.amount}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Totals */}
+        <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+          <span className="text-xs font-semibold text-slate-500">3 expenses</span>
+          <span className="text-base font-extrabold text-slate-900">₦175,000</span>
+        </div>
+
+        {/* Approval banner */}
+        <div className="px-5 py-3 bg-emerald-50 border-t border-emerald-100 flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="text-xs font-semibold text-emerald-700">Approved by GBA · Auto-posted to journal entries</span>
+          </div>
+          <span className="text-[10px] text-emerald-600 font-bold bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
+            P&amp;L updated ✓
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Data ───────────────────────────────────────────────────────────────── */
 const testimonials = [
   {
@@ -342,6 +487,7 @@ const features = [
   { icon: <BookOpen className="w-5 h-5 text-cyan-600" />,     bg: "bg-cyan-50",    title: "Chart of Accounts",              desc: "Full double-entry bookkeeping — assets, liabilities, equity, income, expenses." },
   { icon: <Users className="w-5 h-5 text-teal-600" />,        bg: "bg-teal-50",    title: "Team Access & Roles",            desc: "Add admins and staff. Everyone sees exactly what they need — nothing more." },
   { icon: <Landmark className="w-5 h-5 text-slate-600" />,    bg: "bg-slate-50",   title: "Bank Reconciliation",            desc: "Import bank statements, auto-match transactions, and reconcile your books in minutes." },
+  { icon: <Receipt className="w-5 h-5 text-violet-600" />,    bg: "bg-violet-50",  title: "Expense Reporting & Claims",     desc: "Staff submit expense claims with receipts. You approve, return, or reject. Auto-posts to journal on approval.", highlight: false },
 ];
 
 const steps = [
@@ -458,7 +604,7 @@ export default function Landing() {
               </div>
             </div>
             <div className="hidden lg:block">
-              <MockDashboard />
+              <HeroVisual />
             </div>
           </div>
         </div>
@@ -742,6 +888,56 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── EXPENSE REPORTING ────────────────────────────────────────────── */}
+      <section className="py-16 sm:py-24 bg-slate-50 border-y border-slate-100 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <div className="text-center lg:text-left">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 text-violet-700 text-xs font-semibold rounded-full border border-violet-100 mb-6">
+                ✦ New — Expense Reporting
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-5">
+                Staff expense claims —{" "}
+                <span className="bg-gradient-to-r from-violet-600 to-rose-500 bg-clip-text text-transparent">
+                  approved in seconds
+                </span>
+              </h2>
+              <p className="text-slate-500 text-lg leading-relaxed mb-8">
+                Your team submits expense claims with receipts attached. You review and approve with one click. Every approved claim flows directly into your books — no manual journal entries, ever.
+              </p>
+              <div className="space-y-5 mb-8">
+                {[
+                  { icon: <FolderOpen className="w-4 h-4 text-violet-600" />, bg: "bg-violet-50 border-violet-100", title: "SAP Concur-style claim flow", desc: "Staff create claims, pick expense types (Taxi, Hotel, Meals…), attach receipts, and submit for review." },
+                  { icon: <CheckCircle className="w-4 h-4 text-emerald-600" />, bg: "bg-emerald-50 border-emerald-100", title: "Approve, return, or reject", desc: "Accountants review each claim, add a reason if returning, and notify staff instantly by email and bell." },
+                  { icon: <BookOpen className="w-4 h-4 text-blue-600" />, bg: "bg-blue-50 border-blue-100", title: "Auto-posts to your books", desc: "Approval triggers a journal entry. P&L and Balance Sheet update automatically. Nothing falls through the cracks." },
+                ].map(f => (
+                  <div key={f.title} className="flex gap-4 text-left">
+                    <div className={`w-9 h-9 ${f.bg} rounded-xl flex items-center justify-center flex-shrink-0 border mt-0.5`}>
+                      {f.icon}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-800 mb-0.5">{f.title}</p>
+                      <p className="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                <Link to="/register" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-violet-600/25 hover:scale-[1.02] transition-all text-sm">
+                  Try Expense Reporting Free <ArrowRight className="w-4 h-4" />
+                </Link>
+                <div className="inline-flex items-center gap-2 px-4 py-3 bg-white text-slate-600 text-sm font-medium rounded-xl border border-slate-200 shadow-sm">
+                  <Lock className="w-3.5 h-3.5 text-violet-500" /> Accountant Pro plan
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 lg:mt-0 flex justify-center">
+              <MockExpenseClaim />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── FEATURES GRID ────────────────────────────────────────────────── */}
       <section id="features" className="py-24 bg-slate-50 border-y border-slate-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -986,9 +1182,10 @@ export default function Landing() {
               </div>
               <p className="text-slate-500 text-sm mb-5">For accountants managing multiple clients</p>
               <ul className="space-y-2.5 mb-6 flex-1">
-                {["Everything in Business", "Multi-business management", "Team roles & permissions", "Priority support", "Advanced controls"].map(f => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-slate-600">
-                    <CheckCircle className="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" />{f}
+                {["Everything in Business", "✦ Expense reporting & claims", "Audit Trail (full activity log)", "VAT & WHT tracking (FIRS)", "Multi-business management", "Team roles & permissions", "Priority support"].map(f => (
+                  <li key={f} className={`flex items-start gap-2 text-sm ${f.startsWith("✦") ? "text-violet-700 font-semibold" : "text-slate-600"}`}>
+                    <CheckCircle className={`w-4 h-4 flex-shrink-0 mt-0.5 ${f.startsWith("✦") ? "text-violet-500" : "text-violet-400"}`} />
+                    {f.replace("✦ ", "")}
                   </li>
                 ))}
               </ul>

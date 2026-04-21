@@ -309,16 +309,17 @@ function Billing() {
               <ul className="space-y-2.5 mb-6 flex-1">
                 {[
                   "Everything in Business",
-                  "Expense management + receipts",
+                  "✦ Expense reporting & claims",
+                  "Receipt upload & approval flow",
                   "Audit Trail (full activity log)",
                   "VAT & WHT tracking (FIRS)",
                   "Multi-business management",
                   "Team roles & permissions",
                   "Priority support",
                 ].map(f => (
-                  <li key={f} className="flex items-start gap-2 text-xs text-slate-600">
-                    <CheckCircle className="w-3.5 h-3.5 text-violet-500 flex-shrink-0 mt-0.5" />
-                    {f}
+                  <li key={f} className={`flex items-start gap-2 text-xs ${f.startsWith("✦") ? "text-violet-700 font-semibold" : "text-slate-600"}`}>
+                    <CheckCircle className={`w-3.5 h-3.5 flex-shrink-0 mt-0.5 ${f.startsWith("✦") ? "text-violet-500" : "text-violet-400"}`} />
+                    {f.replace("✦ ", "")}
                   </li>
                 ))}
               </ul>
