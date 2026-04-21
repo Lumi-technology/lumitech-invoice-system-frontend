@@ -3,7 +3,8 @@ import { useEffect, useState, useCallback } from "react";
 import api, { getUserFromToken } from "../services/api";
 import {
   BookOpenCheck, Plus, Trash2, X, ChevronDown, ChevronRight,
-  ChevronLeft, AlertCircle, Info,
+  ChevronLeft, AlertCircle, Info, ArrowDownCircle, ArrowUpCircle,
+  Zap,
 } from "lucide-react";
 import Toast from "../components/Toast";
 
@@ -15,15 +16,340 @@ const fmtDate = (d) => {
   return new Date(d).toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric" });
 };
 
-const EMPTY_LINE = { accountId: "", description: "", type: "DR", amount: "" };
+const EMPTY_LINE    = { accountId: "", description: "", type: "DR", amount: "" };
+const EMPTY_QLINE   = { accountId: "", description: "", amount: "" };
 
 const VAT_OPTIONS = [
-  { value: "",       label: "No VAT" },
-  { value: "7.5",   label: "VAT 7.5%" },
+  { value: "",        label: "No VAT" },
+  { value: "7.5",    label: "VAT 7.5%" },
   { value: "EXEMPT", label: "VAT Exempt" },
 ];
 
-// ── New Journal Entry Modal ─────────────────────────────────────────────────
+// ── Quick Entry Modal ───────────────────────────────────────────────────────
+function QuickEntryModal({ accounts, onClose, onSaved }) {
+  const today = new Date().toISOString().slice(0, 10);
+
+  const [spendMode, setSpendMode] = useState(true); // true = Spend, false = Receive
+  const [form, setForm] = useState({
+    bankAccountId: "",
+    reference: "",
+    description: "",
+    date: today,
+    lines: [{ ...EMPTY_QLINE }],
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState("");
+
+  // Accounts split by type
+  const bankAccounts    = accounts.filter(a => a.type === "ASSET");
+  const expenseAccounts = accounts.filter(a => a.type === "EXPENSE");
+  const incomeAccounts  = accounts.filter(a => a.type === "INCOME");
+  const lineAccounts    = spendMode ? expenseAccounts : incomeAccounts;
+
+  const setField = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const setLine  = (i, k, v) => setForm(f => ({
+    ...f,
+    lines: f.lines.map((l, idx) => idx === i ? { ...l, [k]: v } : l),
+  }));
+  const addLine    = () => setForm(f => ({ ...f, lines: [...f.lines, { ...EMPTY_QLINE }] }));
+  const removeLine = (i) => setForm(f => ({ ...f, lines: f.lines.filter((_, idx) => idx !== i) }));
+
+  const total = form.lines.reduce((s, l) => s + (parseFloat(l.amount) || 0), 0);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (!form.bankAccountId)           { setError("Select a bank / cash account."); return; }
+    if (!form.description)             { setError("Description is required."); return; }
+    const validLines = form.lines.filter(l => l.accountId && parseFloat(l.amount) > 0);
+    if (validLines.length === 0)       { setError("Add at least one line with an account and amount."); return; }
+    if (total <= 0)                    { setError("Total amount must be greater than zero."); return; }
+
+    setLoading(true);
+    try {
+      // Build balanced journal lines automatically
+      let lines;
+      if (spendMode) {
+        // Spend: DR expense accounts, CR bank
+        lines = [
+          ...validLines.map(l => ({
+            accountId:   l.accountId,
+            description: l.description,
+            debit:       parseFloat(l.amount),
+            credit:      0,
+          })),
+          {
+            accountId:   form.bankAccountId,
+            description: "Payment from bank / cash",
+            debit:       0,
+            credit:      total,
+          },
+        ];
+      } else {
+        // Receive: DR bank, CR income accounts
+        lines = [
+          {
+            accountId:   form.bankAccountId,
+            description: "Receipt into bank / cash",
+            debit:       total,
+            credit:      0,
+          },
+          ...validLines.map(l => ({
+            accountId:   l.accountId,
+            description: l.description,
+            debit:       0,
+            credit:      parseFloat(l.amount),
+          })),
+        ];
+      }
+
+      const payload = {
+        reference:   form.reference,
+        description: form.description,
+        entryDate:   form.date,
+        lines,
+      };
+      const { data } = await api.post("/api/accounting/entries", payload);
+      onSaved(data);
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to create entry.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 w-full max-w-2xl p-6 my-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg">
+              <Zap className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">Quick Entry</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">No accounting knowledge required</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Spend / Receive toggle */}
+        <div className="flex rounded-xl border border-slate-200 dark:border-slate-600 overflow-hidden mb-5">
+          <button
+            type="button"
+            onClick={() => setSpendMode(true)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold transition-all ${
+              spendMode
+                ? "bg-rose-600 text-white"
+                : "bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-600"
+            }`}
+          >
+            <ArrowDownCircle size={15} />
+            Spend (Money Out)
+          </button>
+          <button
+            type="button"
+            onClick={() => setSpendMode(false)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold transition-all ${
+              !spendMode
+                ? "bg-emerald-600 text-white"
+                : "bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-600"
+            }`}
+          >
+            <ArrowUpCircle size={15} />
+            Receive (Money In)
+          </button>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-700 rounded-xl text-rose-600 dark:text-rose-300 text-sm flex items-start gap-2">
+            <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Header fields */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-wide">
+                {spendMode ? "Paid from" : "Received into"} *
+              </label>
+              <select
+                value={form.bankAccountId}
+                onChange={e => setField("bankAccountId", e.target.value)}
+                required
+                className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition"
+              >
+                <option value="">Select bank / cash account…</option>
+                {bankAccounts.map(a => (
+                  <option key={a.id} value={a.id}>{a.code} — {a.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-wide">Date *</label>
+              <input
+                type="date"
+                value={form.date}
+                onChange={e => setField("date", e.target.value)}
+                required
+                className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-wide">Description *</label>
+              <input
+                type="text"
+                value={form.description}
+                onChange={e => setField("description", e.target.value)}
+                placeholder={spendMode ? "e.g. Office rent payment" : "e.g. Client payment received"}
+                required
+                className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-wide">Reference</label>
+              <input
+                type="text"
+                value={form.reference}
+                onChange={e => setField("reference", e.target.value)}
+                placeholder="e.g. REC-001"
+                className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition"
+              />
+            </div>
+          </div>
+
+          {/* Line items */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2 uppercase tracking-wide">
+              {spendMode ? "What did you spend on?" : "What did you receive for?"}
+            </label>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-600 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 dark:bg-slate-700/50">
+                  <tr>
+                    <th className="text-left px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Category</th>
+                    <th className="text-left px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hidden md:table-cell">Note</th>
+                    <th className="text-right px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Amount (₦)</th>
+                    <th className="w-8" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                  {form.lines.map((line, i) => (
+                    <tr key={i} className={`transition-colors ${spendMode ? "bg-rose-50/20 dark:bg-rose-900/5" : "bg-emerald-50/20 dark:bg-emerald-900/5"}`}>
+                      <td className="px-3 py-2">
+                        <select
+                          value={line.accountId}
+                          onChange={e => setLine(i, "accountId", e.target.value)}
+                          className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white text-xs focus:outline-none focus:ring-1 focus:ring-violet-500 transition"
+                        >
+                          <option value="">Select category…</option>
+                          {lineAccounts.map(a => (
+                            <option key={a.id} value={a.id}>{a.name}</option>
+                          ))}
+                          {lineAccounts.length === 0 && (
+                            <option disabled>No accounts found — add accounts in Chart of Accounts</option>
+                          )}
+                        </select>
+                      </td>
+                      <td className="px-3 py-2 hidden md:table-cell">
+                        <input
+                          type="text"
+                          value={line.description}
+                          onChange={e => setLine(i, "description", e.target.value)}
+                          placeholder="Line note"
+                          className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white text-xs focus:outline-none focus:ring-1 focus:ring-violet-500 transition"
+                        />
+                      </td>
+                      <td className="px-3 py-2">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={line.amount}
+                          onChange={e => setLine(i, "amount", e.target.value)}
+                          placeholder="0.00"
+                          className={`w-full px-2 py-1.5 border rounded-lg bg-white dark:bg-slate-700 dark:text-white text-xs text-right focus:outline-none focus:ring-1 transition ${
+                            spendMode
+                              ? "border-rose-200 dark:border-rose-700/40 focus:ring-rose-500"
+                              : "border-emerald-200 dark:border-emerald-700/40 focus:ring-emerald-500"
+                          }`}
+                        />
+                      </td>
+                      <td className="px-2 py-2">
+                        <button
+                          type="button"
+                          onClick={() => removeLine(i)}
+                          disabled={form.lines.length <= 1}
+                          className="p-1 text-slate-400 hover:text-rose-500 rounded transition disabled:opacity-20"
+                        >
+                          <X size={13} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot className="border-t-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50">
+                  <tr>
+                    <td colSpan={2} className="px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hidden md:table-cell">
+                      Total {spendMode ? "Spent" : "Received"}
+                    </td>
+                    <td className="px-3 py-2.5 text-right font-bold text-sm">
+                      <span className={spendMode ? "text-rose-700 dark:text-rose-300" : "text-emerald-700 dark:text-emerald-300"}>
+                        {fmt(total)}
+                      </span>
+                    </td>
+                    <td />
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <button
+              type="button"
+              onClick={addLine}
+              className="mt-2 text-xs text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1"
+            >
+              <Plus size={12} /> Add Line
+            </button>
+          </div>
+
+          {/* Info note */}
+          <div className="flex items-start gap-2 px-3 py-2.5 bg-slate-50 dark:bg-slate-700/40 rounded-xl text-xs text-slate-500 dark:text-slate-400">
+            <Info size={12} className="mt-0.5 flex-shrink-0 text-violet-500" />
+            {spendMode
+              ? "We'll automatically record this as a debit to the category and a credit to your bank/cash account."
+              : "We'll automatically record this as a debit to your bank/cash account and a credit to the income category."}
+          </div>
+
+          <div className="flex justify-end gap-3 pt-1">
+            <button type="button" onClick={onClose} disabled={loading} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading || total <= 0}
+              className={`px-5 py-2 text-sm font-medium text-white rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all disabled:opacity-60 ${
+                spendMode
+                  ? "bg-gradient-to-br from-rose-600 to-rose-700"
+                  : "bg-gradient-to-br from-emerald-600 to-emerald-700"
+              }`}
+            >
+              {loading ? "Posting…" : spendMode ? "Record Spend" : "Record Receipt"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ── Advanced (Full Double-Entry) Modal ──────────────────────────────────────
 function NewEntryModal({ accounts, onClose, onSaved }) {
   const [form, setForm] = useState({
     reference: "",
@@ -49,12 +375,10 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
     lines: f.lines.filter((_, idx) => idx !== i),
   }));
 
-  // Compute totals from type + amount
   const totalDebits  = form.lines.reduce((s, l) => s + (l.type === "DR" ? parseFloat(l.amount) || 0 : 0), 0);
   const totalCredits = form.lines.reduce((s, l) => s + (l.type === "CR" ? parseFloat(l.amount) || 0 : 0), 0);
 
-  // VAT breakdown (informational — shown in totals, not auto-posted as a line)
-  const netAmount = totalDebits; // net = DR side (expenditure/revenue base)
+  const netAmount = totalDebits;
   const vatAmount = form.vatRate === "7.5" ? Math.round(netAmount * 0.075 * 100) / 100 : 0;
 
   const isBalanced = Math.abs(totalDebits - totalCredits) < 0.01;
@@ -98,7 +422,10 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
             <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg">
               <BookOpenCheck className="w-4 h-4 text-white" />
             </div>
-            <h3 className="text-base font-semibold text-slate-900 dark:text-white">New Journal Entry</h3>
+            <div>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">New Journal Entry</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Full double-entry — advanced</p>
+            </div>
           </div>
           <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
             <X size={16} />
@@ -113,7 +440,6 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Header fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-wide">Date *</label>
@@ -157,7 +483,6 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
             </div>
           </div>
 
-          {/* Lines */}
           <div>
             <div className="rounded-xl border border-slate-200 dark:border-slate-600 overflow-hidden">
               <table className="w-full text-sm">
@@ -195,7 +520,6 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
                         />
                       </td>
                       <td className="px-3 py-2">
-                        {/* DR / CR Toggle */}
                         <div className="flex items-center justify-center gap-1">
                           <button
                             type="button"
@@ -205,9 +529,7 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
                                 ? "bg-emerald-600 border-emerald-600 text-white shadow-sm"
                                 : "bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-400 dark:text-slate-500 hover:border-emerald-400 hover:text-emerald-600"
                             }`}
-                          >
-                            DR
-                          </button>
+                          >DR</button>
                           <button
                             type="button"
                             onClick={() => setLine(i, "type", "CR")}
@@ -216,9 +538,7 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
                                 ? "bg-rose-600 border-rose-600 text-white shadow-sm"
                                 : "bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-400 dark:text-slate-500 hover:border-rose-400 hover:text-rose-600"
                             }`}
-                          >
-                            CR
-                          </button>
+                          >CR</button>
                         </div>
                       </td>
                       <td className="px-3 py-2">
@@ -250,7 +570,6 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
                   ))}
                 </tbody>
                 <tfoot className="border-t-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50">
-                  {/* VAT breakdown row */}
                   {form.vatRate === "7.5" && vatAmount > 0 && (
                     <tr className="text-xs text-amber-700 dark:text-amber-400">
                       <td colSpan={2} className="px-3 py-1.5 hidden md:table-cell font-medium">VAT @ 7.5% (reference)</td>
@@ -264,7 +583,6 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
                       <td />
                     </tr>
                   )}
-                  {/* Totals */}
                   <tr>
                     <td colSpan={2} className="px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hidden md:table-cell">Totals</td>
                     <td className="px-3 py-2.5 text-center">
@@ -289,7 +607,6 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
                 </tfoot>
               </table>
             </div>
-            {/* Add line — below the table */}
             <button
               type="button"
               onClick={addLine}
@@ -393,15 +710,16 @@ function JournalEntries() {
   const role = user?.role || (Array.isArray(user?.roles) ? user.roles[0] : null);
   const canDelete = ["ADMIN", "SUPER_ADMIN", "PLATFORM_ADMIN"].includes(role);
 
-  const [entries, setEntries] = useState([]);
-  const [accounts, setAccounts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [showModal, setShowModal] = useState(false);
+  const [entries, setEntries]         = useState([]);
+  const [accounts, setAccounts]       = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [page, setPage]               = useState(0);
+  const [totalPages, setTotalPages]   = useState(1);
+  const [showModal, setShowModal]     = useState(false);      // advanced modal
+  const [showQuick, setShowQuick]     = useState(false);      // quick entry modal
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deleting, setDeleting] = useState(false);
-  const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
+  const [deleting, setDeleting]       = useState(false);
+  const [toast, setToast]             = useState({ visible: false, message: "", type: "info" });
 
   const showToast = (message, type = "success") => setToast({ visible: true, message, type });
 
@@ -439,6 +757,11 @@ function JournalEntries() {
     }
   };
 
+  const onSaved = (entry) => {
+    setEntries(prev => [entry, ...prev]);
+    showToast("Journal entry posted");
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -448,23 +771,39 @@ function JournalEntries() {
             <BookOpenCheck className="w-6 h-6 text-blue-600" />
             Journal Entries
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Double-entry bookkeeping transactions.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Record financial transactions.</p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition-all"
-        >
-          <Plus size={16} />New Entry
-        </button>
+        {/* Two entry buttons */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowQuick(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-violet-600 to-indigo-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-violet-600/30 hover:shadow-xl hover:scale-[1.02] transition-all"
+          >
+            <Zap size={15} />Quick Entry
+          </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 transition"
+          >
+            <Plus size={15} />Advanced
+          </button>
+        </div>
       </div>
 
       {/* Info banner */}
-      <div className="flex items-start gap-3 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/60 rounded-xl">
-        <Info className="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-blue-700 dark:text-blue-300">
-          Every transaction uses <strong>double-entry</strong> bookkeeping — each entry must have equal debits and credits.
-          Example: a customer payment debits <em>Bank Account</em> and credits <em>Sales Revenue</em>.
-        </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="flex items-start gap-3 px-4 py-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800/60 rounded-xl">
+          <Zap className="w-4 h-4 text-violet-500 dark:text-violet-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-violet-700 dark:text-violet-300">
+            <strong>Quick Entry</strong> — Just pick <em>Spend</em> or <em>Receive</em>, select a category and amount. No accounting knowledge needed.
+          </p>
+        </div>
+        <div className="flex items-start gap-3 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/60 rounded-xl">
+          <Info className="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            <strong>Advanced</strong> — Full double-entry with manual debit/credit control for accountants.
+          </p>
+        </div>
       </div>
 
       {/* Table */}
@@ -485,15 +824,15 @@ function JournalEntries() {
             </div>
             <p className="text-slate-700 dark:text-slate-200 font-semibold mb-1">No journal entries yet</p>
             <p className="text-slate-500 dark:text-slate-400 text-sm mb-5 max-w-sm mx-auto">
-              Journal entries record financial transactions. You can create them manually here, or they are created automatically when you import a bank statement.
+              Record financial transactions using Quick Entry (beginner-friendly) or Advanced mode.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
-              <button onClick={() => setShowModal(true)} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-500 transition font-medium">
-                <Plus size={14} /> Post Manual Entry
+              <button onClick={() => setShowQuick(true)} className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-xl hover:bg-violet-500 transition font-medium">
+                <Zap size={14} /> Quick Entry
               </button>
-              <a href="/accounting/import" className="text-blue-600 dark:text-blue-400 hover:underline">
-                Or import a bank statement →
-              </a>
+              <button onClick={() => setShowModal(true)} className="text-blue-600 dark:text-blue-400 hover:underline">
+                Advanced Entry →
+              </button>
             </div>
           </div>
         ) : (
@@ -523,7 +862,6 @@ function JournalEntries() {
               </table>
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 dark:border-slate-700">
                 <button
@@ -547,15 +885,21 @@ function JournalEntries() {
         )}
       </div>
 
-      {/* New Entry Modal */}
+      {/* Quick Entry Modal */}
+      {showQuick && (
+        <QuickEntryModal
+          accounts={accounts}
+          onClose={() => setShowQuick(false)}
+          onSaved={onSaved}
+        />
+      )}
+
+      {/* Advanced Entry Modal */}
       {showModal && (
         <NewEntryModal
           accounts={accounts}
           onClose={() => setShowModal(false)}
-          onSaved={(entry) => {
-            setEntries(prev => [entry, ...prev]);
-            showToast("Journal entry posted");
-          }}
+          onSaved={onSaved}
         />
       )}
 
