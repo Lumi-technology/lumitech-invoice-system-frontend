@@ -17,6 +17,8 @@ import {
   FolderOpen,
   Send,
   Plus,
+  RefreshCw,
+  AlertTriangle,
 } from "lucide-react";
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
@@ -28,6 +30,8 @@ function ClientDetail() {
   const [client, setClient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [confirmRefresh, setConfirmRefresh] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -140,6 +144,20 @@ function ClientDetail() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  const handleRefreshPortalToken = async () => {
+    setRefreshing(true);
+    try {
+      const res = await api.post(`/api/clients/${id}/refresh-portal-token`);
+      setClient(prev => ({ ...prev, portalUrl: res.data.portalUrl }));
+      setConfirmRefresh(false);
+      setToast({ visible: true, message: "Portal link refreshed — old link is now invalid", type: "success" });
+    } catch (err) {
+      setToast({ visible: true, message: err.response?.data?.message || "Failed to refresh link", type: "error" });
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   if (loading) {
@@ -315,24 +333,70 @@ function ClientDetail() {
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
             Share this link with the client to let them view and pay their invoices online.
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               readOnly
               value={client.portalUrl}
               className="flex-1 px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200 text-sm focus:outline-none truncate"
             />
-            <button
-              onClick={copyPortalLink}
-              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all ${
-                copied
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
-              }`}
-            >
-              {copied ? <CheckCircle size={16} /> : <Copy size={16} />}
-              {copied ? "Copied!" : "Copy Link"}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={copyPortalLink}
+                className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all ${
+                  copied
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
+                }`}
+              >
+                {copied ? <CheckCircle size={16} /> : <Copy size={16} />}
+                {copied ? "Copied!" : "Copy Link"}
+              </button>
+              <button
+                onClick={() => setConfirmRefresh(true)}
+                title="Generate a new link — old link becomes invalid"
+                className="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:border-amber-300 dark:hover:border-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all"
+              >
+                <RefreshCw size={15} />
+                <span className="hidden sm:inline">Refresh Link</span>
+              </button>
+            </div>
+          </div>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
+            If the link is expired or shared with the wrong person, refresh it to generate a new one. The old link will stop working immediately.
+          </p>
+        </div>
+      )}
+
+      {/* Confirm Refresh Portal Link Dialog */}
+      {confirmRefresh && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 max-w-sm w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                <AlertTriangle className="w-4 h-4 text-amber-600" />
+              </div>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-white">Refresh Portal Link?</h3>
+            </div>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-6">
+              A new link will be generated for <span className="font-semibold text-slate-900 dark:text-white">{client.name}</span>. The current link will stop working immediately — you'll need to share the new one with the client.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmRefresh(false)}
+                disabled={refreshing}
+                className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRefreshPortalToken}
+                disabled={refreshing}
+                className="px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition disabled:opacity-60"
+              >
+                {refreshing ? "Refreshing…" : "Yes, Refresh Link"}
+              </button>
+            </div>
           </div>
         </div>
       )}
