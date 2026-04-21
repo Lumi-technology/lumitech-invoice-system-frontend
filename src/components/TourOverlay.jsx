@@ -1,30 +1,30 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { X, ArrowRight, ArrowLeft } from "lucide-react";
 
 const STEPS = [
   {
     title: "Welcome to LumiLedger 👋",
-    body: "This is your dashboard — a real-time snapshot of your business finances. Revenue, outstanding invoices, and recent activity all in one place.",
-    target: null, // centred modal, no spotlight
+    body: "Your dashboard gives you a real-time snapshot — revenue, unpaid invoices, and recent activity all in one place.",
+    target: null,
   },
   {
     title: "Create invoices in seconds",
-    body: "Hit New Invoice to bill a client. You can send it by email, share a payment link, or let them pay directly via Paystack.",
+    body: "Hit New Invoice to bill a client. Send by email, share a payment link, or let them pay via Paystack.",
     target: "[data-tour='new-invoice']",
   },
   {
     title: "Your customers live here",
-    body: "Add clients once, then select them when creating invoices. Their full payment history is tracked automatically.",
+    body: "Add clients once, then pick them when creating invoices. Their full payment history is tracked automatically.",
     target: "[data-tour='nav-clients']",
   },
   {
     title: "Get paid faster",
-    body: "Every invoice has a unique client portal link. Clients can view and pay online without logging in.",
+    body: "Every invoice gets a unique client portal link. Clients can view and pay online without logging in.",
     target: "[data-tour='nav-invoices']",
   },
   {
     title: "Reports & accounting",
-    body: "Profit & Loss, Balance Sheet, Trial Balance — all update in real time as you record invoices and payments. No manual entry needed.",
+    body: "Profit & Loss, Balance Sheet, Trial Balance — all update in real time as you record invoices and payments.",
     target: "[data-tour='nav-reports']",
   },
   {
@@ -44,7 +44,7 @@ function getRect(selector) {
 
 function Spotlight({ rect }) {
   if (!rect) return null;
-  const PAD = 8;
+  const PAD = 6;
   return (
     <div
       className="fixed z-[9998] rounded-xl pointer-events-none transition-all duration-300"
@@ -63,67 +63,79 @@ function Tooltip({ step, rect, total, onNext, onPrev, onSkip }) {
   const isFirst = step === 0;
   const isLast  = step === total - 1;
 
-  // Position tooltip near the spotlight or centred
+  const vw = typeof window !== "undefined" ? window.innerWidth  : 400;
+  const vh = typeof window !== "undefined" ? window.innerHeight : 800;
+  const TW = Math.min(300, vw - 32);   // max 300px, min 16px margin each side
+  const TH = 180;                       // approx tooltip height
+  const GAP = 12;
+
   let style = {};
   if (rect) {
-    const GAP = 16;
-    const TH  = 200; // approx tooltip height
-    const TW  = 320;
-    // prefer below, fallback above
-    const spaceBelow = window.innerHeight - rect.top - rect.height;
-    if (spaceBelow > TH + GAP) {
-      style = { top: rect.top + rect.height + GAP, left: Math.min(rect.left, window.innerWidth - TW - 16) };
-    } else {
-      style = { top: Math.max(8, rect.top - TH - GAP), left: Math.min(rect.left, window.innerWidth - TW - 16) };
-    }
-    style.width = TW;
+    const spaceBelow = vh - rect.top - rect.height;
+    const top = spaceBelow > TH + GAP
+      ? rect.top + rect.height + GAP
+      : Math.max(8, rect.top - TH - GAP);
+    const left = Math.max(16, Math.min(rect.left, vw - TW - 16));
+    style = { top, left, width: TW };
   } else {
-    // centred
+    // centred — always safe on any screen size
     style = {
-      top: "50%", left: "50%",
+      top: "50%",
+      left: "50%",
       transform: "translate(-50%, -50%)",
-      width: 360,
+      width: TW,
     };
   }
 
   return (
     <div
-      className="fixed z-[9999] bg-white rounded-2xl shadow-2xl p-6 border border-slate-100"
+      className="fixed z-[9999] bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 p-4"
       style={style}
     >
-      {/* progress dots */}
-      <div className="flex items-center gap-1.5 mb-4">
+      {/* progress dots + close */}
+      <div className="flex items-center gap-1 mb-3">
         {Array.from({ length: total }).map((_, i) => (
-          <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === step ? "w-5 bg-blue-600" : "w-1.5 bg-slate-200"}`} />
+          <div
+            key={i}
+            className={`h-1 rounded-full transition-all duration-300 ${
+              i === step ? "w-4 bg-blue-600" : "w-1.5 bg-slate-200 dark:bg-slate-600"
+            }`}
+          />
         ))}
-        <button onClick={onSkip} className="ml-auto text-slate-300 hover:text-slate-500 transition">
-          <X size={16} />
+        <button
+          onClick={onSkip}
+          className="ml-auto p-0.5 text-slate-300 dark:text-slate-500 hover:text-slate-500 dark:hover:text-slate-300 transition rounded"
+        >
+          <X size={14} />
         </button>
       </div>
 
-      <h3 className="font-bold text-slate-900 text-base mb-1.5">{STEPS[step].title}</h3>
-      <p className="text-sm text-slate-500 leading-relaxed mb-5">{STEPS[step].body}</p>
+      <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">{STEPS[step].title}</h3>
+      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">{STEPS[step].body}</p>
 
       <div className="flex items-center gap-2">
         {!isFirst && (
           <button
             onClick={onPrev}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
+            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition"
           >
-            <ArrowLeft size={14} /> Back
+            <ArrowLeft size={12} /> Back
           </button>
         )}
         <button
           onClick={isLast ? onSkip : onNext}
-          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow shadow-blue-600/25 hover:scale-[1.02] transition-all"
+          className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg shadow shadow-blue-600/25 hover:scale-[1.02] transition-all"
         >
           {isLast ? "Get started" : "Next"}
-          {!isLast && <ArrowRight size={14} />}
+          {!isLast && <ArrowRight size={12} />}
         </button>
       </div>
 
       {!isLast && (
-        <button onClick={onSkip} className="block w-full text-center text-xs text-slate-300 hover:text-slate-500 mt-3 transition">
+        <button
+          onClick={onSkip}
+          className="block w-full text-center text-xs text-slate-300 dark:text-slate-600 hover:text-slate-400 dark:hover:text-slate-400 mt-2.5 transition"
+        >
           Skip tour
         </button>
       )}
@@ -132,22 +144,19 @@ function Tooltip({ step, rect, total, onNext, onPrev, onSkip }) {
 }
 
 export default function TourOverlay() {
-  const [step, setStep]     = useState(0);
-  const [rect, setRect]     = useState(null);
+  const [step, setStep]       = useState(0);
+  const [rect, setRect]       = useState(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const done = localStorage.getItem("tourDone");
-    if (!done) {
-      // Small delay so DOM is painted
+    if (!localStorage.getItem("tourDone")) {
       setTimeout(() => setVisible(true), 800);
     }
   }, []);
 
   useEffect(() => {
     if (!visible) return;
-    const target = STEPS[step].target;
-    setRect(getRect(target));
+    setRect(getRect(STEPS[step].target));
   }, [step, visible]);
 
   const dismiss = () => {

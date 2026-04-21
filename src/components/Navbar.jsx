@@ -5,6 +5,7 @@ import {
   ChevronLeft, ChevronRight, Building2, FolderOpen, ShieldCheck,
   CreditCard, Wallet, UsersRound, X, BookOpen, BookOpenCheck, Scale, TrendingUp, LayoutList, Landmark, ClipboardList,
   ChevronDown, Briefcase, Calculator, ArrowLeftRight, Banknote, PiggyBank, Lock, Receipt, Home,
+  Info, SlidersHorizontal,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
@@ -35,7 +36,7 @@ function NavLink({ item, collapsed, onClick, isActive }) {
           item.path === "/clients"  ? "nav-clients"  :
           item.path === "/invoices/reports/aging" ? "nav-reports" : undefined
         }
-        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
+        className={`group/nav flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
           active
             ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
             : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60"
@@ -43,6 +44,21 @@ function NavLink({ item, collapsed, onClick, isActive }) {
       >
         <item.icon size={20} className="flex-shrink-0" />
         {!collapsed && <span className="text-sm font-medium flex-1">{item.label}</span>}
+        {/* Info tooltip — only when sidebar is expanded and item has a description */}
+        {!collapsed && item.info && (
+          <span className="relative group/info" onClick={e => e.preventDefault()}>
+            <Info
+              size={12}
+              className={`flex-shrink-0 transition ${
+                active ? "text-white/50" : "text-slate-300 dark:text-slate-600 group-hover/nav:text-slate-400 dark:group-hover/nav:text-slate-400"
+              }`}
+            />
+            <span className="pointer-events-none absolute right-0 bottom-full mb-1.5 z-50 w-48 px-2.5 py-2 text-xs bg-slate-900 dark:bg-slate-700 text-white rounded-xl shadow-xl opacity-0 group-hover/info:opacity-100 transition-opacity whitespace-normal leading-relaxed">
+              {item.info}
+              <span className="absolute bottom-[-4px] right-3 w-2 h-2 bg-slate-900 dark:bg-slate-700 rotate-45" />
+            </span>
+          </span>
+        )}
       </Link>
     </li>
   );
@@ -98,53 +114,53 @@ function Navbar({ onClose }) {
   // ── Primary nav items shared by both modes ──────────────────────────────
   // Staff only see expenses — no invoicing, accounting, or finance features
   const coreItems = isStaff ? [] : [
-    ...(!isAdminOrStaff ? [{ path: "/dashboard",   label: "Dashboard",            icon: LayoutDashboard }] : []),
-    { path: "/invoices",                            label: "Invoices",             icon: FileText },
-    { path: "/create",                              label: "New Invoice",          icon: PlusCircle },
-    { path: "/clients",                             label: "Customers",            icon: Users },
-    { path: "/projects",                            label: "Projects",             icon: FolderOpen },
-    { path: "/finance",                             label: paymentLabel("module"), icon: Banknote },
-    ...(!isAccountant ? [{ path: "/dashboard", label: "Capital", icon: PiggyBank }] : []),
+    ...(!isAdminOrStaff ? [{ path: "/dashboard",   label: "Dashboard",            icon: LayoutDashboard, info: "Real-time snapshot of your business — revenue, unpaid invoices and recent activity" }] : []),
+    { path: "/invoices",  label: "Invoices",             icon: FileText,        info: "View and manage all your invoices, track payment status" },
+    { path: "/create",    label: "New Invoice",          icon: PlusCircle,      info: "Create and send a new invoice to a client" },
+    { path: "/clients",   label: "Customers",            icon: Users,           info: "Manage your clients and view their full payment history" },
+    { path: "/projects",  label: "Projects",             icon: FolderOpen,      info: "Track billable projects and link them to invoices" },
+    { path: "/finance",   label: paymentLabel("module"), icon: Banknote,        info: "Track incoming payments and manage collections" },
+    ...(!isAccountant ? [{ path: "/dashboard", label: "Capital", icon: PiggyBank, info: "Financial summary and capital overview for your business" }] : []),
   ];
 
   // ── Accounting items (always visible for accountants, hidden for biz owners) ──
   const accountingItems = [
-    { path: "/accounting/accounts",                  label: "Chart of Accounts", icon: BookOpen },
-    { path: "/accounting/entries",                   label: "Journal Entries",   icon: BookOpenCheck },
-    { path: "/invoices/reports/aging",               label: "Aging Report",      icon: ClipboardList },
-    ...(isAccountantPro ? [{ path: "/invoices/reports/tax", label: "Tax Report", icon: Calculator }] : []),
-    { path: "/accounting/reports/trial-balance",     label: "Trial Balance",     icon: Scale },
-    { path: "/accounting/reports/profit-loss",       label: "Profit & Loss",     icon: TrendingUp },
-    { path: "/accounting/reports/balance-sheet",     label: "Balance Sheet",     icon: LayoutList },
-    ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark }] : []),
-    { path: "/accounting/reconciliation", label: "Reconciliation", icon: ArrowLeftRight },
+    { path: "/accounting/accounts",              label: "Chart of Accounts", icon: BookOpen,      info: "Master list of all accounts used for bookkeeping" },
+    { path: "/accounting/entries",               label: "Journal Entries",   icon: BookOpenCheck, info: "Record financial transactions — use Quick Entry for simplicity" },
+    { path: "/invoices/reports/aging",           label: "Aging Report",      icon: ClipboardList, info: "See overdue invoices and how long they have been unpaid" },
+    ...(isAccountantPro ? [{ path: "/invoices/reports/tax", label: "Tax Report", icon: Calculator, info: "VAT and WHT breakdown for tax filing" }] : []),
+    { path: "/accounting/reports/trial-balance", label: "Trial Balance",     icon: Scale,         info: "Check that your total debits and credits are balanced" },
+    { path: "/accounting/reports/profit-loss",   label: "Profit & Loss",     icon: TrendingUp,    info: "See your income, expenses, and net profit over a period" },
+    { path: "/accounting/reports/balance-sheet", label: "Balance Sheet",     icon: LayoutList,    info: "Snapshot of your assets, liabilities, and equity" },
+    ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark, info: "Upload a bank statement to auto-create journal entries" }] : []),
+    { path: "/accounting/reconciliation",        label: "Reconciliation",    icon: ArrowLeftRight, info: "Match bank transactions to your recorded journal entries" },
   ];
 
   // ── Reports visible in primary nav for business owners ──────────────────
   const reportItems = [
-    { path: "/invoices/reports/aging",               label: "Aging Report",      icon: ClipboardList },
-    ...(isAccountantPro ? [{ path: "/invoices/reports/tax", label: "Tax Report", icon: Calculator }] : []),
-    { path: "/accounting/reports/trial-balance",     label: "Trial Balance",     icon: Scale },
-    { path: "/accounting/reports/profit-loss",       label: "Profit & Loss",     icon: TrendingUp },
-    { path: "/accounting/reports/balance-sheet",     label: "Balance Sheet",     icon: LayoutList },
+    { path: "/invoices/reports/aging",           label: "Aging Report",  icon: ClipboardList, info: "See overdue invoices and how long they have been unpaid" },
+    ...(isAccountantPro ? [{ path: "/invoices/reports/tax", label: "Tax Report", icon: Calculator, info: "VAT and WHT breakdown for tax filing" }] : []),
+    { path: "/accounting/reports/trial-balance", label: "Trial Balance", icon: Scale,         info: "Check that your total debits and credits are balanced" },
+    { path: "/accounting/reports/profit-loss",   label: "Profit & Loss", icon: TrendingUp,    info: "See your income, expenses, and net profit over a period" },
+    { path: "/accounting/reports/balance-sheet", label: "Balance Sheet", icon: LayoutList,    info: "Snapshot of your assets, liabilities, and equity" },
   ];
 
   const staffItems = [
-    { path: "/staff-home",      label: "Home",            icon: Home },
-    { path: "/expenses",        label: "Expenses",        icon: Receipt },
-    { path: "/expenses/manage", label: "Manage Expenses", icon: FolderOpen },
-    { path: "/settings/org",    label: "Org Settings",    icon: Building2 },
+    { path: "/staff-home",      label: "Home",            icon: Home,               info: "Your expense dashboard and recent submissions" },
+    { path: "/expenses",        label: "Expenses",        icon: Receipt,            info: "Submit new expense claims and track your submissions" },
+    { path: "/expenses/manage", label: "Manage Expenses", icon: FolderOpen,         info: "Review, approve, or return expense reports" },
+    { path: "/settings/org",    label: "Preferences",     icon: SlidersHorizontal,  info: "Change your display theme preference" },
   ];
 
   const bottomItems = isStaff
     ? []  // staff nav is handled separately via staffItems
     : [
-        ...(isAccountantPro ? [{ path: "/expenses",  label: "Expenses",    icon: Receipt }] : []),
-        { path: "/team",                              label: "Team",        icon: UsersRound },
-        { path: "/settings/org",                      label: "Org Settings", icon: Building2 },
-        { path: "/settings/billing",                  label: "Billing",     icon: CreditCard },
-        ...(isAccountantPro ? [{ path: "/audit",      label: "Audit Trail", icon: ShieldCheck }] : []),
-        ...(isPlatformAdmin  ? [{ path: "/admin",     label: "Platform Admin", icon: ShieldCheck }] : []),
+        ...(isAccountantPro ? [{ path: "/expenses",      label: "Expenses",       icon: Receipt,          info: "Review and manage staff expense claims and approvals" }] : []),
+        { path: "/team",                                   label: "Team",           icon: UsersRound,       info: "Invite and manage your team members and their roles" },
+        { path: "/settings/org",                           label: "Org Settings",   icon: Building2,        info: "Update your organisation details, logo, and payment settings" },
+        { path: "/settings/billing",                       label: "Billing",        icon: CreditCard,       info: "View and manage your subscription plan" },
+        ...(isAccountantPro ? [{ path: "/audit",           label: "Audit Trail",    icon: ShieldCheck,      info: "Full log of every action taken in your account" }] : []),
+        ...(isPlatformAdmin  ? [{ path: "/admin",          label: "Platform Admin", icon: ShieldCheck,      info: "System-wide administration and organisation management" }] : []),
       ];
 
   const handleLogout = () => {

@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
-import OnboardingBanner from "./OnboardingBanner";
 import TrialBanner from "./TrialBanner";
 import NotificationBell from "./NotificationBell";
 import { Menu } from "lucide-react";
@@ -19,7 +18,7 @@ const PAGE_TITLES = {
   "/expenses":                           "Expenses",
   "/expenses/manage":                    "Manage Expenses",
   "/team":                               "Team",
-  "/settings/org":                       "Org Settings",
+  "/settings/org":                       "Settings",
   "/settings/billing":                   "Billing",
   "/audit":                              "Audit Trail",
   "/accounting/accounts":                "Chart of Accounts",
@@ -82,7 +81,6 @@ function Layout({ children }) {
         </div>
 
         <TrialBanner />
-        <OnboardingBanner />
         <main className="flex-1 p-4 md:p-6">
           {children}
         </main>
