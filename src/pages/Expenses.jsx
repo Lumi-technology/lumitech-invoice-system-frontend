@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
 import {
   Plus, Trash2, Receipt, Upload, X, Search, RefreshCw,
   BarChart2, Download, CalendarRange, Check, XCircle,
   AlertTriangle, Edit2, RotateCcw, FolderOpen, ChevronDown,
-  ChevronRight, Send, FileText, List,
+  ChevronRight, Send, FileText, List, ArrowRight, Clock, User,
 } from "lucide-react";
 import Toast from "../components/Toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -184,6 +185,7 @@ function ReceiptUpload({ file, setFile, existingUrl }) {
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function Expenses({ view }) {
+  const navigate     = useNavigate();
   const userInfo     = getUserFromToken();
   const isStaff      = userInfo?.role === "STAFF" || userInfo?.role === "STAFF_EXPENSE";
   const isAccountant = ["ADMIN","SUPER_ADMIN"].includes(userInfo?.role);
@@ -389,7 +391,12 @@ export default function Expenses({ view }) {
   async function handleCreateReport(e) {
     e.preventDefault();
     setCreatingReport(true);
-    try { await api.post("/api/expense-reports",{name:newReportName,description:newReportDesc}); setShowCreateReport(false); setNewReportName(""); setNewReportDesc(""); fetchExpReports(); showToast("Expense report created"); }
+    try {
+      const r = await api.post("/api/expense-reports",{name:newReportName,description:newReportDesc});
+      setShowCreateReport(false); setNewReportName(""); setNewReportDesc("");
+      // Navigate straight to the claim detail page to add expenses
+      navigate(`/expenses/claims/${r.data.id}`);
+    }
     catch(err) { showToast(err.response?.data?.message||"Failed","error"); }
     finally { setCreatingReport(false); }
   }
@@ -470,116 +477,70 @@ export default function Expenses({ view }) {
   // ─────────────────────────────────────────────────────────────────────────
   if (isStaff && view === "manage") return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-          <FolderOpen className="w-6 h-6 text-blue-600" /> Manage Expenses
-        </h1>
-        <p className="text-sm text-slate-400 mt-0.5">Group your expenses into claims and submit for approval</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+            <FolderOpen className="w-6 h-6 text-blue-600" /> Expense Claims
+          </h1>
+          <p className="text-sm text-slate-400 mt-0.5">Create a claim, add expenses, then submit for approval</p>
+        </div>
+        <button onClick={()=>setShowCreateReport(true)}
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl shadow shadow-blue-600/25 hover:scale-[1.02] transition-all">
+          <Plus size={14}/> New Claim
+        </button>
       </div>
 
-      {/* ── SECTION 1: Expense Claims ── */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-slate-800 dark:text-white">Expense Claims</h2>
+      {expReportsLoading ? (
+        <div className="flex items-center justify-center py-16"><div className="w-7 h-7 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"/></div>
+      ) : expReports.length === 0 ? (
+        <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-400">
+          <FolderOpen className="w-10 h-10 mx-auto mb-3 opacity-25"/>
+          <p className="font-semibold text-slate-500 dark:text-slate-400">No expense claims yet</p>
+          <p className="text-sm mt-1">Create a claim, add your expenses, then submit for approval.</p>
           <button onClick={()=>setShowCreateReport(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl shadow shadow-blue-600/25 hover:scale-[1.02] transition-all">
-            <Plus size={14}/> New Claim
+            className="inline-flex items-center gap-2 mt-5 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition">
+            <Plus size={13}/> Create First Claim
           </button>
         </div>
-
-        {expReportsLoading ? (
-          <div className="flex items-center justify-center py-10"><div className="w-7 h-7 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"/></div>
-        ) : expReports.length === 0 ? (
-          <div className="text-center py-10 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-400">
-            <FolderOpen className="w-9 h-9 mx-auto mb-2 opacity-30"/>
-            <p className="font-medium text-sm">No expense claims yet</p>
-            <p className="text-xs mt-1">Create a claim, add your expenses, then submit for approval.</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {expReports.map(report => {
-              const sc  = REPORT_STATUS_CFG[report.status]||REPORT_STATUS_CFG.DRAFT;
-              const exp = expandedReports.has(report.id);
-              const det = reportDetails[report.id];
-              return (
-                <div key={report.id} className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                  <div className="flex items-center gap-3 px-5 py-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40 transition select-none"
-                    onClick={()=>toggleReportExpand(report.id)}>
-                    <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
-                      <FolderOpen size={15} className="text-blue-600"/>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-slate-800 dark:text-white text-sm">{report.name}</p>
-                        <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${sc.cls}`}>{sc.label}</span>
-                      </div>
-                      <p className="text-xs text-slate-400 mt-0.5">{report.expenseCount} expense{report.expenseCount!==1?"s":""} · {fmt(report.totalAmount)}</p>
-                      {report.status==="REJECTED" && report.rejectionReason && (
-                        <p className="text-xs text-rose-500 mt-1">↩ {report.rejectionReason}</p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0" onClick={e=>e.stopPropagation()}>
-                      {(report.status==="DRAFT"||report.status==="REJECTED") && (
-                        <button onClick={()=>handleSubmitReport(report.id)} disabled={submittingReport===report.id}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition disabled:opacity-50">
-                          {submittingReport===report.id?<div className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin"/>:<Send size={11}/>}
-                          Submit
-                        </button>
-                      )}
-                      {report.status==="DRAFT" && (
-                        <button onClick={()=>handleDeleteReport(report.id)} className="p-1.5 text-slate-300 hover:text-rose-500 rounded-lg transition"><Trash2 size={14}/></button>
-                      )}
-                    </div>
-                    {exp?<ChevronDown size={15} className="text-slate-400 shrink-0"/>:<ChevronRight size={15} className="text-slate-400 shrink-0"/>}
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {expReports.map(report => {
+            const sc = REPORT_STATUS_CFG[report.status]||REPORT_STATUS_CFG.DRAFT;
+            return (
+              <div key={report.id}
+                onClick={()=>navigate(`/expenses/claims/${report.id}`)}
+                className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition-all group">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                    <FolderOpen size={17} className="text-blue-600"/>
                   </div>
-
-                  {exp && (
-                    <div className="border-t border-slate-100 dark:border-slate-700">
-                      {!det ? (
-                        <div className="flex items-center justify-center py-6"><div className="w-6 h-6 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"/></div>
-                      ) : det.expenses?.length===0 ? (
-                        <p className="text-center text-xs text-slate-400 py-5">No expenses added yet.</p>
-                      ) : (
-                        <div className="divide-y divide-slate-100 dark:divide-slate-700">
-                          {det.expenses.map(ex=>(
-                            <div key={ex.id} className="flex items-center gap-3 px-6 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
-                              <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
-                                <FileText size={12} className="text-slate-400"/>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{ex.vendorName||CAT_LABEL(ex.category)}</p>
-                                <p className="text-xs text-slate-400">{ex.expenseDate} · {CAT_LABEL(ex.category)}{ex.paymentType?` · ${PAY_LABEL(ex.paymentType)}`:""}</p>
-                              </div>
-                              <p className="text-sm font-semibold text-slate-800 dark:text-white shrink-0">{fmt(ex.amount)}</p>
-                              {ex.receiptUrl && <a href={ex.receiptUrl} target="_blank" rel="noreferrer" className="text-blue-400 shrink-0"><Upload size={12}/></a>}
-                              {report.status==="DRAFT" && (
-                                <button onClick={()=>handleRemoveFromReport(report.id,ex.id)} className="p-1 text-slate-300 hover:text-rose-500 rounded transition shrink-0"><X size={13}/></button>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${sc.cls}`}>{sc.label}</span>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                <h3 className="font-semibold text-slate-800 dark:text-white text-base group-hover:text-blue-700 dark:group-hover:text-blue-400 transition line-clamp-1">{report.name}</h3>
+                <p className="text-xs text-slate-400 mt-1">{report.expenseCount} expense{report.expenseCount!==1?"s":""}</p>
+                <p className="text-lg font-bold text-slate-900 dark:text-white mt-3">{fmt(report.totalAmount)}</p>
+                {report.status==="REJECTED" && report.rejectionReason && (
+                  <p className="text-xs text-rose-500 mt-2 truncate">↩ {report.rejectionReason}</p>
+                )}
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                  <span className="text-xs text-slate-400">{report.createdAt ? new Date(report.createdAt).toLocaleDateString("en-GB") : ""}</span>
+                  <span className="text-xs font-medium text-blue-600 group-hover:text-blue-700 flex items-center gap-1">
+                    {report.status==="DRAFT"||report.status==="REJECTED" ? "Open & manage" : "View details"}
+                    <ArrowRight size={12}/>
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-      {/* ── SECTION 2: Available Expenses ── */}
-      <div className="space-y-3">
+      {/* (available expenses section removed — add expenses directly from claim detail) */}
+      {false && <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold text-slate-800 dark:text-white">Available Expenses</h2>
-            <p className="text-xs text-slate-400 mt-0.5">Expenses not yet in a claim. Select and add to a claim above.</p>
           </div>
-          <button onClick={()=>setShowForm(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition">
-            <Plus size={14}/> Record Expense
-          </button>
-        </div>
 
         {/* Add-to-claim bar */}
         {selectedAvailable.size > 0 && (
@@ -979,75 +940,61 @@ export default function Expenses({ view }) {
         </>
       )}
 
-      {/* ── EXPENSE CLAIMS TAB ── */}
+      {/* ── EXPENSE CLAIMS TAB — card view ── */}
       {tab==="reports" && (
-        <div className="space-y-3">
+        <div>
           {expReportsLoading ? (
             <div className="flex items-center justify-center py-16"><div className="w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"/></div>
           ) : expReports.length===0 ? (
             <div className="text-center py-16 text-slate-400 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
               <FolderOpen className="w-10 h-10 mx-auto mb-3 opacity-30"/>
               <p className="font-medium">No expense claims yet</p>
+              <p className="text-sm mt-1 text-slate-400">Claims submitted by staff will appear here for review.</p>
             </div>
           ) : (
-            expReports.map(report=>{
-              const sc=REPORT_STATUS_CFG[report.status]||REPORT_STATUS_CFG.DRAFT;
-              const exp=expandedReports.has(report.id);
-              const det=reportDetails[report.id];
-              return (
-                <div key={report.id} className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                  <div className="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40 transition select-none" onClick={()=>toggleReportExpand(report.id)}>
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center shrink-0"><FolderOpen size={16} className="text-blue-600"/></div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-slate-800 dark:text-white text-sm">{report.name}</p>
-                        <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${sc.cls}`}>{sc.label}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {expReports.map(report=>{
+                const sc=REPORT_STATUS_CFG[report.status]||REPORT_STATUS_CFG.DRAFT;
+                return (
+                  <div key={report.id}
+                    onClick={()=>navigate(`/expenses/claims/${report.id}`)}
+                    className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition-all group">
+                    {/* Status + icon row */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+                        <FolderOpen size={17} className="text-blue-600"/>
                       </div>
-                      <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-                        <span className="text-xs text-slate-400">{report.expenseCount} expenses · {fmt(report.totalAmount)}</span>
-                        <span className="text-xs text-slate-400">by {report.submittedBy}</span>
+                      <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${sc.cls}`}>{sc.label}</span>
+                    </div>
+                    {/* Claim name */}
+                    <h3 className="font-semibold text-slate-800 dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-400 transition line-clamp-2 leading-snug">{report.name}</h3>
+                    {/* Submitter */}
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <User size={12} className="text-slate-400"/>
+                      <span className="text-xs text-slate-500">{report.submittedBy}</span>
+                    </div>
+                    {/* Total */}
+                    <p className="text-xl font-bold text-slate-900 dark:text-white mt-3">{fmt(report.totalAmount)}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">{report.expenseCount} expense{report.expenseCount!==1?"s":""}</p>
+                    {/* Rejection note */}
+                    {report.status==="REJECTED" && report.rejectionReason && (
+                      <p className="text-xs text-rose-500 mt-2 truncate">↩ {report.rejectionReason}</p>
+                    )}
+                    {/* Footer */}
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100 dark:border-slate-700">
+                      <div className="flex items-center gap-1 text-xs text-slate-400">
+                        <Clock size={11}/>
+                        {report.createdAt ? new Date(report.createdAt).toLocaleDateString("en-GB") : ""}
                       </div>
-                      {report.status==="REJECTED" && report.rejectionReason && (
-                        <p className="text-xs text-rose-500 mt-1">↩ Returned: {report.rejectionReason}</p>
-                      )}
+                      <span className="text-xs font-medium text-blue-600 group-hover:text-blue-700 flex items-center gap-1">
+                        {report.status==="SUBMITTED" ? "Review" : "View"}
+                        <ArrowRight size={12}/>
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0" onClick={e=>e.stopPropagation()}>
-                      {report.status==="SUBMITTED" && (
-                        <>
-                          <button onClick={()=>handleApproveReport(report.id)} disabled={approvingReport===report.id}
-                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition disabled:opacity-50">
-                            {approvingReport===report.id?<div className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin"/>:<Check size={11}/>} Approve
-                          </button>
-                          <button onClick={()=>openRejectReportModal(report.id)} className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition"><XCircle size={11}/> Reject</button>
-                        </>
-                      )}
-                    </div>
-                    {exp?<ChevronDown size={16} className="text-slate-400 shrink-0"/>:<ChevronRight size={16} className="text-slate-400 shrink-0"/>}
                   </div>
-                  {exp && (
-                    <div className="border-t border-slate-100 dark:border-slate-700">
-                      {!det ? <div className="flex items-center justify-center py-6"><div className="w-6 h-6 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"/></div>
-                       : det.expenses?.length===0 ? <p className="text-center text-xs text-slate-400 py-5">No expenses in this claim.</p>
-                       : (
-                        <div className="divide-y divide-slate-100 dark:divide-slate-700">
-                          {det.expenses.map(ex=>(
-                            <div key={ex.id} className="flex items-center gap-3 px-6 py-3">
-                              <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0"><FileText size={12} className="text-slate-400"/></div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{ex.vendorName||CAT_LABEL(ex.category)}</p>
-                                <p className="text-xs text-slate-400">{ex.expenseDate} · {CAT_LABEL(ex.category)}</p>
-                              </div>
-                              <p className="text-sm font-semibold text-slate-800 dark:text-white shrink-0">{fmt(ex.amount)}</p>
-                              {ex.receiptUrl && <a href={ex.receiptUrl} target="_blank" rel="noreferrer" className="text-blue-400 shrink-0"><Upload size={12}/></a>}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
         </div>
       )}
