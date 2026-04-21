@@ -283,8 +283,8 @@ function HeroVisual() {
         <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-900/25" style={{aspectRatio:"4/5"}}>
           {!imgError ? (
             <img
-              src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=700&q=85&auto=format&fit=crop&crop=top"
-              alt="Business owner delighted by LumiLedger"
+              src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=700&q=85&auto=format&fit=crop&crop=faces"
+              alt="African business owner delighted by LumiLedger"
               className="w-full h-full object-cover"
               onError={() => setImgError(true)}
             />
