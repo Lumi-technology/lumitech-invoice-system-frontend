@@ -447,7 +447,7 @@ export default function ClaimDetail() {
   const backPath = isAccountant ? "/expenses" : "/expenses/manage";
   const backLabel = isAccountant ? "← Expense Claims" : "← Manage Expenses";
 
-  const isPdf = previewUrl && (previewUrl.includes('.pdf') || previewUrl.includes('/raw/'));
+  const isPdf = previewUrl && (previewUrl.includes('.pdf') || previewUrl.includes('/raw/upload/'));
 
   return (
     <div className={`flex gap-6 items-start ${previewUrl ? "max-w-7xl" : "max-w-5xl"} mx-auto transition-all`}>
@@ -585,13 +585,13 @@ export default function ClaimDetail() {
 
                   <span className="text-xs text-slate-500">{PAY_LABEL(exp.paymentType) || "—"}</span>
 
-                  <div className="text-right">
+                  <div className="text-right flex flex-col items-end gap-0.5">
                     <p className="text-sm font-bold text-slate-900 dark:text-white">{fmt(exp.amount)}</p>
                     {exp.personal && <span className="text-xs text-amber-600 font-medium">Personal</span>}
                     {exp.receiptUrl && (
                       <button
                         onClick={() => setPreviewUrl(previewUrl === exp.receiptUrl ? null : exp.receiptUrl)}
-                        className={`block text-xs mt-0.5 font-medium transition ${previewUrl === exp.receiptUrl ? "text-indigo-600 dark:text-indigo-400" : "text-blue-500 hover:text-blue-700"}`}>
+                        className={`text-xs font-medium transition ${previewUrl === exp.receiptUrl ? "text-indigo-600 dark:text-indigo-400" : "text-blue-500 hover:text-blue-700"}`}>
                         {previewUrl === exp.receiptUrl ? "▸ Viewing" : "View receipt"}
                       </button>
                     )}
