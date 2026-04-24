@@ -24,7 +24,7 @@ api.interceptors.response.use(
     const status = error.response?.status;
     const body = error.response?.data;
     const message =
-      (typeof body === "string" ? body : body?.message) || "";
+      (typeof body === "string" ? body : body?.message || body?.error) || "";
 
     if (status === 402) {
       window.dispatchEvent(
