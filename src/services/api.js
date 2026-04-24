@@ -32,7 +32,7 @@ api.interceptors.response.use(
       );
     }
 
-    if (status === 403 && message.toLowerCase().includes("suspended")) {
+    if (status === 403 && (body?.suspended === true || message.toLowerCase().includes("suspended"))) {
       window.dispatchEvent(new CustomEvent("account-suspended"));
     }
 
