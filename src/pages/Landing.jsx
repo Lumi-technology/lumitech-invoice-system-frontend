@@ -7,6 +7,7 @@ import {
   Eye, Users, Star, AlertTriangle, XCircle, Banknote, Lock,
   Wallet, PiggyBank, Briefcase, Calculator, Menu, X as XIcon,
   CreditCard, Receipt, Download, LifeBuoy, Mail, Ticket, FolderOpen,
+  Smartphone, BadgeCheck,
 } from "lucide-react";
 
 /* ─── Mock Dashboard ─────────────────────────────────────────────────────── */
@@ -1208,6 +1209,157 @@ export default function Landing() {
             ].map(t => (
               <div key={t.text} className="flex items-center gap-2 text-sm text-slate-600">{t.icon}{t.text}</div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PAYMENT SETUP & ONBOARDING SUPPORT ──────────────────────────── */}
+      <section className="py-20 sm:py-28 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 rounded-3xl px-6 sm:px-12 py-14 sm:py-20 shadow-2xl shadow-blue-900/40 overflow-hidden">
+
+            {/* Background glows */}
+            <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+
+              {/* Left — copy */}
+              <div className="flex-1 text-center lg:text-left max-w-xl mx-auto lg:mx-0">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 rounded-full text-xs font-semibold mb-6 tracking-wide uppercase">
+                  <BadgeCheck className="w-3.5 h-3.5" /> Payment Setup & Onboarding Support
+                </div>
+
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-5">
+                  We help you get paid —<br className="hidden sm:block" />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-emerald-300">
+                    without the setup stress
+                  </span>
+                </h2>
+
+                <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-8">
+                  No need to figure out integrations or payment systems yourself.
+                  We guide you through setting up Paystack, bank transfer, and other
+                  payment methods so your clients can pay you <em className="not-italic text-white font-medium">directly from your invoices</em>.
+                </p>
+
+                <ul className="space-y-4 mb-10 text-left">
+                  {[
+                    { icon: <CreditCard className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />, text: "Set up Paystack in minutes with guided support" },
+                    { icon: <Banknote   className="w-4 h-4 text-blue-400   flex-shrink-0 mt-0.5" />, text: "Display your bank account on every invoice automatically" },
+                    { icon: <Zap        className="w-4 h-4 text-amber-400  flex-shrink-0 mt-0.5" />, text: "Start receiving payments immediately — no technical experience needed" },
+                  ].map(({ icon, text }) => (
+                    <li key={text} className="flex items-start gap-3 text-slate-200 text-sm sm:text-base">
+                      {icon}
+                      <span>{text}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <p className="text-slate-400 text-sm mb-8 flex items-center gap-2 justify-center lg:justify-start">
+                  <Shield className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                  Available during your free trial. We make sure everything works before you start.
+                </p>
+
+                <Link
+                  to="/register"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 text-white font-bold rounded-xl shadow-lg shadow-blue-700/30 hover:shadow-blue-500/40 hover:scale-[1.02] transition-all text-sm"
+                >
+                  Start Free Trial <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+              {/* Right — visual mock */}
+              <div className="flex-shrink-0 w-full max-w-xs sm:max-w-sm mx-auto lg:mx-0">
+                <div className="relative">
+                  {/* Phone frame */}
+                  <div className="relative mx-auto w-64 sm:w-72">
+                    {/* Glow behind phone */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-blue-500/20 rounded-3xl blur-2xl scale-110" />
+
+                    <div className="relative bg-slate-800 rounded-3xl border border-slate-700/60 shadow-2xl overflow-hidden">
+                      {/* Phone notch */}
+                      <div className="flex justify-center pt-3 pb-2">
+                        <div className="w-20 h-1.5 bg-slate-700 rounded-full" />
+                      </div>
+
+                      {/* Screen */}
+                      <div className="px-4 pb-6 space-y-3">
+                        {/* App header */}
+                        <div className="flex items-center justify-between py-2 border-b border-slate-700/60">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md flex items-center justify-center">
+                              <FileText className="w-3 h-3 text-white" />
+                            </div>
+                            <span className="text-white text-xs font-bold">LumiLedger</span>
+                          </div>
+                          <Smartphone className="w-3.5 h-3.5 text-slate-500" />
+                        </div>
+
+                        {/* Payment received notification card */}
+                        <div className="bg-emerald-500/15 border border-emerald-500/30 rounded-2xl p-3.5">
+                          <div className="flex items-start gap-2.5">
+                            <div className="w-8 h-8 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/30">
+                              <CheckCircle className="w-4 h-4 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-emerald-300 text-xs font-bold">Payment Received!</p>
+                              <p className="text-white text-xs font-semibold mt-0.5">₦550,000</p>
+                              <p className="text-slate-400 text-[11px] mt-0.5">Phoenix Plus — Web Redesign</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Invoice status row */}
+                        <div className="bg-slate-700/50 rounded-xl p-3 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Receipt className="w-3.5 h-3.5 text-slate-400" />
+                            <span className="text-slate-300 text-xs">INV-0042</span>
+                          </div>
+                          <span className="text-xs font-bold px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30">
+                            PAID
+                          </span>
+                        </div>
+
+                        {/* Paystack row */}
+                        <div className="bg-slate-700/50 rounded-xl p-3 flex items-center gap-2.5">
+                          <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
+                            <span className="text-[10px] font-extrabold text-blue-700">P</span>
+                          </div>
+                          <div>
+                            <p className="text-slate-200 text-xs font-semibold">Paystack</p>
+                            <p className="text-slate-500 text-[11px]">Connected &amp; ready</p>
+                          </div>
+                          <div className="ml-auto w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/60" />
+                        </div>
+
+                        {/* Bank row */}
+                        <div className="bg-slate-700/50 rounded-xl p-3 flex items-center gap-2.5">
+                          <Banknote className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                          <div>
+                            <p className="text-slate-200 text-xs font-semibold">Bank Transfer</p>
+                            <p className="text-slate-500 text-[11px]">GTBank • 0123456789</p>
+                          </div>
+                          <div className="ml-auto w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/60" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Floating "just received" badge */}
+                  <div className="absolute -top-3 -right-2 sm:-right-6 bg-white rounded-xl shadow-xl px-3 py-2 flex items-center gap-2 border border-slate-100">
+                    <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-800 leading-none">Payment confirmed</p>
+                      <p className="text-[10px] text-slate-400 leading-none mt-0.5">Just now</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       </section>
