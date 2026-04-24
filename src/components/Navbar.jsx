@@ -23,7 +23,7 @@ const PLAN_BADGE = {
 // STARTER (Essential) does NOT include accounting tools
 const ACCOUNTING_PLANS = new Set(["FREE", "GROWTH", "ACCOUNTANT_PRO"]);
 
-function NavLink({ item, collapsed, onClick, isActive }) {
+function NavLink({ item, collapsed, onClick, isActive, isMobile }) {
   const active = isActive(item.path);
   return (
     <li>
@@ -43,9 +43,19 @@ function NavLink({ item, collapsed, onClick, isActive }) {
         }`}
       >
         <item.icon size={20} className="flex-shrink-0" />
-        {!collapsed && <span className="text-sm font-medium flex-1">{item.label}</span>}
-        {/* Info tooltip — only when sidebar is expanded and item has a description */}
-        {!collapsed && item.info && (
+        {!collapsed && (
+          <span className="flex-1 min-w-0">
+            <span className="text-sm font-medium block">{item.label}</span>
+            {/* On mobile: show description inline as a subtitle */}
+            {isMobile && item.info && (
+              <span className={`text-xs block leading-snug mt-0.5 ${active ? "text-white/70" : "text-slate-400 dark:text-slate-500"}`}>
+                {item.info}
+              </span>
+            )}
+          </span>
+        )}
+        {/* Info tooltip — desktop only, hover-based */}
+        {!collapsed && !isMobile && item.info && (
           <span className="relative group/info" onClick={e => e.preventDefault()}>
             <Info
               size={12}
@@ -77,6 +87,7 @@ function Navbar({ onClose }) {
   const role = user?.role || (Array.isArray(user?.roles) ? user.roles[0] : null);
 
   const isActive = (path) => location.pathname === path;
+  const isMobile = !!onClose;
   const isPlatformAdmin = role === "PLATFORM_ADMIN" || (Array.isArray(user?.roles) && user.roles.includes("PLATFORM_ADMIN"));
   const isStaff = role === "STAFF" || role === "STAFF_EXPENSE";
   const isAdminOrStaff = role === "STAFF" || role === "STAFF_EXPENSE" || role === "ADMIN";
@@ -210,7 +221,7 @@ function Navbar({ onClose }) {
         {isStaff && (
           <ul className="space-y-1">
             {staffItems.map(item => (
-              <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} />
+              <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} isMobile={isMobile} />
             ))}
           </ul>
         )}
@@ -219,7 +230,7 @@ function Navbar({ onClose }) {
         {!isStaff && (
           <ul className="space-y-1">
             {coreItems.map(item => (
-              <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} />
+              <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} isMobile={isMobile} />
             ))}
           </ul>
         )}
@@ -238,7 +249,7 @@ function Navbar({ onClose }) {
                   return canAccessAccountingTools || !restricted.includes(item.path);
                 })
                 .map(item => (
-                  <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} />
+                  <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} isMobile={isMobile} />
                 ))}
             </ul>
             {/* Show upgrade nudge for restricted items if on STARTER */}
@@ -264,7 +275,7 @@ function Navbar({ onClose }) {
             )}
             <ul className="space-y-1">
               {reportItems.map(item => (
-                <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} />
+                <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} isMobile={isMobile} />
               ))}
             </ul>
 
@@ -287,7 +298,7 @@ function Navbar({ onClose }) {
                         { path: "/accounting/entries",  label: "Journal Entries",   icon: BookOpenCheck },
                         ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark }] : []),
                       ].map(item => (
-                        <NavLink key={item.path} item={item} collapsed={false} onClick={onClose} isActive={isActive} />
+                        <NavLink key={item.path} item={item} collapsed={false} onClick={onClose} isActive={isActive} isMobile={isMobile} />
                       ))}
                     </ul>
                   )}
@@ -298,7 +309,7 @@ function Navbar({ onClose }) {
                     { path: "/accounting/accounts", label: "Chart of Accounts", icon: BookOpen },
                     { path: "/accounting/entries",  label: "Journal Entries",   icon: BookOpenCheck },
                   ].map(item => (
-                    <NavLink key={item.path} item={item} collapsed={true} onClick={onClose} isActive={isActive} />
+                    <NavLink key={item.path} item={item} collapsed={true} onClick={onClose} isActive={isActive} isMobile={isMobile} />
                   ))}
                 </ul>
               )
@@ -359,9 +370,16 @@ function Navbar({ onClose }) {
                   <item.icon size={20} className="flex-shrink-0" />
                   {!effectiveCollapsed && (
                     <>
-                      <span className="text-sm font-medium flex-1">{item.label}</span>
+                      <span className="flex-1 min-w-0">
+                        <span className="text-sm font-medium block">{item.label}</span>
+                        {isMobile && item.info && (
+                          <span className={`text-xs block leading-snug mt-0.5 ${active ? "text-white/70" : "text-slate-400 dark:text-slate-500"}`}>
+                            {item.info}
+                          </span>
+                        )}
+                      </span>
                       {item.path === "/settings/billing" && plan && (
-                        <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
+                        <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0 ${
                           active ? "bg-white/20 text-white" : PLAN_BADGE[plan] ?? PLAN_BADGE.FREE
                         }`}>
                           {{ FREE: "Trial", STARTER: "Essential", GROWTH: "Business", ACCOUNTANT_PRO: "Pro" }[plan] ?? plan}
