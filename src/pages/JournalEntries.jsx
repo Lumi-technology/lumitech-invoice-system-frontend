@@ -7,6 +7,7 @@ import {
   Zap,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import NumericInput from "../components/NumericInput";
 
 const fmt = (n) =>
   new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(n ?? 0);
@@ -268,10 +269,7 @@ function QuickEntryModal({ accounts, onClose, onSaved }) {
                         />
                       </td>
                       <td className="px-3 py-2">
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
+                        <NumericInput
                           value={line.amount}
                           onChange={e => setLine(i, "amount", e.target.value)}
                           placeholder="0.00"
@@ -542,10 +540,7 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
                         </div>
                       </td>
                       <td className="px-3 py-2">
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
+                        <NumericInput
                           value={line.amount}
                           onChange={e => setLine(i, "amount", e.target.value)}
                           placeholder="0.00"

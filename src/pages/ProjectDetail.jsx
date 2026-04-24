@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
+import NumericInput from "../components/NumericInput";
 
 const STATUSES = ["ACTIVE", "ON_HOLD", "SUSPENDED", "CANCELLED", "COMPLETED"];
 const CATEGORIES = [
@@ -393,10 +394,7 @@ function ProjectDetail() {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Contract Value (₦)</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">₦</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
+                  <NumericInput
                     value={editForm.contractValue}
                     onChange={e => setEditForm({ ...editForm, contractValue: e.target.value })}
                     className="w-full pl-8 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white/50 dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
@@ -460,10 +458,8 @@ function ProjectDetail() {
                 <p className="text-xs text-slate-400 dark:text-slate-500 mb-1">Use negative value for deductions.</p>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">₦</span>
-                  <input
+                  <NumericInput
                     required
-                    type="number"
-                    step="0.01"
                     value={coForm.amount}
                     onChange={e => setCoForm({ ...coForm, amount: e.target.value })}
                     placeholder="0"

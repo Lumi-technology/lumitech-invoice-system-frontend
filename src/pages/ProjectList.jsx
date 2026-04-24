@@ -10,6 +10,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import NumericInput from "../components/NumericInput";
 
 const CATEGORIES = [
   "CONSTRUCTION", "SOFTWARE", "CONSULTING", "CREATIVE",
@@ -268,11 +269,8 @@ function ProjectList() {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Contract Value (₦) *</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">₦</span>
-                  <input
+                  <NumericInput
                     required
-                    type="number"
-                    min="1"
-                    step="0.01"
                     value={form.contractValue}
                     onChange={e => setForm({ ...form, contractValue: e.target.value })}
                     placeholder="0"

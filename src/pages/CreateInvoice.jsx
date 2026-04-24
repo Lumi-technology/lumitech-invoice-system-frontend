@@ -6,6 +6,7 @@ import {
   ArrowLeft, Plus, Trash2, Calendar, User, Save,
   Mail, X, FolderOpen, FileText, Receipt,
 } from "lucide-react";
+import NumericInput from "../components/NumericInput";
 
 const inputCls = "w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm";
 const labelCls = "block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5";
@@ -239,13 +240,10 @@ function CreateInvoice() {
                   <label className="sm:hidden text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 block">Unit Price (₦)</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm">₦</span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
+                    <NumericInput
                       placeholder="0.00"
                       value={item.unitPrice}
-                      onChange={e => handleItemChange(index, "unitPrice", Number(e.target.value))}
+                      onChange={e => handleItemChange(index, "unitPrice", Number(e.target.value.replace(/,/g, "")))}
                       required
                       className="w-full pl-8 pr-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
                     />
@@ -337,12 +335,9 @@ function CreateInvoice() {
                 <label className="text-slate-500 dark:text-slate-400">Other Tax (₦)</label>
                 <div className="relative w-32">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₦</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
+                  <NumericInput
                     value={form.tax}
-                    onChange={e => setForm({ ...form, tax: Number(e.target.value) })}
+                    onChange={e => setForm({ ...form, tax: Number(e.target.value.replace(/,/g, "")) })}
                     className="w-full pl-7 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm text-right"
                   />
                 </div>

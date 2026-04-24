@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { getUserType, capitalLabel, USER_TYPES } from "../utils/userType";
 import TourOverlay from "../components/TourOverlay";
+import NumericInput from "../components/NumericInput";
 
 const Dashboard = () => {
   const user = getUserFromToken();
@@ -360,8 +361,7 @@ const Dashboard = () => {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Amount (₦)</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₦</span>
-                  <input
-                    type="number" min="0.01" step="0.01"
+                  <NumericInput
                     value={loanAmount}
                     onChange={e => setLoanAmount(e.target.value)}
                     className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white/50 dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"

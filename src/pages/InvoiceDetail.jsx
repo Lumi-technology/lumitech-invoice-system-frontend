@@ -26,6 +26,7 @@ import {
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
 import { getUserType, USER_TYPES, paymentLabel } from "../utils/userType";
+import NumericInput from "../components/NumericInput";
 
 function InvoiceDetail() {
   const { id } = useParams();
@@ -559,10 +560,7 @@ function InvoiceDetail() {
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">₦</span>
-                  <input
-                    type="number"
-                    min="0.01"
-                    step="0.01"
+                  <NumericInput
                     value={paymentAmount}
                     onChange={(e) => {
                       setPaymentAmount(e.target.value);
@@ -637,11 +635,7 @@ function InvoiceDetail() {
                         </label>
                         <div className="relative">
                           <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₦</span>
-                          <input
-                            type="number"
-                            min="0"
-                            max={paymentAmount}
-                            step="0.01"
+                          <NumericInput
                             value={capitalRecoveryAmount}
                             onChange={e => setCapitalRecoveryAmount(e.target.value)}
                             className="w-full pl-6 pr-2 py-2 text-sm border border-amber-300 dark:border-amber-600 rounded-lg bg-white dark:bg-slate-700/50 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition"
@@ -730,11 +724,9 @@ function InvoiceDetail() {
                   />
                   <div className="col-span-3 relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm">₦</span>
-                    <input
-                      type="number"
-                      min="0"
+                    <NumericInput
                       value={item.unitPrice}
-                      onChange={e => handleEditItemChange(i, "unitPrice", Number(e.target.value))}
+                      onChange={e => handleEditItemChange(i, "unitPrice", Number(e.target.value.replace(/,/g, "")))}
                       className="w-full pl-7 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                     />
                   </div>
@@ -764,9 +756,7 @@ function InvoiceDetail() {
               <label className="text-sm font-medium text-slate-700 dark:text-slate-200 w-16">Tax (₦)</label>
               <div className="relative w-44">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm">₦</span>
-                <input
-                  type="number"
-                  min="0"
+                <NumericInput
                   value={editTax}
                   onChange={e => setEditTax(e.target.value)}
                   className="w-full pl-7 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -816,10 +806,7 @@ function InvoiceDetail() {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Amount (₦)</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₦</span>
-                  <input
-                    type="number"
-                    min="0.01"
-                    step="0.01"
+                  <NumericInput
                     value={markPaidAmount}
                     onChange={e => setMarkPaidAmount(e.target.value)}
                     className="w-full pl-8 pr-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
