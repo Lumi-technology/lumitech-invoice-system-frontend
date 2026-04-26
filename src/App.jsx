@@ -39,6 +39,9 @@ import ClaimDetail from "./pages/ClaimDetail";
 import AuditLogPage from "./pages/AuditLog";
 import TaxReport from "./pages/TaxReport";
 import BankReconciliation from "./pages/BankReconciliation";
+import Inventory from "./pages/Inventory";
+import POS from "./pages/POS";
+import SalesReport from "./pages/SalesReport";
 
 function App() {
   const [planLimitMessage, setPlanLimitMessage] = useState(null);
@@ -456,6 +459,11 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* INVENTORY & POS */}
+          <Route path="/inventory" element={<ProtectedRoute><Layout><Inventory /></Layout></ProtectedRoute>} />
+          <Route path="/pos" element={<ProtectedRoute><Layout><POS /></Layout></ProtectedRoute>} />
+          <Route path="/sales/report" element={<ProtectedRoute><Layout><SalesReport /></Layout></ProtectedRoute>} />
 
           {/* CLIENT PORTAL — public, no auth */}
           <Route path="/portal/:token" element={<ClientPortal />} />

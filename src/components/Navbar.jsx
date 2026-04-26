@@ -5,7 +5,7 @@ import {
   ChevronLeft, ChevronRight, Building2, FolderOpen, ShieldCheck,
   CreditCard, Wallet, UsersRound, X, BookOpen, BookOpenCheck, Scale, TrendingUp, LayoutList, Landmark, ClipboardList,
   ChevronDown, Briefcase, Calculator, ArrowLeftRight, Banknote, PiggyBank, Lock, Receipt, Home,
-  Info, SlidersHorizontal,
+  Info, SlidersHorizontal, Package, ShoppingCart, BarChart2,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
@@ -159,9 +159,17 @@ function Navbar({ onClose }) {
 
   const staffItems = [
     { path: "/staff-home",      label: "Home",            icon: Home,               info: "Your expense dashboard and recent submissions" },
+    { path: "/pos",             label: "Make a Sale",     icon: ShoppingCart,       info: "Sell products and process payments for customers" },
     { path: "/expenses",        label: "Expenses",        icon: Receipt,            info: "Submit new expense claims and track your submissions" },
     { path: "/expenses/manage", label: "Manage Expenses", icon: FolderOpen,         info: "Review, approve, or return expense reports" },
     { path: "/settings/org",    label: "Preferences",     icon: SlidersHorizontal,  info: "Change your display theme preference" },
+  ];
+
+  // Retail/POS items — shown when on GROWTH or ACCOUNTANT_PRO (or FREE trial)
+  const posItems = [
+    { path: "/pos",          label: "Point of Sale",  icon: ShoppingCart, info: "Sell products, process payments and issue receipts" },
+    { path: "/inventory",    label: "Inventory",      icon: Package,      info: "Manage your products, stock levels and prices" },
+    { path: "/sales/report", label: "Sales Reports",  icon: BarChart2,    info: "View revenue, transactions and staff performance" },
   ];
 
   const bottomItems = isStaff
@@ -347,6 +355,20 @@ function Navbar({ onClose }) {
                 </div>
               )
             )}
+          </>
+        )}
+
+        {/* ── RETAIL / POS (non-staff only) ─────────────────────────────── */}
+        {!isStaff && (
+          <>
+            {!effectiveCollapsed && (
+              <p className="px-3 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Retail & POS</p>
+            )}
+            <ul className="space-y-1">
+              {posItems.map(item => (
+                <NavLink key={item.path} item={item} collapsed={effectiveCollapsed} onClick={onClose} isActive={isActive} isMobile={isMobile} />
+              ))}
+            </ul>
           </>
         )}
 
