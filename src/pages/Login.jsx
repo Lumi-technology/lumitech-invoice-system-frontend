@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
 import { setUserType, setRegisteredAs } from "../utils/userType";
+import posthog from 'posthog-js';
 import axios from "axios";
 import { LogIn, User, Lock, Mail, Eye, EyeOff } from "lucide-react";
 
@@ -36,6 +37,14 @@ function Login() {
       if (user?.userType) {
         setUserType(user.userType);
         setRegisteredAs(user.userType);
+      }
+
+      // Identify user in PostHog
+      if (user?.username) {
+        posthog.identify(user.username, {
+          plan: user.plan ?? 'FREE',
+          role: role,
+        });
       }
 
       if (role === "STAFF" || role === "STAFF_EXPENSE") {

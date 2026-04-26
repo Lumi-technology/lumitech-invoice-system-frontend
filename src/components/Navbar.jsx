@@ -10,6 +10,7 @@ import {
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
 import { getUserType, setUserType, getRegisteredAs, USER_TYPES, paymentLabel } from "../utils/userType";
+import posthog from 'posthog-js';
 import NotificationBell from "./NotificationBell";
 
 const PLAN_BADGE = {
@@ -175,6 +176,7 @@ function Navbar({ onClose }) {
       ];
 
   const handleLogout = () => {
+    posthog.reset();
     localStorage.removeItem("token");
     window.location.href = "/login";
   };
