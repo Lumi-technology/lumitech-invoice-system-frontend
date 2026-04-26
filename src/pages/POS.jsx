@@ -84,10 +84,10 @@ function PrinterSetupModal({ orgName, onClose }) {
   const isBusy = connectingType !== null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div className="fixed inset-0 z-50 overflow-y-auto"
          style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}>
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md mx-auto"
-           style={{ maxHeight: "90vh", overflowY: "auto" }}>
+      <div className="flex min-h-full items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md mx-auto">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100">
@@ -235,6 +235,7 @@ function PrinterSetupModal({ orgName, onClose }) {
           </button>
         </div>
 
+      </div>
       </div>
     </div>
   );
