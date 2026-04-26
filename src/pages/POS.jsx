@@ -98,13 +98,12 @@ function PrinterSetupModal({ orgName, onClose }) {
       <div style={{
         width: "100%",
         maxWidth: "380px",
-        maxHeight: "calc(100vh - 32px)",
+        maxHeight: "90%",
         overflowY: "auto",
         borderRadius: "12px",
         backgroundColor: "#ffffff",
         boxShadow: "0 8px 40px rgba(0,0,0,0.22)",
         border: "1px solid #e2e8f0",
-        flexShrink: 0,
       }} onClick={e => e.stopPropagation()}>
 
         {/* Header */}
