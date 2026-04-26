@@ -18,18 +18,41 @@ import {
 const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
 const PAYMENT_METHODS = ["CASH", "TRANSFER", "CARD", "POS_TERMINAL"];
 
-// ── Printer Setup Modal ───────────────────────────────────────────────────
+// ── Printer Setup Modal — uses native <dialog> top-layer, immune to all CSS ──
 function PrinterSetupModal({ orgName, onClose }) {
+  const dialogRef = useRef(null);
   const [usbDevice, setUsbDevice]   = useState(null);
   const [btConn, setBtConn]         = useState(null);
-  const [connectingType, setConnectingType] = useState(null); // "usb" | "bt" | "test" | null
-  const [connectStep, setConnectStep]       = useState("");   // progress message
+  const [connectingType, setConnectingType] = useState(null);
+  const [connectStep, setConnectStep]       = useState("");
   const [error, setError]           = useState("");
 
+  const isBusy      = connectingType !== null;
+  const isConnected = usbDevice || btConn;
+  const isBusyRef   = useRef(isBusy);
+  useEffect(() => { isBusyRef.current = isBusy; }, [isBusy]);
+
+  // Open dialog and wire up backdrop-click close
+  useEffect(() => {
+    const el = dialogRef.current;
+    if (!el) return;
+    el.showModal();
+    const onBackdropClick = (e) => {
+      // click on the <dialog> element itself = backdrop area
+      if (e.target === el && !isBusyRef.current) onClose();
+    };
+    const onCancel = (e) => { e.preventDefault(); if (!isBusyRef.current) onClose(); };
+    el.addEventListener("click",  onBackdropClick);
+    el.addEventListener("cancel", onCancel);
+    return () => {
+      el.removeEventListener("click",  onBackdropClick);
+      el.removeEventListener("cancel", onCancel);
+      if (el.open) el.close();
+    };
+  }, [onClose]);
+
   const handleConnectUSB = async () => {
-    setConnectingType("usb");
-    setError("");
-    setConnectStep("Opening device picker… select your printer.");
+    setConnectingType("usb"); setError(""); setConnectStep("Opening device picker… select your printer.");
     try {
       const device = await connectUSBPrinter();
       setConnectStep("Printer found — saving connection…");
@@ -44,11 +67,8 @@ function PrinterSetupModal({ orgName, onClose }) {
   };
 
   const handleConnectBT = async () => {
-    setConnectingType("bt");
-    setError("");
-    setConnectStep("Scanning for Bluetooth printers nearby…");
+    setConnectingType("bt"); setError(""); setConnectStep("Select your printer from the browser popup.");
     try {
-      setConnectStep("Select your printer from the browser popup.");
       const conn = await connectBluetoothPrinter();
       setConnectStep("Pairing with " + conn.device.name + "…");
       await new Promise(r => setTimeout(r, 500));
@@ -62,172 +82,127 @@ function PrinterSetupModal({ orgName, onClose }) {
   };
 
   const handleTestPrint = async () => {
-    setConnectingType("test");
-    setError("");
-    setConnectStep("Sending test receipt…");
+    setConnectingType("test"); setError(""); setConnectStep("Sending test receipt…");
     const testReceipt = {
       receiptNumber: "TEST-001", saleDate: new Date().toISOString(),
-      paymentMethod: "CASH", customerName: "Test Customer",
-      total: 5000, discount: 0,
+      paymentMethod: "CASH", customerName: "Test Customer", total: 5000, discount: 0,
       items: [{ productName: "Test Item", quantity: 1, unitPrice: 5000, subtotal: 5000 }],
     };
     try {
-      if (usbDevice)      { await printReceiptUSB(usbDevice, testReceipt, orgName); setConnectStep("Test receipt sent to USB printer ✓"); }
-      else if (btConn)    { await printReceiptBluetooth(btConn, testReceipt, orgName); setConnectStep("Test receipt sent to Bluetooth printer ✓"); }
-      else                { printReceiptBrowser(testReceipt, orgName); setConnectStep("Browser print dialog opened ✓"); }
+      if (usbDevice)   { await printReceiptUSB(usbDevice, testReceipt, orgName);       setConnectStep("Test sent to USB printer ✓"); }
+      else if (btConn) { await printReceiptBluetooth(btConn, testReceipt, orgName);    setConnectStep("Test sent to Bluetooth printer ✓"); }
+      else             { printReceiptBrowser(testReceipt, orgName);                    setConnectStep("Browser print dialog opened ✓"); }
     } catch (e) {
-      setError("Print error: " + e.message);
-      setConnectStep("");
+      setError("Print error: " + e.message); setConnectStep("");
     } finally { setConnectingType(null); }
   };
 
-  const isConnected = usbDevice || btConn;
-  const isBusy = connectingType !== null;
-
   return createPortal(
-    <div style={{
-      position: "fixed",
-      top: 0, left: 0, right: 0, bottom: 0,
-      zIndex: 9999,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: "rgba(0,0,0,0.55)",
-      padding: "16px",
-    }} onClick={!isBusy ? onClose : undefined}>
-      <div style={{
-        width: "100%",
-        maxWidth: "380px",
-        maxHeight: "90%",
-        overflowY: "auto",
-        borderRadius: "12px",
-        backgroundColor: "#ffffff",
-        boxShadow: "0 8px 40px rgba(0,0,0,0.22)",
-        border: "1px solid #e2e8f0",
-      }} onClick={e => e.stopPropagation()}>
+    <>
+      <style>{`
+        dialog.printer-setup-dialog::backdrop {
+          background: rgba(0,0,0,0.55);
+          backdrop-filter: blur(4px);
+        }
+        dialog.printer-setup-dialog {
+          border: none;
+          border-radius: 12px;
+          padding: 0;
+          width: min(380px, calc(100vw - 32px));
+          max-height: min(600px, calc(100dvh - 48px));
+          overflow-y: auto;
+          box-shadow: 0 8px 40px rgba(0,0,0,0.22);
+          margin: auto;
+        }
+      `}</style>
+      <dialog ref={dialogRef} className="printer-setup-dialog">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-slate-100">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-blue-600 rounded-lg">
-              <Printer className="w-4 h-4 text-white" />
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 20px 12px", borderBottom:"1px solid #f1f5f9" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            <div style={{ padding:6, background:"#2563eb", borderRadius:8 }}>
+              <Printer size={14} color="#fff" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900">Printer Setup</h3>
-              <p className="text-xs text-slate-400">Connect a thermal printer</p>
+              <div style={{ fontSize:13, fontWeight:700, color:"#0f172a" }}>Printer Setup</div>
+              <div style={{ fontSize:11, color:"#94a3b8" }}>Connect a thermal printer</div>
             </div>
           </div>
           <button onClick={onClose} disabled={isBusy}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition disabled:opacity-40">
+            style={{ background:"none", border:"none", cursor:"pointer", color:"#94a3b8", padding:4, opacity:isBusy?0.4:1 }}>
             <X size={15} />
           </button>
         </div>
 
-        <div className="px-5 py-4 space-y-3">
+        {/* Body */}
+        <div style={{ padding:"12px 20px", display:"flex", flexDirection:"column", gap:8 }}>
 
-          {/* Status banner */}
           {isBusy && connectStep && (
-            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0" />
-              <p className="text-xs text-blue-700 font-medium">{connectStep}</p>
+            <div style={{ display:"flex", alignItems:"center", gap:8, padding:"8px 12px", background:"#eff6ff", border:"1px solid #bfdbfe", borderRadius:8 }}>
+              <div style={{ width:12, height:12, border:"2px solid #2563eb", borderTopColor:"transparent", borderRadius:"50%", animation:"spin 0.7s linear infinite", flexShrink:0 }} />
+              <span style={{ fontSize:11, color:"#1d4ed8", fontWeight:500 }}>{connectStep}</span>
             </div>
           )}
-          {!isBusy && connectStep && isConnected && (
-            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-emerald-50 border border-emerald-200 rounded-lg">
-              <CheckCircle className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-              <p className="text-xs text-emerald-700 font-medium">{connectStep}</p>
+          {!isBusy && isConnected && connectStep && (
+            <div style={{ display:"flex", alignItems:"center", gap:8, padding:"8px 12px", background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:8 }}>
+              <CheckCircle size={12} color="#16a34a" style={{ flexShrink:0 }} />
+              <span style={{ fontSize:11, color:"#15803d", fontWeight:500 }}>{connectStep}</span>
             </div>
           )}
           {error && (
-            <div className="flex items-start gap-2.5 px-3 py-2.5 bg-rose-50 border border-rose-200 rounded-lg">
-              <X className="w-3.5 h-3.5 text-rose-500 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-rose-600">{error}</p>
+            <div style={{ display:"flex", alignItems:"flex-start", gap:8, padding:"8px 12px", background:"#fff1f2", border:"1px solid #fecdd3", borderRadius:8 }}>
+              <X size={12} color="#e11d48" style={{ flexShrink:0, marginTop:1 }} />
+              <span style={{ fontSize:11, color:"#be123c" }}>{error}</span>
             </div>
           )}
 
-          {/* Browser Print */}
-          <div className={`p-3.5 rounded-xl border-2 transition-all ${!isConnected ? "border-blue-200 bg-blue-50" : "border-slate-100 bg-slate-50"}`}>
-            <div className="flex items-center gap-2 mb-2.5">
-              <Wifi className="w-4 h-4 text-blue-600 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <p className="text-xs font-semibold text-slate-900">Browser Print</p>
-                  <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">Works everywhere</span>
-                </div>
-                <p className="text-[11px] text-slate-500">Any default printer — no setup needed</p>
-              </div>
+          <button onClick={handleTestPrint} disabled={isBusy}
+            style={{ display:"flex", alignItems:"center", gap:8, padding:"10px 12px", background:"#eff6ff", border:"1px solid #bfdbfe", borderRadius:8, cursor:isBusy?"not-allowed":"pointer", opacity:isBusy?0.5:1, textAlign:"left", width:"100%" }}>
+            <Wifi size={14} color="#2563eb" style={{ flexShrink:0 }} />
+            <div>
+              <div style={{ fontSize:12, fontWeight:600, color:"#1e40af" }}>{connectingType==="test" ? "Sending…" : "Test Print (Browser)"}</div>
+              <div style={{ fontSize:10, color:"#64748b" }}>Any printer — works everywhere</div>
             </div>
-            <button onClick={handleTestPrint} disabled={isBusy}
-              className="w-full py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition disabled:opacity-50">
-              {connectingType === "test" ? "Sending…" : "Test Print"}
-            </button>
-          </div>
+          </button>
 
-          {/* USB Print */}
           {isWebUSBSupported() && (
-            <div className={`p-3.5 rounded-xl border-2 transition-all ${usbDevice ? "border-emerald-300 bg-emerald-50" : "border-slate-100 bg-white"}`}>
-              <div className="flex items-center gap-2 mb-2.5">
-                <Usb className={`w-4 h-4 flex-shrink-0 ${usbDevice ? "text-emerald-600" : "text-violet-600"}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-xs font-semibold text-slate-900">USB Direct</p>
-                    {usbDevice
-                      ? <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">Connected</span>
-                      : <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">Chrome/Edge only</span>}
-                  </div>
-                  <p className="text-[11px] text-slate-500">
-                    {usbDevice ? (usbDevice.productName || "USB Printer") : "ESC/POS direct to USB printer"}
-                  </p>
+            <button onClick={handleConnectUSB} disabled={isBusy}
+              style={{ display:"flex", alignItems:"center", gap:8, padding:"10px 12px", background: usbDevice?"#f0fdf4":"#faf5ff", border:`1px solid ${usbDevice?"#bbf7d0":"#e9d5ff"}`, borderRadius:8, cursor:isBusy?"not-allowed":"pointer", opacity:isBusy?0.5:1, textAlign:"left", width:"100%" }}>
+              <Usb size={14} color={usbDevice?"#16a34a":"#7c3aed"} style={{ flexShrink:0 }} />
+              <div>
+                <div style={{ fontSize:12, fontWeight:600, color:usbDevice?"#15803d":"#6d28d9" }}>
+                  {connectingType==="usb" ? "Connecting…" : usbDevice ? `USB: ${usbDevice.productName||"Connected"}` : "Connect USB Printer"}
                 </div>
+                <div style={{ fontSize:10, color:"#64748b" }}>Chrome / Edge only</div>
               </div>
-              <button onClick={handleConnectUSB} disabled={isBusy}
-                className={`w-full py-1.5 rounded-lg text-xs font-semibold transition disabled:opacity-50 ${
-                  usbDevice ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200"
-                            : "bg-violet-600 text-white hover:bg-violet-700"}`}>
-                {connectingType === "usb" ? "Connecting…" : usbDevice ? "Reconnect USB" : "Connect USB Printer"}
-              </button>
-            </div>
+            </button>
           )}
 
-          {/* Bluetooth Print */}
           {isWebBluetoothSupported() && (
-            <div className={`p-3.5 rounded-xl border-2 transition-all ${btConn ? "border-emerald-300 bg-emerald-50" : "border-slate-100 bg-white"}`}>
-              <div className="flex items-center gap-2 mb-2.5">
-                <Bluetooth className={`w-4 h-4 flex-shrink-0 ${btConn ? "text-emerald-600" : "text-blue-500"}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-xs font-semibold text-slate-900">Bluetooth</p>
-                    {btConn
-                      ? <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">Connected</span>
-                      : <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">Chrome/Edge only</span>}
-                  </div>
-                  <p className="text-[11px] text-slate-500">
-                    {btConn ? (btConn.device.name || "BT Printer") : "Wireless BLE thermal printer"}
-                  </p>
+            <button onClick={handleConnectBT} disabled={isBusy}
+              style={{ display:"flex", alignItems:"center", gap:8, padding:"10px 12px", background: btConn?"#f0fdf4":"#f0f9ff", border:`1px solid ${btConn?"#bbf7d0":"#bae6fd"}`, borderRadius:8, cursor:isBusy?"not-allowed":"pointer", opacity:isBusy?0.5:1, textAlign:"left", width:"100%" }}>
+              <Bluetooth size={14} color={btConn?"#16a34a":"#0284c7"} style={{ flexShrink:0 }} />
+              <div>
+                <div style={{ fontSize:12, fontWeight:600, color:btConn?"#15803d":"#0369a1" }}>
+                  {connectingType==="bt" ? "Connecting…" : btConn ? `BT: ${btConn.device.name||"Connected"}` : "Connect Bluetooth"}
                 </div>
+                <div style={{ fontSize:10, color:"#64748b" }}>Chrome / Edge only</div>
               </div>
-              <button onClick={handleConnectBT} disabled={isBusy}
-                className={`w-full py-1.5 rounded-lg text-xs font-semibold transition disabled:opacity-50 ${
-                  btConn ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200"
-                         : "bg-blue-600 text-white hover:bg-blue-700"}`}>
-                {connectingType === "bt" ? "Connecting…" : btConn ? "Reconnect Bluetooth" : "Connect Bluetooth"}
-              </button>
-            </div>
+            </button>
           )}
 
         </div>
 
         {/* Footer */}
-        <div className="px-5 pb-5 flex items-center justify-between">
-          <p className="text-[10px] text-slate-400">USB/BT: Chrome or Edge only</p>
+        <div style={{ padding:"8px 20px 16px", display:"flex", justifyContent:"flex-end" }}>
           <button onClick={onClose} disabled={isBusy}
-            className="px-4 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition disabled:opacity-40">
+            style={{ padding:"6px 18px", fontSize:12, fontWeight:600, color:"#475569", background:"#f1f5f9", border:"none", borderRadius:8, cursor:isBusy?"not-allowed":"pointer", opacity:isBusy?0.4:1 }}>
             {isConnected ? "Done" : "Cancel"}
           </button>
         </div>
 
-      </div>
-    </div>,
+      </dialog>
+    </>,
     document.body
   );
 }
