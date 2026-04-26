@@ -24,8 +24,9 @@ const ROLE_LABEL = {
 
 // ── Add Member Modal ──────────────────────────────────────────────────────────
 function AddMemberModal({ roleToCreate, onClose, onSuccess }) {
-  const [form, setForm] = useState({ username: "", password: "" });
+  const [form, setForm] = useState({ username: "", email: "", password: "", confirmPassword: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -33,13 +34,14 @@ function AddMemberModal({ roleToCreate, onClose, onSuccess }) {
     e.preventDefault();
     setError("");
     if (form.password.length < 6) { setError("Password must be at least 6 characters."); return; }
+    if (form.password !== form.confirmPassword) { setError("Passwords do not match."); return; }
     setLoading(true);
     const endpoint = roleToCreate === "ADMIN" ? "/api/auth/admin"
       : roleToCreate === "STAFF_EXPENSE" ? "/api/auth/staff-expense"
       : "/api/auth/staff";
     try {
-      await api.post(endpoint, { username: form.username, password: form.password });
-      onSuccess(`${roleToCreate} "${form.username}" created successfully`);
+      await api.post(endpoint, { username: form.username, password: form.password, email: form.email || null });
+      onSuccess(`${roleToCreate} "${form.username}" created successfully${form.email ? " — welcome email sent" : ""}`);
       onClose();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create user.");
@@ -78,6 +80,18 @@ function AddMemberModal({ roleToCreate, onClose, onSuccess }) {
             />
           </div>
           <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">
+              Email <span className="text-slate-400 font-normal">(optional — sends welcome email with login link)</span>
+            </label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+              placeholder="staff@example.com"
+              className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Password</label>
             <div className="relative">
               <input
@@ -92,6 +106,29 @@ function AddMemberModal({ roleToCreate, onClose, onSuccess }) {
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Confirm Password</label>
+            <div className="relative">
+              <input
+                type={showConfirm ? "text" : "password"}
+                value={form.confirmPassword}
+                onChange={e => setForm(f => ({ ...f, confirmPassword: e.target.value }))}
+                required
+                placeholder="Re-enter password"
+                className={`w-full px-4 py-2.5 pr-11 border rounded-xl bg-white dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 transition ${
+                  form.confirmPassword && form.password !== form.confirmPassword
+                    ? "border-rose-400 focus:ring-rose-500/20 focus:border-rose-500"
+                    : "border-slate-200 dark:border-slate-600 focus:ring-blue-500/20 focus:border-blue-500"
+                }`}
+              />
+              <button type="button" onClick={() => setShowConfirm(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
+                {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            {form.confirmPassword && form.password !== form.confirmPassword && (
+              <p className="text-xs text-rose-500 mt-1">Passwords do not match</p>
+            )}
           </div>
           <div className="flex justify-end gap-3 pt-1">
             <button type="button" onClick={onClose} disabled={loading} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition">Cancel</button>
@@ -216,10 +253,15 @@ function Team() {
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
                             {member.username?.charAt(0).toUpperCase()}
                           </div>
-                          <p className="font-medium text-slate-900 dark:text-white">
-                            {member.username}
-                            {isSelf && <span className="ml-2 text-xs text-slate-400 font-normal">(you)</span>}
-                          </p>
+                          <div>
+                            <p className="font-medium text-slate-900 dark:text-white">
+                              {member.username}
+                              {isSelf && <span className="ml-2 text-xs text-slate-400 font-normal">(you)</span>}
+                            </p>
+                            {member.email && (
+                              <p className="text-xs text-slate-400 mt-0.5">{member.email}</p>
+                            )}
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">

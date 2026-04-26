@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import api from "../services/api";
 import {
   Search, Plus, Minus, Trash2, ShoppingCart, CheckCircle,
-  X, Barcode, RefreshCw, Printer, Mail, User,
+  X, Barcode, RefreshCw, Printer, Mail, User, Download,
 } from "lucide-react";
 import Toast from "../components/Toast";
 
@@ -101,6 +101,52 @@ export default function POS() {
   const clearSale = () => {
     setCart([]); setDiscount(""); setMethod("CASH");
     setCustName(""); setCustEmail(""); setNotes("");
+  };
+
+  const downloadReceipt = (receipt) => {
+    const date = new Date(receipt.saleDate || Date.now()).toLocaleString("en-NG", {
+      day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
+    });
+    const rows = (receipt.items || []).map(i => `
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9">${i.productName}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:center">${i.quantity}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:right">${fmt(i.unitPrice)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:600">${fmt(i.subtotal)}</td>
+      </tr>`).join("");
+    const html = `<!DOCTYPE html><html><head><title>Receipt ${receipt.receiptNumber}</title>
+    <style>body{font-family:Arial,sans-serif;max-width:520px;margin:32px auto;color:#0f172a}
+    h1{font-size:22px;margin:0 0 4px}p{margin:2px 0;color:#64748b;font-size:13px}
+    table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px}
+    th{background:#2563eb;color:#fff;padding:10px 12px;text-align:left}
+    .total-row td{font-weight:700;font-size:15px;color:#1d4ed8;background:#eff6ff}
+    .footer{margin-top:24px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;text-align:center}
+    @media print{body{margin:0}}</style></head><body>
+    <h1>Receipt</h1>
+    <p><strong>Receipt #:</strong> ${receipt.receiptNumber}</p>
+    <p><strong>Date:</strong> ${date}</p>
+    <p><strong>Payment:</strong> ${(receipt.paymentMethod || "").replace("_"," ")}</p>
+    ${receipt.customerName ? `<p><strong>Customer:</strong> ${receipt.customerName}</p>` : ""}
+    <table>
+      <thead><tr>
+        <th>Item</th><th style="text-align:center">Qty</th>
+        <th style="text-align:right">Unit Price</th><th style="text-align:right">Subtotal</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr class="total-row">
+        <td colspan="3" style="padding:10px 12px;text-align:right">Total</td>
+        <td style="padding:10px 12px;text-align:right">${fmt(receipt.total)}</td>
+      </tr></tfoot>
+    </table>
+    <div class="footer">Thank you for your purchase!</div>
+    </body></html>`;
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Receipt-${receipt.receiptNumber}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleCheckout = async () => {
@@ -324,10 +370,16 @@ export default function POS() {
                 </p>
               )}
             </div>
-            <button onClick={() => setLastReceipt(null)}
-              className="w-full py-2.5 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700 transition">
-              New Sale
-            </button>
+            <div className="flex gap-2">
+              <button onClick={() => downloadReceipt(lastReceipt)}
+                className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-semibold text-sm hover:bg-slate-200 dark:hover:bg-slate-600 transition flex items-center justify-center gap-1.5">
+                <Download className="w-4 h-4" /> Download
+              </button>
+              <button onClick={() => setLastReceipt(null)}
+                className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700 transition">
+                New Sale
+              </button>
+            </div>
           </div>
         </div>
       )}

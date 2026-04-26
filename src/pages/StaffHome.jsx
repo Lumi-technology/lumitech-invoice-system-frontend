@@ -58,7 +58,10 @@ export default function StaffHome() {
       {/* Welcome */}
       <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-600/20">
         <p className="text-blue-200 text-sm font-medium mb-1">Welcome back</p>
-        <h1 className="text-2xl font-bold mb-1">{user?.username || "Staff"}</h1>
+        <h1 className="text-2xl font-bold mb-1">{user?.username || user?.sub || "Staff"}</h1>
+        {user?.email && (
+          <p className="text-blue-200 text-xs mb-1">{user.email}</p>
+        )}
         <p className="text-blue-200 text-sm">Track and submit your expenses for approval.</p>
         <div className="flex gap-3 mt-5">
           <Link
