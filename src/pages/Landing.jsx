@@ -506,6 +506,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-white font-sans antialiased overflow-x-hidden">
       {/* ── NAV ──────────────────────────────────────────────────────────── */}
+
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -584,15 +585,15 @@ export default function Landing() {
                 30-Day Free Trial · No credit card required
               </div>
               <h1 className="text-3xl sm:text-4xl lg:text-[52px] font-extrabold text-slate-900 leading-[1.1] tracking-tight mb-5 sm:mb-6">
-                Track your business finances —{" "}
+                Know exactly{" "}
                 <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
-                  and your money inside it.
+                  what your business owes you
                 </span>
               </h1>
               <p className="text-lg sm:text-xl text-slate-500 leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
-                Manage invoices, expenses, and see exactly how much your business owes you. Built for business owners and accountants.
+                Track invoices, expenses, and the money you've put into your business — all in one place.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 mb-6 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row gap-3 mb-5 justify-center lg:justify-start">
                 <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-xl shadow-blue-600/30 hover:shadow-2xl hover:scale-[1.02] transition-all text-base">
                   Start Free Trial <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -600,6 +601,9 @@ export default function Landing() {
                   See How It Works
                 </a>
               </div>
+              <p className="text-slate-400 text-sm text-center lg:text-left mb-5">
+                See what your business owes you in under 2 minutes
+              </p>
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs text-slate-400">
                 <div className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-emerald-500" />No credit card required</div>
                 <div className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-emerald-500" />Set up in under 2 minutes</div>
@@ -640,7 +644,36 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── OWNER CAPITAL — UNIQUE FEATURE ───────────────────────────────── */}
+      {/* ── PROBLEM ──────────────────────────────────────────────────────── */}
+      <section className="py-20 bg-slate-50 border-y border-slate-100">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-700 text-xs font-semibold rounded-full border border-rose-100 mb-6">
+            Sound familiar?
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-8 leading-tight">
+            Your business is making money…<br className="hidden sm:block" /> but are you actually up?
+          </h2>
+          <div className="space-y-5 text-left max-w-2xl mx-auto">
+            <p className="text-slate-600 text-base leading-relaxed">
+              Most Nigerian business owners fund their own business — rent, equipment, stock, salaries — straight from their pocket. You do this month after month because you believe in what you're building.
+            </p>
+            <p className="text-slate-600 text-base leading-relaxed">
+              Then money starts coming in. Clients pay. Sales happen. But without tracking it properly, you never really know the answer to the most important question:{" "}
+              <strong className="text-slate-900">have I gotten back what I put in?</strong>
+            </p>
+            <p className="text-slate-600 text-base leading-relaxed">
+              LumiLedger gives you one clear number — the money your business still owes you — so you always know exactly where you stand.
+            </p>
+          </div>
+          <div className="mt-10">
+            <Link to="/register" className="inline-flex items-center gap-2 px-7 py-3.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-xl shadow-blue-600/30 hover:shadow-2xl hover:scale-[1.02] transition-all">
+              See what your business owes you <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CAPITAL TRACKING ─────────────────────────────────────────────── */}
       <section className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
@@ -655,13 +688,13 @@ export default function Landing() {
                 </span>
               </h2>
               <p className="text-slate-500 text-lg leading-relaxed mb-8">
-                Most business owners put money into their business and never track it. LumiLedger lets you record every capital injection and see exactly how much comes back to you over time.
+                You've put money into your business — maybe a lot of it. LumiLedger lets you track every naira you've put in and watch how much comes back as revenue grows. No guesswork. No spreadsheets. Just one clear number.
               </p>
               <div className="space-y-4 mb-8">
                 {[
-                  { icon: <CheckCircle className="w-4 h-4 text-emerald-500" />, text: "Record money you put into the business — any amount, any time" },
-                  { icon: <CheckCircle className="w-4 h-4 text-emerald-500" />, text: "Track your recovery rate as revenue comes in" },
-                  { icon: <CheckCircle className="w-4 h-4 text-emerald-500" />, text: "See 'Business Owes You' — one clear number, always up to date" },
+                  { icon: <CheckCircle className="w-4 h-4 text-emerald-500" />, text: "Record every amount you put in — any time, any size" },
+                  { icon: <CheckCircle className="w-4 h-4 text-emerald-500" />, text: "See your recovery grow as money comes in from clients" },
+                  { icon: <CheckCircle className="w-4 h-4 text-emerald-500" />, text: "One clear number: what your business still owes you today" },
                 ].map(f => (
                   <div key={f.text} className="flex items-start gap-3">
                     <div className="mt-0.5 flex-shrink-0">{f.icon}</div>
@@ -670,7 +703,7 @@ export default function Landing() {
                 ))}
               </div>
               <Link to="/register" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 hover:scale-[1.02] transition-all w-full sm:w-auto">
-                Start Tracking Your Capital <ArrowRight className="w-4 h-4" />
+                Start Tracking Today <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
             <div className="mt-6 lg:mt-0 flex justify-center">
@@ -680,67 +713,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── PROBLEM ──────────────────────────────────────────────────────── */}
-      <section className="py-24 bg-slate-50 border-y border-slate-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-700 text-xs font-semibold rounded-full border border-rose-100 mb-5">Sound familiar?</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 leading-tight">
-              Running a business shouldn't mean<br className="hidden sm:block" /> losing track of your money
-            </h2>
-            <p className="text-slate-500 max-w-xl mx-auto text-base leading-relaxed">
-              Most business owners are flying blind. They fund their business but never track it.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { icon: <XCircle className="w-6 h-6 text-rose-500" />,      title: "You fund your business but don't track it",        desc: "You've put in money over months or years — but you have no idea how much, or how much has come back." },
-              { icon: <AlertTriangle className="w-6 h-6 text-amber-500" />, title: "You don't know what your business owes you",       desc: "There's no clear number. Just a feeling that you've put in more than you've gotten back." },
-              { icon: <XCircle className="w-6 h-6 text-rose-500" />,      title: "Your records are scattered and incomplete",        desc: "Notes, chats, memory, spreadsheets — nothing paints the full picture of your financial position." },
-            ].map(p => (
-              <div key={p.title} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <div className="w-11 h-11 bg-rose-50 rounded-xl flex items-center justify-center mb-4 border border-rose-100">{p.icon}</div>
-                <h3 className="font-bold text-slate-900 mb-2 leading-snug">{p.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{p.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-12 text-center">
-            <p className="text-lg font-semibold text-slate-700">LumiLedger fixes all of this — starting today.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── SOLUTION / BENEFITS ──────────────────────────────────────────── */}
-      <section className="py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100 mb-5">Everything in one place</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 leading-tight">
-              One platform. Complete financial clarity.
-            </h2>
-            <p className="text-slate-500 max-w-xl mx-auto">Built for how African businesses actually operate — invoicing, expenses, accounting, and capital tracking all in one place.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {benefits.map(b => (
-              <div key={b.title} className="flex gap-5 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all group">
-                <div className={`w-12 h-12 ${b.bg} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                  {b.icon}
-                </div>
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                    <h3 className="font-bold text-slate-900 leading-snug">{b.title}</h3>
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${b.badge}`}>{b.badgeText}</span>
-                  </div>
-                  <p className="text-sm text-slate-500 leading-relaxed">{b.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── GET PAID YOUR WAY ────────────────────────────────────────────── */}
+      {/* ── INVOICING & PAYMENTS ─────────────────────────────────────────── */}
       <section className="py-24 bg-slate-50 border-y border-slate-100 overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
@@ -748,17 +721,17 @@ export default function Landing() {
               Built for Nigerian businesses
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 leading-tight">
-              Your clients pay the way{" "}
+              Send invoices. Get paid.{" "}
               <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                that works for them
+                Any way they want to pay.
               </span>
             </h2>
             <p className="text-slate-500 max-w-xl mx-auto text-base leading-relaxed">
-              Not everyone pays by card. LumiLedger lets you accept Paystack, bank transfer, or cash — and every payment is automatically recorded in your books.
+              Create a professional invoice in seconds. Your clients can pay by Paystack, bank transfer, or cash — every payment is recorded automatically in your books.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-600/25 group-hover:scale-110 transition-transform">
                 <CreditCard className="w-5 h-5 text-white" />
@@ -768,7 +741,7 @@ export default function Landing() {
                 <span className="text-xs font-semibold px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full border border-blue-200">Online</span>
               </div>
               <p className="text-sm text-slate-500 leading-relaxed mb-4">
-                Generate a payment link in one click. Clients pay by card, bank transfer, USSD, or QR code — Paystack handles it all.
+                One-click payment link. Clients pay by card, bank transfer, USSD, or QR code — Paystack handles it all.
               </p>
               <div className="space-y-2">
                 {["Card payments", "USSD & bank transfer", "QR code payments", "Instant confirmation"].map(f => (
@@ -788,7 +761,7 @@ export default function Landing() {
                 <span className="text-xs font-semibold px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full border border-emerald-200">Most used in NG</span>
               </div>
               <p className="text-sm text-slate-500 leading-relaxed mb-4">
-                Display your account number directly on every invoice. Clients transfer and you confirm receipt — no friction, no middleman.
+                Your account number on every invoice. Clients transfer and you confirm — no friction, no middleman.
               </p>
               <div className="space-y-2">
                 {["Your account on every invoice", "Works with all Nigerian banks", "Manual confirmation flow", "Auto-records in your books"].map(f => (
@@ -808,7 +781,7 @@ export default function Landing() {
                 <span className="text-xs font-semibold px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full border border-amber-200">Offline</span>
               </div>
               <p className="text-sm text-slate-500 leading-relaxed mb-4">
-                Record cash payments instantly. Whether collected in-person or at delivery, your books stay up to date — automatically.
+                Record cash payments in seconds. Your books stay up to date — whether collected in person or at delivery.
               </p>
               <div className="space-y-2">
                 {["Record in seconds", "Updates invoice status", "Reflects in P&L report", "Full audit trail"].map(f => (
@@ -820,336 +793,76 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-10">
-            <div className="flex-1">
-              <p className="font-bold text-slate-900 mb-1">Every payment updates your books automatically</p>
-              <p className="text-sm text-slate-500 leading-relaxed">
-                Whether a client pays online, by transfer, or in cash — LumiLedger records it, updates the invoice status, and reflects it in your Profit &amp; Loss and Balance Sheet instantly. No manual entry needed.
+          {/* Onboarding support callout — replaces separate PAYMENT SETUP section */}
+          <div className="relative bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 sm:gap-10 overflow-hidden shadow-xl">
+            <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative flex-1 text-center sm:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 rounded-full text-xs font-semibold mb-3">
+                <BadgeCheck className="w-3.5 h-3.5" /> Payment Setup Support Included
+              </div>
+              <h3 className="text-white font-bold text-xl mb-2">We help you set everything up</h3>
+              <p className="text-slate-300 text-sm leading-relaxed max-w-lg">
+                No need to figure out Paystack or payment settings on your own. We guide you through setup so your clients can pay directly from your invoices — from day one. Available during your free trial.
               </p>
             </div>
-            <Link
-              to="/register"
-              className="w-full sm:w-auto flex-shrink-0 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 hover:scale-[1.02] transition-all text-sm"
-            >
+            <Link to="/register" className="relative flex-shrink-0 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-br from-blue-500 to-indigo-500 text-white font-bold rounded-xl shadow-lg hover:scale-[1.02] transition-all text-sm">
               Get Started Free <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── RETAIL POS SECTION ───────────────────────────────────────────── */}
-      <section className="py-24 bg-slate-900 overflow-hidden relative">
-        {/* Background glow */}
-        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-
-          {/* Label */}
-          <div className="flex justify-center mb-4">
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-full text-sm font-semibold">
-              <ShoppingBag className="w-4 h-4" /> New — Retail POS for Nigerian Shops
-            </span>
-          </div>
-
-          {/* Emotional headline */}
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight mb-6">
-              You wake up early.<br className="hidden sm:block" />
-              You close late.<br className="hidden sm:block" />
-              <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
-                Your records should work as hard as you do.
-              </span>
-            </h2>
-            <p className="text-slate-400 text-lg leading-relaxed max-w-2xl mx-auto">
-              From Alaba Market to Computer Village, from Onitsha Main Market to your boutique on the high street —
-              every sale you make deserves to be counted. Every naira deserves a record.
-              LumiLedger POS is built for how Nigerian retail actually works.
-            </p>
-          </div>
-
-          {/* Two columns: features + mock POS */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-            {/* Features */}
-            <div className="space-y-6">
-              {[
-                {
-                  icon: <Barcode2 className="w-5 h-5 text-orange-400" />,
-                  bg: "bg-orange-500/15 border-orange-500/20",
-                  title: "Barcode scan or quick search",
-                  desc: "Scan any product with a barcode scanner or search by name. Your checkout moves as fast as your customer's patience — and faster than your competition.",
-                },
-                {
-                  icon: <Package2 className="w-5 h-5 text-blue-400" />,
-                  bg: "bg-blue-500/15 border-blue-500/20",
-                  title: "Stock deducts automatically",
-                  desc: "Every sale reduces your stock count in real time. No more end-of-day counting nightmares. Know exactly what you have — right now, not tomorrow morning.",
-                },
-                {
-                  icon: <PrinterIcon className="w-5 h-5 text-emerald-400" />,
-                  bg: "bg-emerald-500/15 border-emerald-500/20",
-                  title: "Print receipts + send by email",
-                  desc: "Connect any 80mm thermal printer via USB or Bluetooth. Print in one tap, or email a professional PDF receipt directly to your customer. No wahala.",
-                },
-                {
-                  icon: <ShieldCheck2 className="w-5 h-5 text-violet-400" />,
-                  bg: "bg-violet-500/15 border-violet-500/20",
-                  title: "Track every staff sale",
-                  desc: "Know exactly who sold what and when. Stop shrinkage before it starts. Your sales report shows staff performance so you can reward hustle and catch losses.",
-                },
-              ].map(f => (
-                <div key={f.title} className="flex gap-4">
-                  <div className={`w-11 h-11 rounded-xl ${f.bg} border flex items-center justify-center flex-shrink-0`}>
-                    {f.icon}
-                  </div>
-                  <div>
-                    <p className="font-bold text-white mb-1">{f.title}</p>
-                    <p className="text-slate-400 text-sm leading-relaxed">{f.desc}</p>
-                  </div>
-                </div>
-              ))}
-
-              <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <Link to="/register"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-xl hover:scale-[1.02] transition-all text-sm">
-                  Start Selling Today <ArrowRight className="w-4 h-4" />
-                </Link>
-                <p className="flex items-center justify-center text-slate-500 text-xs">
-                  30-day free trial · No card required
-                </p>
-              </div>
-            </div>
-
-            {/* Mock POS Terminal */}
-            <div className="relative">
-              <div className="absolute -inset-6 bg-gradient-to-br from-blue-600/20 to-orange-600/10 rounded-3xl blur-2xl" />
-              <div className="relative bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-2xl">
-
-                {/* Title bar */}
-                <div className="flex items-center gap-2 px-4 py-3 bg-slate-900/80 border-b border-slate-700">
-                  <div className="w-3 h-3 rounded-full bg-rose-500" />
-                  <div className="w-3 h-3 rounded-full bg-amber-500" />
-                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                  <span className="ml-2 text-xs text-slate-500 font-medium">LumiLedger — Point of Sale</span>
-                </div>
-
-                <div className="p-4 space-y-3">
-                  {/* Search bar */}
-                  <div className="flex items-center gap-2 bg-slate-900 rounded-xl px-3 py-2 border border-slate-600">
-                    <Search className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
-                    <span className="text-slate-400 text-xs">Search products or scan barcode…</span>
-                  </div>
-
-                  {/* Product grid */}
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { name: "Samsung Charger", price: "₦3,500", stock: 12, active: true },
-                      { name: "Screen Protector", price: "₦1,200", stock: 45, active: false },
-                      { name: "Power Bank 20K", price: "₦18,500", stock: 6, active: true },
-                      { name: "Type-C Cable", price: "₦800", stock: 80, active: false },
-                      { name: "Earphones", price: "₦5,000", stock: 0, active: false },
-                      { name: "Phone Case", price: "₦2,200", stock: 23, active: false },
-                    ].map((p, i) => (
-                      <div key={i} className={`rounded-xl p-2.5 border text-center ${
-                        p.stock === 0 ? "opacity-40 border-slate-700 bg-slate-800/50" :
-                        p.active ? "border-blue-500/60 bg-blue-500/15 shadow-md shadow-blue-500/20" :
-                        "border-slate-700 bg-slate-800/80 hover:border-slate-600"
-                      }`}>
-                        <p className="text-white text-[10px] font-semibold leading-tight mb-1">{p.name}</p>
-                        <p className="text-blue-400 text-[11px] font-bold">{p.price}</p>
-                        <p className="text-slate-500 text-[9px] mt-0.5">{p.stock > 0 ? `${p.stock} left` : "Out of stock"}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Cart */}
-                  <div className="bg-slate-900 rounded-xl border border-slate-700 p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <p className="text-slate-400 text-xs font-semibold uppercase tracking-wide">Cart</p>
-                      <span className="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full">3 items</span>
-                    </div>
-                    {[
-                      { name: "Samsung Charger", qty: 2, total: "₦7,000" },
-                      { name: "Power Bank 20K", qty: 1, total: "₦18,500" },
-                    ].map(c => (
-                      <div key={c.name} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 bg-blue-500/20 rounded text-blue-400 text-[9px] font-bold flex items-center justify-center">{c.qty}×</div>
-                          <span className="text-slate-300 text-[10px]">{c.name}</span>
-                        </div>
-                        <span className="text-white text-[10px] font-bold">{c.total}</span>
-                      </div>
-                    ))}
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-700">
-                      <span className="text-slate-300 text-xs font-bold">Total</span>
-                      <span className="text-blue-400 text-sm font-extrabold">₦25,500</span>
-                    </div>
-                  </div>
-
-                  {/* Checkout button */}
-                  <button className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30">
-                    <CheckCircle className="w-3.5 h-3.5" /> Charge ₦25,500
-                  </button>
-                </div>
-
-                {/* Receipt printed badge */}
-                <div className="absolute -right-3 -bottom-3 bg-white rounded-xl shadow-2xl px-3 py-2 flex items-center gap-2 border border-slate-100">
-                  <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <CheckCircle className="w-3.5 h-3.5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-800 leading-none">Sale complete!</p>
-                    <p className="text-[10px] text-slate-400 leading-none mt-0.5">Receipt printed & sent</p>
-                  </div>
-                </div>
-
-                {/* Low stock alert badge */}
-                <div className="absolute -left-4 top-24 bg-amber-500 text-white rounded-xl shadow-xl px-3 py-2 text-[10px] font-bold leading-tight border border-amber-400 max-w-[130px]">
-                  ⚠ Low stock alert<br/>
-                  <span className="font-normal opacity-90">Power Bank: 6 left</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom stat bar */}
-          <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {[
-              { value: "< 3s", label: "Average checkout time" },
-              { value: "80mm", label: "Thermal printer ready" },
-              { value: "Real-time", label: "Stock tracking" },
-              { value: "Zero", label: "Manual counting needed" },
-            ].map(s => (
-              <div key={s.label} className="text-center p-4 bg-white/5 rounded-2xl border border-white/10">
-                <p className="text-2xl font-extrabold text-white mb-1">{s.value}</p>
-                <p className="text-slate-500 text-xs">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── FIRS TAX COMPLIANCE ──────────────────────────────────────────── */}
-      <section className="py-16 sm:py-24 bg-white overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-            <div className="text-center lg:text-left min-w-0">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-100 mb-6">
-                🇳🇬 Built for Nigerian tax law
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-5">
-                Stay{" "}
-                <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                  FIRS-ready
-                </span>{" "}
-                all year round
-              </h2>
-              <p className="text-slate-500 text-lg leading-relaxed mb-8">
-                Every invoice you raise automatically calculates VAT and WHT. No spreadsheets, no scrambling at tax time — just one report and a CSV you can file straight with FIRS.
-              </p>
-
-              <div className="space-y-4 mb-8">
-                {[
-                  { icon: <Receipt className="w-4 h-4 text-emerald-600" />, title: "Auto-calculates VAT on every invoice", desc: "Set your VAT rate once. LumiLedger tracks VAT payable across all invoices, per quarter." },
-                  { icon: <CheckCircle className="w-4 h-4 text-emerald-600" />, title: "WHT withheld tracked by transaction type", desc: "Rent, consulting, contracts — WHT is categorised automatically so you know your receivable credit." },
-                  { icon: <Download className="w-4 h-4 text-emerald-600" />, title: "One-click FIRS CSV export", desc: "Q1–Q4 breakdown ready to go. Export and file — no manual data entry, no missed figures." },
-                ].map(f => (
-                  <div key={f.title} className="flex gap-4 text-left">
-                    <div className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center flex-shrink-0 border border-emerald-100 mt-0.5">
-                      {f.icon}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-slate-800 mb-0.5">{f.title}</p>
-                      <p className="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                <Link to="/register" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-emerald-600 to-teal-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/25 hover:scale-[1.02] transition-all text-sm">
-                  Start Filing Smarter <ArrowRight className="w-4 h-4" />
-                </Link>
-                <div className="inline-flex items-center gap-2 px-4 py-3 bg-emerald-50 text-emerald-700 text-sm font-semibold rounded-xl border border-emerald-100">
-                  <CheckCircle className="w-4 h-4" /> VAT &amp; WHT supported
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 lg:mt-0 w-full min-w-0">
-              <MockTaxReport />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── EXPENSE REPORTING ────────────────────────────────────────────── */}
-      <section className="py-16 sm:py-24 bg-slate-50 border-y border-slate-100 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-            <div className="text-center lg:text-left">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 text-violet-700 text-xs font-semibold rounded-full border border-violet-100 mb-6">
-                ✦ New — Expense Reporting
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-5">
-                Staff expense claims —{" "}
-                <span className="bg-gradient-to-r from-violet-600 to-rose-500 bg-clip-text text-transparent">
-                  approved in seconds
-                </span>
-              </h2>
-              <p className="text-slate-500 text-lg leading-relaxed mb-8">
-                Your team submits expense claims with receipts attached. You review and approve with one click. Every approved claim flows directly into your books — no manual journal entries, ever.
-              </p>
-              <div className="space-y-5 mb-8">
-                {[
-                  { icon: <FolderOpen className="w-4 h-4 text-violet-600" />, bg: "bg-violet-50 border-violet-100", title: "Simple expense claims, built for Nigerian teams", desc: "Staff submit claims with expense type, amount, and receipt. No paperwork, no spreadsheets — everything tracked in one place." },
-                  { icon: <CheckCircle className="w-4 h-4 text-emerald-600" />, bg: "bg-emerald-50 border-emerald-100", title: "Approve, return, or reject", desc: "Accountants review each claim, add a reason if returning, and notify staff instantly by email and bell." },
-                  { icon: <BookOpen className="w-4 h-4 text-blue-600" />, bg: "bg-blue-50 border-blue-100", title: "Auto-posts to your books", desc: "Approval triggers a journal entry. P&L and Balance Sheet update automatically. Nothing falls through the cracks." },
-                ].map(f => (
-                  <div key={f.title} className="flex gap-4 text-left">
-                    <div className={`w-9 h-9 ${f.bg} rounded-xl flex items-center justify-center flex-shrink-0 border mt-0.5`}>
-                      {f.icon}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-slate-800 mb-0.5">{f.title}</p>
-                      <p className="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                <Link to="/register" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-violet-600/25 hover:scale-[1.02] transition-all text-sm">
-                  Try Expense Reporting Free <ArrowRight className="w-4 h-4" />
-                </Link>
-                <div className="inline-flex items-center gap-2 px-4 py-3 bg-white text-slate-600 text-sm font-medium rounded-xl border border-slate-200 shadow-sm">
-                  <Lock className="w-3.5 h-3.5 text-violet-500" /> Accountant Pro plan
-                </div>
-              </div>
-            </div>
-            <div className="mt-6 lg:mt-0 flex justify-center">
-              <MockExpenseClaim />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── FEATURES GRID ────────────────────────────────────────────────── */}
-      <section id="features" className="py-24 bg-slate-50 border-y border-slate-100">
+      {/* ── EVERYTHING ELSE YOU NEED ─────────────────────────────────────── */}
+      <section id="features" className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Everything you need. Nothing you don't.</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">Built for SMEs, freelancers, agencies, and accountants who need financial clarity without complexity.</p>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100 mb-5">
+              Everything included
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Everything else you need</h2>
+            <p className="text-slate-500 max-w-xl mx-auto">All the tools to run your business finances — without the complexity.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {features.map(f => (
-              <div key={f.title} className={`relative bg-white rounded-2xl p-5 border transition-all hover:shadow-md hover:-translate-y-0.5 ${
-                f.highlight ? "border-blue-300 shadow-md ring-1 ring-blue-100" : "border-slate-200 shadow-sm"
-              }`}>
-                {f.highlight && (
-                  <span className="absolute top-3 right-3 text-xs font-bold px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full border border-blue-200">★ Unique</span>
-                )}
-                <div className={`w-10 h-10 ${f.bg} rounded-xl flex items-center justify-center mb-4 border border-slate-100`}>{f.icon}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              {
+                icon: <BookOpen className="w-5 h-5 text-blue-600" />,
+                bg: "bg-blue-50",
+                title: "Full Accounting",
+                desc: "Chart of accounts, journal entries, profit & loss, balance sheet. Real accounting tools — simple enough for any business owner to understand.",
+              },
+              {
+                icon: <Landmark className="w-5 h-5 text-emerald-600" />,
+                bg: "bg-emerald-50",
+                title: "FIRS Tax Compliance",
+                desc: "VAT and WHT calculated automatically on every invoice. One-click export to file with FIRS. No scrambling at tax time.",
+              },
+              {
+                icon: <Receipt className="w-5 h-5 text-violet-600" />,
+                bg: "bg-violet-50",
+                title: "Expense Reporting",
+                desc: "Staff submit claims with receipts attached. You approve in one click. Every approval flows straight into your books — automatically.",
+              },
+              {
+                icon: <TrendingUp className="w-5 h-5 text-rose-600" />,
+                bg: "bg-rose-50",
+                title: "Financial Reports",
+                desc: "Trial Balance, P&L, Balance Sheet — clear reports that show exactly where your business stands, any time you need them.",
+              },
+              {
+                icon: <Users className="w-5 h-5 text-teal-600" />,
+                bg: "bg-teal-50",
+                title: "Team Access & Roles",
+                desc: "Add your accountant, bookkeeper, or staff. Everyone sees exactly what they need — and nothing else.",
+              },
+              {
+                icon: <Layers className="w-5 h-5 text-amber-600" />,
+                bg: "bg-amber-50",
+                title: "Project & Client Tracking",
+                desc: "Group invoices by project. Know what each client owes you and how much you've earned per engagement.",
+              },
+            ].map(f => (
+              <div key={f.title} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group">
+                <div className={`w-10 h-10 ${f.bg} rounded-xl flex items-center justify-center mb-4 border border-slate-100 group-hover:scale-110 transition-transform`}>{f.icon}</div>
                 <h3 className="font-bold text-slate-900 text-sm mb-1.5 leading-snug">{f.title}</h3>
                 <p className="text-xs text-slate-500 leading-relaxed">{f.desc}</p>
               </div>
@@ -1408,158 +1121,181 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── PAYMENT SETUP & ONBOARDING SUPPORT ──────────────────────────── */}
-      <section className="py-20 sm:py-28 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 rounded-3xl px-6 sm:px-12 py-14 sm:py-20 shadow-2xl shadow-blue-900/40 overflow-hidden">
+      {/* ── RETAIL POS SECTION (Optional add-on for retail businesses) ──── */}
+      <section className="py-24 bg-slate-900 overflow-hidden relative">
+        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
 
-            {/* Background glows */}
-            <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="flex justify-center mb-4">
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-full text-sm font-semibold">
+              <ShoppingBag className="w-4 h-4" /> New — Optional POS for retail businesses
+            </span>
+          </div>
 
-            <div className="relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight mb-6">
+              You wake up early.<br className="hidden sm:block" />
+              You close late.<br className="hidden sm:block" />
+              <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
+                Your records should work as hard as you do.
+              </span>
+            </h2>
+            <p className="text-slate-400 text-lg leading-relaxed max-w-2xl mx-auto">
+              From Alaba Market to Computer Village, from Onitsha Main Market to your boutique on the high street —
+              every sale you make deserves to be counted. Every naira deserves a record.
+              LumiLedger POS is built for how Nigerian retail actually works.
+            </p>
+          </div>
 
-              {/* Left — copy */}
-              <div className="flex-1 text-center lg:text-left max-w-xl mx-auto lg:mx-0">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 rounded-full text-xs font-semibold mb-6 tracking-wide uppercase">
-                  <BadgeCheck className="w-3.5 h-3.5" /> Payment Setup & Onboarding Support
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              {[
+                {
+                  icon: <Barcode2 className="w-5 h-5 text-orange-400" />,
+                  bg: "bg-orange-500/15 border-orange-500/20",
+                  title: "Barcode scan or quick search",
+                  desc: "Scan any product with a barcode scanner or search by name. Your checkout moves as fast as your customer's patience — and faster than your competition.",
+                },
+                {
+                  icon: <Package2 className="w-5 h-5 text-blue-400" />,
+                  bg: "bg-blue-500/15 border-blue-500/20",
+                  title: "Stock deducts automatically",
+                  desc: "Every sale reduces your stock count in real time. No more end-of-day counting nightmares. Know exactly what you have — right now, not tomorrow morning.",
+                },
+                {
+                  icon: <PrinterIcon className="w-5 h-5 text-emerald-400" />,
+                  bg: "bg-emerald-500/15 border-emerald-500/20",
+                  title: "Print receipts + send by email",
+                  desc: "Connect any 80mm thermal printer via USB or Bluetooth. Print in one tap, or email a professional PDF receipt directly to your customer. No wahala.",
+                },
+                {
+                  icon: <ShieldCheck2 className="w-5 h-5 text-violet-400" />,
+                  bg: "bg-violet-500/15 border-violet-500/20",
+                  title: "Track every staff sale",
+                  desc: "Know exactly who sold what and when. Stop shrinkage before it starts. Your sales report shows staff performance so you can reward hustle and catch losses.",
+                },
+              ].map(f => (
+                <div key={f.title} className="flex gap-4">
+                  <div className={`w-11 h-11 rounded-xl ${f.bg} border flex items-center justify-center flex-shrink-0`}>
+                    {f.icon}
+                  </div>
+                  <div>
+                    <p className="font-bold text-white mb-1">{f.title}</p>
+                    <p className="text-slate-400 text-sm leading-relaxed">{f.desc}</p>
+                  </div>
                 </div>
+              ))}
 
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-5">
-                  We help you get paid —<br className="hidden sm:block" />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-emerald-300">
-                    without the setup stress
-                  </span>
-                </h2>
-
-                <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-8">
-                  No need to figure out integrations or payment systems yourself.
-                  We guide you through setting up Paystack, bank transfer, and other
-                  payment methods so your clients can pay you <em className="not-italic text-white font-medium">directly from your invoices</em>.
-                </p>
-
-                <ul className="space-y-4 mb-10 text-left">
-                  {[
-                    { icon: <CreditCard className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />, text: "Set up Paystack in minutes with guided support" },
-                    { icon: <Banknote   className="w-4 h-4 text-blue-400   flex-shrink-0 mt-0.5" />, text: "Display your bank account on every invoice automatically" },
-                    { icon: <Zap        className="w-4 h-4 text-amber-400  flex-shrink-0 mt-0.5" />, text: "Start receiving payments immediately — no technical experience needed" },
-                  ].map(({ icon, text }) => (
-                    <li key={text} className="flex items-start gap-3 text-slate-200 text-sm sm:text-base">
-                      {icon}
-                      <span>{text}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <p className="text-slate-400 text-sm mb-8 flex items-center gap-2 justify-center lg:justify-start">
-                  <Shield className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                  Available during your free trial. We make sure everything works before you start.
-                </p>
-
-                <Link
-                  to="/register"
-                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 text-white font-bold rounded-xl shadow-lg shadow-blue-700/30 hover:shadow-blue-500/40 hover:scale-[1.02] transition-all text-sm"
-                >
-                  Start Free Trial <ArrowRight className="w-4 h-4" />
+              <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                <Link to="/register"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-xl hover:scale-[1.02] transition-all text-sm">
+                  Start Selling Today <ArrowRight className="w-4 h-4" />
                 </Link>
+                <p className="flex items-center justify-center text-slate-500 text-xs">
+                  30-day free trial · No card required
+                </p>
               </div>
+            </div>
 
-              {/* Right — visual mock */}
-              <div className="flex-shrink-0 w-full max-w-xs sm:max-w-sm mx-auto lg:mx-0">
-                <div className="relative">
-                  {/* Phone frame */}
-                  <div className="relative mx-auto w-64 sm:w-72">
-                    {/* Glow behind phone */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-blue-500/20 rounded-3xl blur-2xl scale-110" />
+            <div className="relative">
+              <div className="absolute -inset-6 bg-gradient-to-br from-blue-600/20 to-orange-600/10 rounded-3xl blur-2xl" />
+              <div className="relative bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-2xl">
+                <div className="flex items-center gap-2 px-4 py-3 bg-slate-900/80 border-b border-slate-700">
+                  <div className="w-3 h-3 rounded-full bg-rose-500" />
+                  <div className="w-3 h-3 rounded-full bg-amber-500" />
+                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                  <span className="ml-2 text-xs text-slate-500 font-medium">LumiLedger — Point of Sale</span>
+                </div>
 
-                    <div className="relative bg-slate-800 rounded-3xl border border-slate-700/60 shadow-2xl overflow-hidden">
-                      {/* Phone notch */}
-                      <div className="flex justify-center pt-3 pb-2">
-                        <div className="w-20 h-1.5 bg-slate-700 rounded-full" />
+                <div className="p-4 space-y-3">
+                  <div className="flex items-center gap-2 bg-slate-900 rounded-xl px-3 py-2 border border-slate-600">
+                    <Search className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+                    <span className="text-slate-400 text-xs">Search products or scan barcode…</span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { name: "Samsung Charger", price: "₦3,500", stock: 12, active: true },
+                      { name: "Screen Protector", price: "₦1,200", stock: 45, active: false },
+                      { name: "Power Bank 20K", price: "₦18,500", stock: 6, active: true },
+                      { name: "Type-C Cable", price: "₦800", stock: 80, active: false },
+                      { name: "Earphones", price: "₦5,000", stock: 0, active: false },
+                      { name: "Phone Case", price: "₦2,200", stock: 23, active: false },
+                    ].map((p, i) => (
+                      <div key={i} className={`rounded-xl p-2.5 border text-center ${
+                        p.stock === 0 ? "opacity-40 border-slate-700 bg-slate-800/50" :
+                        p.active ? "border-blue-500/60 bg-blue-500/15 shadow-md shadow-blue-500/20" :
+                        "border-slate-700 bg-slate-800/80 hover:border-slate-600"
+                      }`}>
+                        <p className="text-white text-[10px] font-semibold leading-tight mb-1">{p.name}</p>
+                        <p className="text-blue-400 text-[11px] font-bold">{p.price}</p>
+                        <p className="text-slate-500 text-[9px] mt-0.5">{p.stock > 0 ? `${p.stock} left` : "Out of stock"}</p>
                       </div>
+                    ))}
+                  </div>
 
-                      {/* Screen */}
-                      <div className="px-4 pb-6 space-y-3">
-                        {/* App header */}
-                        <div className="flex items-center justify-between py-2 border-b border-slate-700/60">
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md flex items-center justify-center">
-                              <FileText className="w-3 h-3 text-white" />
-                            </div>
-                            <span className="text-white text-xs font-bold">LumiLedger</span>
-                          </div>
-                          <Smartphone className="w-3.5 h-3.5 text-slate-500" />
+                  <div className="bg-slate-900 rounded-xl border border-slate-700 p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-slate-400 text-xs font-semibold uppercase tracking-wide">Cart</p>
+                      <span className="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full">3 items</span>
+                    </div>
+                    {[
+                      { name: "Samsung Charger", qty: 2, total: "₦7,000" },
+                      { name: "Power Bank 20K", qty: 1, total: "₦18,500" },
+                    ].map(c => (
+                      <div key={c.name} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 bg-blue-500/20 rounded text-blue-400 text-[9px] font-bold flex items-center justify-center">{c.qty}×</div>
+                          <span className="text-slate-300 text-[10px]">{c.name}</span>
                         </div>
-
-                        {/* Payment received notification card */}
-                        <div className="bg-emerald-500/15 border border-emerald-500/30 rounded-2xl p-3.5">
-                          <div className="flex items-start gap-2.5">
-                            <div className="w-8 h-8 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/30">
-                              <CheckCircle className="w-4 h-4 text-white" />
-                            </div>
-                            <div>
-                              <p className="text-emerald-300 text-xs font-bold">Payment Received!</p>
-                              <p className="text-white text-xs font-semibold mt-0.5">₦550,000</p>
-                              <p className="text-slate-400 text-[11px] mt-0.5">Phoenix Plus — Web Redesign</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Invoice status row */}
-                        <div className="bg-slate-700/50 rounded-xl p-3 flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Receipt className="w-3.5 h-3.5 text-slate-400" />
-                            <span className="text-slate-300 text-xs">INV-0042</span>
-                          </div>
-                          <span className="text-xs font-bold px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30">
-                            PAID
-                          </span>
-                        </div>
-
-                        {/* Paystack row */}
-                        <div className="bg-slate-700/50 rounded-xl p-3 flex items-center gap-2.5">
-                          <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
-                            <span className="text-[10px] font-extrabold text-blue-700">P</span>
-                          </div>
-                          <div>
-                            <p className="text-slate-200 text-xs font-semibold">Paystack</p>
-                            <p className="text-slate-500 text-[11px]">Connected &amp; ready</p>
-                          </div>
-                          <div className="ml-auto w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/60" />
-                        </div>
-
-                        {/* Bank row */}
-                        <div className="bg-slate-700/50 rounded-xl p-3 flex items-center gap-2.5">
-                          <Banknote className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                          <div>
-                            <p className="text-slate-200 text-xs font-semibold">Bank Transfer</p>
-                            <p className="text-slate-500 text-[11px]">GTBank • 0123456789</p>
-                          </div>
-                          <div className="ml-auto w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/60" />
-                        </div>
+                        <span className="text-white text-[10px] font-bold">{c.total}</span>
                       </div>
+                    ))}
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-700">
+                      <span className="text-slate-300 text-xs font-bold">Total</span>
+                      <span className="text-blue-400 text-sm font-extrabold">₦25,500</span>
                     </div>
                   </div>
 
-                  {/* Floating "just received" badge */}
-                  <div className="absolute -top-3 -right-2 sm:-right-6 bg-white rounded-xl shadow-xl px-3 py-2 flex items-center gap-2 border border-slate-100">
-                    <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
-                      <CheckCircle className="w-3.5 h-3.5 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-800 leading-none">Payment confirmed</p>
-                      <p className="text-[10px] text-slate-400 leading-none mt-0.5">Just now</p>
-                    </div>
+                  <button className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30">
+                    <CheckCircle className="w-3.5 h-3.5" /> Charge ₦25,500
+                  </button>
+                </div>
+
+                <div className="absolute -right-3 -bottom-3 bg-white rounded-xl shadow-2xl px-3 py-2 flex items-center gap-2 border border-slate-100">
+                  <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <CheckCircle className="w-3.5 h-3.5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-800 leading-none">Sale complete!</p>
+                    <p className="text-[10px] text-slate-400 leading-none mt-0.5">Receipt printed & sent</p>
                   </div>
                 </div>
-              </div>
 
+                <div className="absolute -left-4 top-24 bg-amber-500 text-white rounded-xl shadow-xl px-3 py-2 text-[10px] font-bold leading-tight border border-amber-400 max-w-[130px]">
+                  ⚠ Low stock alert<br/>
+                  <span className="font-normal opacity-90">Power Bank: 6 left</span>
+                </div>
+              </div>
             </div>
+          </div>
+
+          <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { value: "< 3s", label: "Average checkout time" },
+              { value: "80mm", label: "Thermal printer ready" },
+              { value: "Real-time", label: "Stock tracking" },
+              { value: "Zero", label: "Manual counting needed" },
+            ].map(s => (
+              <div key={s.label} className="text-center p-4 bg-white/5 rounded-2xl border border-white/10">
+                <p className="text-2xl font-extrabold text-white mb-1">{s.value}</p>
+                <p className="text-slate-500 text-xs">{s.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
-
-
 
       {/* ── FINAL CTA ────────────────────────────────────────────────────── */}
       <section className="py-24 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1571,14 +1307,17 @@ export default function Landing() {
               {Array.from({ length: 5 }, (_, i) => <Star key={i} className="w-5 h-5 text-amber-300 fill-amber-300" />)}
             </div>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-5 leading-tight">
-              Take control of your<br />business finances today
+              Know exactly what your<br />business owes you — today
             </h2>
-            <p className="text-blue-200 text-lg mb-10 leading-relaxed">
-              Join 100+ businesses already using LumiLedger to understand their money — and track what their business owes them.
+            <p className="text-blue-100 text-lg mb-4 leading-relaxed">
+              Join 100+ businesses already using LumiLedger to understand their money.
+            </p>
+            <p className="text-blue-200 text-base mb-10 leading-relaxed font-medium">
+              See what your business owes you in under 2 minutes.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-700 font-extrabold rounded-xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all text-base">
-                Start Using LumiLedger <ArrowRight className="w-5 h-5" />
+                Start Free Trial <ArrowRight className="w-5 h-5" />
               </Link>
               <a href="#how-it-works" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all text-base backdrop-blur-sm">
                 See How It Works
