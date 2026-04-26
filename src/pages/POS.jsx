@@ -4,11 +4,161 @@ import api from "../services/api";
 import {
   Search, Plus, Minus, Trash2, ShoppingCart, CheckCircle,
   X, Barcode, RefreshCw, Printer, Mail, User, Download,
+  Bluetooth, Usb, Settings, Wifi,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import {
+  printReceiptBrowser,
+  connectUSBPrinter, printReceiptUSB,
+  connectBluetoothPrinter, printReceiptBluetooth,
+  isWebUSBSupported, isWebBluetoothSupported,
+} from "../utils/thermalPrint";
 
 const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
 const PAYMENT_METHODS = ["CASH", "TRANSFER", "CARD", "POS_TERMINAL"];
+
+// ── Printer Setup Modal ───────────────────────────────────────────────────
+function PrinterSetupModal({ orgName, onClose }) {
+  const [usbDevice, setUsbDevice] = useState(null);
+  const [btConn, setBtConn] = useState(null);
+  const [status, setStatus] = useState("");
+  const [connecting, setConnecting] = useState(false);
+
+  const handleConnectUSB = async () => {
+    setConnecting(true);
+    setStatus("");
+    try {
+      const device = await connectUSBPrinter();
+      setUsbDevice(device);
+      setStatus("USB printer connected: " + (device.productName || "Thermal Printer"));
+    } catch (e) {
+      setStatus("USB error: " + e.message);
+    } finally { setConnecting(false); }
+  };
+
+  const handleConnectBT = async () => {
+    setConnecting(true);
+    setStatus("");
+    try {
+      const conn = await connectBluetoothPrinter();
+      setBtConn(conn);
+      setStatus("Bluetooth printer connected: " + conn.device.name);
+    } catch (e) {
+      setStatus("Bluetooth error: " + e.message);
+    } finally { setConnecting(false); }
+  };
+
+  const handleTestPrint = async () => {
+    const testReceipt = {
+      receiptNumber: "TEST-001", saleDate: new Date().toISOString(),
+      paymentMethod: "CASH", customerName: "Test Customer",
+      total: 5000, discount: 0,
+      items: [{ productName: "Test Item", quantity: 1, unitPrice: 5000, subtotal: 5000 }],
+    };
+    if (usbDevice) {
+      try { await printReceiptUSB(usbDevice, testReceipt, orgName); setStatus("Test print sent to USB printer."); }
+      catch (e) { setStatus("Print error: " + e.message); }
+    } else if (btConn) {
+      try { await printReceiptBluetooth(btConn, testReceipt, orgName); setStatus("Test print sent to Bluetooth printer."); }
+      catch (e) { setStatus("Print error: " + e.message); }
+    } else {
+      printReceiptBrowser(testReceipt, orgName);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-6">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg">
+              <Printer className="w-4 h-4 text-white" />
+            </div>
+            <h3 className="text-base font-semibold text-slate-900 dark:text-white">Printer Setup</h3>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Connection status */}
+        {(usbDevice || btConn) && (
+          <div className="mb-4 flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+            <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <p className="text-sm text-emerald-700 dark:text-emerald-300">{status || "Printer connected"}</p>
+          </div>
+        )}
+        {status && !usbDevice && !btConn && (
+          <div className="mb-4 p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl text-sm text-rose-600 dark:text-rose-300">{status}</div>
+        )}
+
+        <div className="space-y-3">
+          {/* Browser Print */}
+          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Wifi className="w-4 h-4 text-blue-600" />
+                <p className="text-sm font-semibold text-slate-800 dark:text-white">Browser Print</p>
+                <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-semibold">Recommended</span>
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 mb-3">Works with any thermal printer set as your default printer (80mm paper). No setup needed.</p>
+            <button onClick={handleTestPrint}
+              className="w-full py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition">
+              Test Browser Print
+            </button>
+          </div>
+
+          {/* USB Print */}
+          {isWebUSBSupported() && (
+            <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-2 mb-2">
+                <Usb className="w-4 h-4 text-violet-600" />
+                <p className="text-sm font-semibold text-slate-800 dark:text-white">USB Direct Print</p>
+                <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-semibold">Chrome / Edge</span>
+              </div>
+              <p className="text-xs text-slate-500 mb-3">Sends ESC/POS commands directly to your USB thermal printer. No print dialog.</p>
+              <button onClick={handleConnectUSB} disabled={connecting}
+                className={`w-full py-2 rounded-lg text-sm font-semibold transition ${
+                  usbDevice ? "bg-emerald-100 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}>
+                {connecting ? "Connecting…" : usbDevice ? "Reconnect USB Printer" : "Connect USB Printer"}
+              </button>
+            </div>
+          )}
+
+          {/* Bluetooth Print */}
+          {isWebBluetoothSupported() && (
+            <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-2 mb-2">
+                <Bluetooth className="w-4 h-4 text-blue-500" />
+                <p className="text-sm font-semibold text-slate-800 dark:text-white">Bluetooth Printer</p>
+                <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-semibold">Chrome / Edge</span>
+              </div>
+              <p className="text-xs text-slate-500 mb-3">Connects to BLE thermal printers wirelessly. Perfect for cordless checkout.</p>
+              <button onClick={handleConnectBT} disabled={connecting}
+                className={`w-full py-2 rounded-lg text-sm font-semibold transition ${
+                  btConn ? "bg-emerald-100 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}>
+                {connecting ? "Connecting…" : btConn ? "Reconnect Bluetooth" : "Connect Bluetooth Printer"}
+              </button>
+            </div>
+          )}
+        </div>
+
+        <p className="text-xs text-slate-400 mt-4 text-center">
+          For USB/BT direct printing: requires Chrome or Edge browser.
+        </p>
+
+        <div className="mt-4 flex justify-end">
+          <button onClick={onClose} className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition">
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function POS() {
   const [products, setProducts]     = useState([]);
@@ -23,15 +173,22 @@ export default function POS() {
   const [processing, setProcessing] = useState(false);
   const [lastReceipt, setLastReceipt] = useState(null);
   const [toast, setToast]           = useState({ visible: false, message: "", type: "info" });
+  const [showPrinterSetup, setShowPrinterSetup] = useState(false);
+  const [usbDevice, setUsbDevice]   = useState(null);
+  const [btConn, setBtConn]         = useState(null);
+  const [orgName, setOrgName]       = useState("My Shop");
   const barcodeRef                  = useRef(null);
 
   const notify = (message, type = "success") => setToast({ visible: true, message, type });
 
-  // Load all products on mount
+  // Load all products on mount + org name
   useEffect(() => {
     api.get("/api/inventory/products?page=0&size=200")
       .then(r => setProducts(r.data.content || []))
       .catch(() => {});
+    api.get("/api/org/settings").then(r => {
+      if (r.data?.name) setOrgName(r.data.name);
+    }).catch(() => {});
   }, []);
 
   // Live search
@@ -101,6 +258,18 @@ export default function POS() {
   const clearSale = () => {
     setCart([]); setDiscount(""); setMethod("CASH");
     setCustName(""); setCustEmail(""); setNotes("");
+  };
+
+  const handlePrint = async (receipt) => {
+    if (usbDevice) {
+      try { await printReceiptUSB(usbDevice, receipt, orgName); notify("Printed to USB printer"); return; }
+      catch { notify("USB print failed, using browser print", "info"); }
+    }
+    if (btConn) {
+      try { await printReceiptBluetooth(btConn, receipt, orgName); notify("Printed to Bluetooth printer"); return; }
+      catch { notify("Bluetooth print failed, using browser print", "info"); }
+    }
+    printReceiptBrowser(receipt, orgName);
   };
 
   const downloadReceipt = (receipt) => {
@@ -179,9 +348,20 @@ export default function POS() {
 
         {/* LEFT — Product search */}
         <div className="lg:col-span-3 space-y-4">
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <ShoppingCart className="w-5 h-5 text-blue-600" /> Point of Sale
-          </h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <ShoppingCart className="w-5 h-5 text-blue-600" /> Point of Sale
+            </h1>
+            <button onClick={() => setShowPrinterSetup(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
+                usbDevice || btConn
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                  : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300"
+              }`}>
+              <Printer className="w-3.5 h-3.5" />
+              {usbDevice ? "USB Printer" : btConn ? "BT Printer" : "Setup Printer"}
+            </button>
+          </div>
 
           {/* Barcode scanner input */}
           <div className="flex gap-3">
@@ -345,6 +525,14 @@ export default function POS() {
         </div>
       </div>
 
+      {/* Printer Setup Modal */}
+      {showPrinterSetup && (
+        <PrinterSetupModal
+          orgName={orgName}
+          onClose={() => setShowPrinterSetup(false)}
+        />
+      )}
+
       {/* Receipt modal */}
       {lastReceipt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
@@ -370,16 +558,20 @@ export default function POS() {
                 </p>
               )}
             </div>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <button onClick={() => handlePrint(lastReceipt)}
+                className="py-2.5 bg-slate-800 dark:bg-slate-700 text-white rounded-xl font-semibold text-sm hover:bg-slate-700 transition flex items-center justify-center gap-1.5">
+                <Printer className="w-4 h-4" /> Print
+              </button>
               <button onClick={() => downloadReceipt(lastReceipt)}
-                className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-semibold text-sm hover:bg-slate-200 dark:hover:bg-slate-600 transition flex items-center justify-center gap-1.5">
+                className="py-2.5 bg-slate-100 dark:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-semibold text-sm hover:bg-slate-200 transition flex items-center justify-center gap-1.5">
                 <Download className="w-4 h-4" /> Download
               </button>
-              <button onClick={() => setLastReceipt(null)}
-                className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700 transition">
-                New Sale
-              </button>
             </div>
+            <button onClick={() => setLastReceipt(null)}
+              className="w-full py-2.5 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700 transition">
+              New Sale
+            </button>
           </div>
         </div>
       )}
