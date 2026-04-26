@@ -1,5 +1,6 @@
 // POS.jsx — Point of Sale terminal
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import api from "../services/api";
 import {
   Search, Plus, Minus, Trash2, ShoppingCart, CheckCircle,
@@ -17,8 +18,23 @@ import {
 const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
 const PAYMENT_METHODS = ["CASH", "TRANSFER", "CARD", "POS_TERMINAL"];
 
+// ── Scroll lock that preserves scrollTop so Chrome positions choosers correctly
+function useScrollLock() {
+  useEffect(() => {
+    const y = window.scrollY;
+    const prev = document.body.style.cssText;
+    document.body.style.cssText =
+      `position:fixed;top:-${y}px;width:100%;overflow-y:scroll`;
+    return () => {
+      document.body.style.cssText = prev;
+      window.scrollTo(0, y);
+    };
+  }, []);
+}
+
 // ── Printer Setup Modal ───────────────────────────────────────────────────
 function PrinterSetupModal({ orgName, onClose }) {
+  useScrollLock();
   const [usbDevice, setUsbDevice]   = useState(null);
   const [btConn, setBtConn]         = useState(null);
   const [connectingType, setConnectingType] = useState(null); // "usb" | "bt" | "test" | null
@@ -83,7 +99,7 @@ function PrinterSetupModal({ orgName, onClose }) {
   const isConnected = usbDevice || btConn;
   const isBusy = connectingType !== null;
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <div style={{
@@ -228,7 +244,8 @@ function PrinterSetupModal({ orgName, onClose }) {
         </div>
 
       </div>
-    </>
+    </>,
+    document.body
   );
 }
 
