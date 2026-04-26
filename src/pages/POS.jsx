@@ -88,141 +88,106 @@ function PrinterSetupModal({ orgName, onClose }) {
       {/* Backdrop */}
       <div style={{
         position: "fixed", inset: 0, zIndex: 9998,
-        background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)",
+        background: "rgba(0,0,0,0.5)",
       }} onClick={!isBusy ? onClose : undefined} />
 
-      {/* Card — pinned to exact center of viewport */}
+      {/* Card */}
       <div style={{
         position: "fixed",
         top: "50%", left: "50%",
         transform: "translate(-50%, -50%)",
         zIndex: 9999,
-        width: "calc(100% - 2rem)",
-        maxWidth: "400px",
-        maxHeight: "85vh",
-        overflowY: "auto",
-        borderRadius: "1rem",
+        width: "280px",
+        borderRadius: "12px",
         background: "#fff",
-        boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
         border: "1px solid #e2e8f0",
       }}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-slate-100">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-blue-600 rounded-lg">
-              <Printer className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900">Printer Setup</h3>
-              <p className="text-xs text-slate-400">Connect a thermal printer</p>
-            </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 12px", borderBottom: "1px solid #f1f5f9" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Printer size={15} style={{ color: "#2563eb" }} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>Printer Setup</span>
           </div>
-          <button onClick={onClose} disabled={isBusy}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition disabled:opacity-40">
-            <X size={15} />
+          <button onClick={onClose} disabled={isBusy} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: 2, opacity: isBusy ? 0.4 : 1 }}>
+            <X size={14} />
           </button>
         </div>
 
-        <div className="px-5 py-4 space-y-3">
+        <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
 
-          {/* Status banner */}
+          {/* Status */}
           {isBusy && connectStep && (
-            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0" />
-              <p className="text-xs text-blue-700 font-medium">{connectStep}</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: "#eff6ff", borderRadius: 8, border: "1px solid #bfdbfe" }}>
+              <div style={{ width: 12, height: 12, border: "2px solid #2563eb", borderTopColor: "transparent", borderRadius: "50%", flexShrink: 0, animation: "spin 0.7s linear infinite" }} />
+              <span style={{ fontSize: 11, color: "#1d4ed8", fontWeight: 500 }}>{connectStep}</span>
             </div>
           )}
-          {!isBusy && connectStep && isConnected && (
-            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-emerald-50 border border-emerald-200 rounded-lg">
-              <CheckCircle className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-              <p className="text-xs text-emerald-700 font-medium">{connectStep}</p>
+          {!isBusy && isConnected && connectStep && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: "#f0fdf4", borderRadius: 8, border: "1px solid #bbf7d0" }}>
+              <CheckCircle size={12} style={{ color: "#16a34a", flexShrink: 0 }} />
+              <span style={{ fontSize: 11, color: "#15803d", fontWeight: 500 }}>{connectStep}</span>
             </div>
           )}
           {error && (
-            <div className="flex items-start gap-2.5 px-3 py-2.5 bg-rose-50 border border-rose-200 rounded-lg">
-              <X className="w-3.5 h-3.5 text-rose-500 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-rose-600">{error}</p>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 10px", background: "#fff1f2", borderRadius: 8, border: "1px solid #fecdd3" }}>
+              <X size={12} style={{ color: "#e11d48", flexShrink: 0, marginTop: 1 }} />
+              <span style={{ fontSize: 11, color: "#be123c" }}>{error}</span>
             </div>
           )}
 
-          {/* Browser Print */}
-          <div className={`p-3.5 rounded-xl border-2 transition-all ${!isConnected ? "border-blue-200 bg-blue-50" : "border-slate-100 bg-slate-50"}`}>
-            <div className="flex items-center gap-2 mb-2.5">
-              <Wifi className="w-4 h-4 text-blue-600 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <p className="text-xs font-semibold text-slate-900">Browser Print</p>
-                  <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">Works everywhere</span>
-                </div>
-                <p className="text-[11px] text-slate-500">Any default printer — no setup needed</p>
-              </div>
-            </div>
-            <button onClick={handleTestPrint} disabled={isBusy}
-              className="w-full py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition disabled:opacity-50">
-              {connectingType === "test" ? "Sending…" : "Test Print"}
-            </button>
-          </div>
+          {/* Buttons */}
+          <button onClick={handleTestPrint} disabled={isBusy} style={{
+            display: "flex", alignItems: "center", gap: 8, width: "100%",
+            padding: "9px 12px", borderRadius: 8, border: "1px solid #dbeafe",
+            background: "#eff6ff", cursor: isBusy ? "not-allowed" : "pointer",
+            opacity: isBusy ? 0.5 : 1, textAlign: "left",
+          }}>
+            <Wifi size={13} style={{ color: "#2563eb", flexShrink: 0 }} />
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}>
+              {connectingType === "test" ? "Sending…" : "Test Print (Browser)"}
+            </span>
+          </button>
 
-          {/* USB Print */}
           {isWebUSBSupported() && (
-            <div className={`p-3.5 rounded-xl border-2 transition-all ${usbDevice ? "border-emerald-300 bg-emerald-50" : "border-slate-100 bg-white"}`}>
-              <div className="flex items-center gap-2 mb-2.5">
-                <Usb className={`w-4 h-4 flex-shrink-0 ${usbDevice ? "text-emerald-600" : "text-violet-600"}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-xs font-semibold text-slate-900">USB Direct</p>
-                    {usbDevice
-                      ? <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">Connected</span>
-                      : <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">Chrome/Edge only</span>}
-                  </div>
-                  <p className="text-[11px] text-slate-500">
-                    {usbDevice ? (usbDevice.productName || "USB Printer") : "ESC/POS direct to USB printer"}
-                  </p>
-                </div>
-              </div>
-              <button onClick={handleConnectUSB} disabled={isBusy}
-                className={`w-full py-1.5 rounded-lg text-xs font-semibold transition disabled:opacity-50 ${
-                  usbDevice ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200"
-                            : "bg-violet-600 text-white hover:bg-violet-700"}`}>
-                {connectingType === "usb" ? "Connecting…" : usbDevice ? "Reconnect USB" : "Connect USB Printer"}
-              </button>
-            </div>
+            <button onClick={handleConnectUSB} disabled={isBusy} style={{
+              display: "flex", alignItems: "center", gap: 8, width: "100%",
+              padding: "9px 12px", borderRadius: 8, border: usbDevice ? "1px solid #bbf7d0" : "1px solid #e9d5ff",
+              background: usbDevice ? "#f0fdf4" : "#faf5ff", cursor: isBusy ? "not-allowed" : "pointer",
+              opacity: isBusy ? 0.5 : 1, textAlign: "left",
+            }}>
+              <Usb size={13} style={{ color: usbDevice ? "#16a34a" : "#7c3aed", flexShrink: 0 }} />
+              <span style={{ fontSize: 12, fontWeight: 600, color: usbDevice ? "#15803d" : "#6d28d9" }}>
+                {connectingType === "usb" ? "Connecting…" : usbDevice ? `USB: ${usbDevice.productName || "Connected"}` : "Connect USB Printer"}
+              </span>
+            </button>
           )}
 
-          {/* Bluetooth Print */}
           {isWebBluetoothSupported() && (
-            <div className={`p-3.5 rounded-xl border-2 transition-all ${btConn ? "border-emerald-300 bg-emerald-50" : "border-slate-100 bg-white"}`}>
-              <div className="flex items-center gap-2 mb-2.5">
-                <Bluetooth className={`w-4 h-4 flex-shrink-0 ${btConn ? "text-emerald-600" : "text-blue-500"}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-xs font-semibold text-slate-900">Bluetooth</p>
-                    {btConn
-                      ? <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">Connected</span>
-                      : <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">Chrome/Edge only</span>}
-                  </div>
-                  <p className="text-[11px] text-slate-500">
-                    {btConn ? (btConn.device.name || "BT Printer") : "Wireless BLE thermal printer"}
-                  </p>
-                </div>
-              </div>
-              <button onClick={handleConnectBT} disabled={isBusy}
-                className={`w-full py-1.5 rounded-lg text-xs font-semibold transition disabled:opacity-50 ${
-                  btConn ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200"
-                         : "bg-blue-600 text-white hover:bg-blue-700"}`}>
-                {connectingType === "bt" ? "Connecting…" : btConn ? "Reconnect Bluetooth" : "Connect Bluetooth"}
-              </button>
-            </div>
+            <button onClick={handleConnectBT} disabled={isBusy} style={{
+              display: "flex", alignItems: "center", gap: 8, width: "100%",
+              padding: "9px 12px", borderRadius: 8, border: btConn ? "1px solid #bbf7d0" : "1px solid #bfdbfe",
+              background: btConn ? "#f0fdf4" : "#f0f9ff", cursor: isBusy ? "not-allowed" : "pointer",
+              opacity: isBusy ? 0.5 : 1, textAlign: "left",
+            }}>
+              <Bluetooth size={13} style={{ color: btConn ? "#16a34a" : "#2563eb", flexShrink: 0 }} />
+              <span style={{ fontSize: 12, fontWeight: 600, color: btConn ? "#15803d" : "#1d4ed8" }}>
+                {connectingType === "bt" ? "Connecting…" : btConn ? `BT: ${btConn.device.name || "Connected"}` : "Connect Bluetooth"}
+              </span>
+            </button>
           )}
 
         </div>
 
         {/* Footer */}
-        <div className="px-5 pb-5 flex items-center justify-between">
-          <p className="text-[10px] text-slate-400">USB/BT: Chrome or Edge only</p>
-          <button onClick={onClose} disabled={isBusy}
-            className="px-4 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition disabled:opacity-40">
+        <div style={{ padding: "8px 16px 14px", display: "flex", justifyContent: "flex-end" }}>
+          <button onClick={onClose} disabled={isBusy} style={{
+            padding: "6px 16px", fontSize: 12, fontWeight: 600,
+            color: "#475569", background: "#f1f5f9", border: "none",
+            borderRadius: 8, cursor: isBusy ? "not-allowed" : "pointer",
+            opacity: isBusy ? 0.4 : 1,
+          }}>
             {isConnected ? "Done" : "Cancel"}
           </button>
         </div>
