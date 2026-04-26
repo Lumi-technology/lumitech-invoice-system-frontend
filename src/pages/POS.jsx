@@ -85,21 +85,26 @@ function PrinterSetupModal({ orgName, onClose }) {
   const isBusy = connectingType !== null;
 
   return createPortal(
-    /* Single flex overlay — NO overflow here, card scrolls internally */
     <div style={{
-      position: "fixed", inset: 0, zIndex: 9999,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      padding: "1rem",
-      background: "rgba(0,0,0,0.55)",
+      position: "fixed",
+      top: 0, left: 0, right: 0, bottom: 0,
+      zIndex: 9999,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(0,0,0,0.55)",
+      padding: "16px",
     }} onClick={!isBusy ? onClose : undefined}>
       <div style={{
-        width: "100%", maxWidth: "380px",
-        maxHeight: "calc(100vh - 2rem)",
+        width: "100%",
+        maxWidth: "380px",
+        maxHeight: "calc(100vh - 32px)",
         overflowY: "auto",
         borderRadius: "12px",
-        background: "#fff",
+        backgroundColor: "#ffffff",
         boxShadow: "0 8px 40px rgba(0,0,0,0.22)",
         border: "1px solid #e2e8f0",
+        flexShrink: 0,
       }} onClick={e => e.stopPropagation()}>
 
         {/* Header */}
