@@ -908,7 +908,7 @@ export default function Landing() {
               </p>
               <div className="space-y-5 mb-8">
                 {[
-                  { icon: <FolderOpen className="w-4 h-4 text-violet-600" />, bg: "bg-violet-50 border-violet-100", title: "SAP Concur-style claim flow", desc: "Staff create claims, pick expense types (Taxi, Hotel, Meals…), attach receipts, and submit for review." },
+                  { icon: <FolderOpen className="w-4 h-4 text-violet-600" />, bg: "bg-violet-50 border-violet-100", title: "Simple expense claims, built for Nigerian teams", desc: "Staff submit claims with expense type, amount, and receipt. No paperwork, no spreadsheets — everything tracked in one place." },
                   { icon: <CheckCircle className="w-4 h-4 text-emerald-600" />, bg: "bg-emerald-50 border-emerald-100", title: "Approve, return, or reject", desc: "Accountants review each claim, add a reason if returning, and notify staff instantly by email and bell." },
                   { icon: <BookOpen className="w-4 h-4 text-blue-600" />, bg: "bg-blue-50 border-blue-100", title: "Auto-posts to your books", desc: "Approval triggers a journal entry. P&L and Balance Sheet update automatically. Nothing falls through the cracks." },
                 ].map(f => (

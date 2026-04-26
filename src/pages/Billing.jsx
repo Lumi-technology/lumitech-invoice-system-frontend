@@ -1,7 +1,7 @@
 // Billing.jsx
 import { useEffect, useState } from "react";
 import api from "../services/api";
-import { CreditCard, CheckCircle, Clock, ArrowRight, Zap, Calculator } from "lucide-react";
+import { CreditCard, CheckCircle, Clock, ArrowRight, Zap, Calculator, Shield, Lock } from "lucide-react";
 import Toast from "../components/Toast";
 import { setUserType, setRegisteredAs, USER_TYPES } from "../utils/userType";
 
@@ -339,6 +339,22 @@ function Billing() {
                 )}
                 <p className="text-center text-xs text-slate-400 mt-2">Cancel anytime.</p>
               </div>
+            </div>
+          </div>
+
+          {/* Paystack security trust line */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 py-3 px-4 bg-slate-50 border border-slate-200 rounded-2xl">
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <Lock className="w-3.5 h-3.5 text-slate-400" />
+              Secured by <span className="font-semibold text-slate-700">Paystack</span> — Nigeria's most trusted payment platform
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <Shield className="w-3.5 h-3.5 text-slate-400" />
+              Your card details are never stored by LumiLedger
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <CheckCircle className="w-3.5 h-3.5 text-slate-400" />
+              Cancel anytime — no questions asked
             </div>
           </div>
 
