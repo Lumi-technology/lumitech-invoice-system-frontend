@@ -18,23 +18,8 @@ import {
 const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
 const PAYMENT_METHODS = ["CASH", "TRANSFER", "CARD", "POS_TERMINAL"];
 
-// ── Scroll lock that preserves scrollTop so Chrome positions choosers correctly
-function useScrollLock() {
-  useEffect(() => {
-    const y = window.scrollY;
-    const prev = document.body.style.cssText;
-    document.body.style.cssText =
-      `position:fixed;top:-${y}px;width:100%;overflow-y:scroll`;
-    return () => {
-      document.body.style.cssText = prev;
-      window.scrollTo(0, y);
-    };
-  }, []);
-}
-
 // ── Printer Setup Modal ───────────────────────────────────────────────────
 function PrinterSetupModal({ orgName, onClose }) {
-  useScrollLock();
   const [usbDevice, setUsbDevice]   = useState(null);
   const [btConn, setBtConn]         = useState(null);
   const [connectingType, setConnectingType] = useState(null); // "usb" | "bt" | "test" | null
@@ -100,28 +85,22 @@ function PrinterSetupModal({ orgName, onClose }) {
   const isBusy = connectingType !== null;
 
   return createPortal(
-    <>
-      {/* Backdrop */}
+    /* Single flex overlay — NO overflow here, card scrolls internally */
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 9999,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: "1rem",
+      background: "rgba(0,0,0,0.55)",
+    }} onClick={!isBusy ? onClose : undefined}>
       <div style={{
-        position: "fixed", inset: 0, zIndex: 9998,
-        background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)",
-      }} onClick={!isBusy ? onClose : undefined} />
-
-      {/* Card — pinned to exact center of viewport */}
-      <div style={{
-        position: "fixed",
-        top: "50%", left: "50%",
-        transform: "translate(-50%, -50%)",
-        zIndex: 9999,
-        width: "calc(100% - 2rem)",
-        maxWidth: "400px",
-        maxHeight: "85vh",
+        width: "100%", maxWidth: "380px",
+        maxHeight: "calc(100vh - 2rem)",
         overflowY: "auto",
-        borderRadius: "1rem",
+        borderRadius: "12px",
         background: "#fff",
-        boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+        boxShadow: "0 8px 40px rgba(0,0,0,0.22)",
         border: "1px solid #e2e8f0",
-      }}>
+      }} onClick={e => e.stopPropagation()}>
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-slate-100">
@@ -244,7 +223,7 @@ function PrinterSetupModal({ orgName, onClose }) {
         </div>
 
       </div>
-    </>,
+    </div>,
     document.body
   );
 }
