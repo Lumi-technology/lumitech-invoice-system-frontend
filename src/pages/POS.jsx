@@ -84,142 +84,134 @@ function PrinterSetupModal({ orgName, onClose }) {
   const isBusy = connectingType !== null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto"
-         style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}>
-      <div className="flex min-h-full items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md mx-auto">
+    <>
+      {/* Backdrop */}
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 9998,
+        background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)",
+      }} onClick={!isBusy ? onClose : undefined} />
+
+      {/* Card — pinned to exact center of viewport */}
+      <div style={{
+        position: "fixed",
+        top: "50%", left: "50%",
+        transform: "translate(-50%, -50%)",
+        zIndex: 9999,
+        width: "calc(100% - 2rem)",
+        maxWidth: "400px",
+        maxHeight: "85vh",
+        overflowY: "auto",
+        borderRadius: "1rem",
+        background: "#fff",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+        border: "1px solid #e2e8f0",
+      }}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-md shadow-blue-600/20">
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-blue-600 rounded-lg">
               <Printer className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">Printer Setup</h3>
-              <p className="text-xs text-slate-400">Connect a thermal receipt printer</p>
+              <h3 className="text-sm font-bold text-slate-900">Printer Setup</h3>
+              <p className="text-xs text-slate-400">Connect a thermal printer</p>
             </div>
           </div>
           <button onClick={onClose} disabled={isBusy}
-            className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition disabled:opacity-40">
-            <X size={16} />
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition disabled:opacity-40">
+            <X size={15} />
           </button>
         </div>
 
-        <div className="px-6 py-5 space-y-4">
+        <div className="px-5 py-4 space-y-3">
 
-          {/* Progress / status banner */}
+          {/* Status banner */}
           {isBusy && connectStep && (
-            <div className="flex items-center gap-3 p-3.5 bg-blue-50 border border-blue-200 rounded-xl">
-              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0" />
-              <p className="text-sm text-blue-700 font-medium">{connectStep}</p>
+            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+              <p className="text-xs text-blue-700 font-medium">{connectStep}</p>
             </div>
           )}
           {!isBusy && connectStep && isConnected && (
-            <div className="flex items-center gap-3 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl">
-              <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <p className="text-sm text-emerald-700 font-medium">{connectStep}</p>
+            <div className="flex items-center gap-2.5 px-3 py-2.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <CheckCircle className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+              <p className="text-xs text-emerald-700 font-medium">{connectStep}</p>
             </div>
           )}
           {error && (
-            <div className="flex items-start gap-3 p-3.5 bg-rose-50 border border-rose-200 rounded-xl">
-              <X className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-rose-600">{error}</p>
+            <div className="flex items-start gap-2.5 px-3 py-2.5 bg-rose-50 border border-rose-200 rounded-lg">
+              <X className="w-3.5 h-3.5 text-rose-500 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-rose-600">{error}</p>
             </div>
           )}
 
           {/* Browser Print */}
-          <div className={`p-4 rounded-xl border-2 transition-all ${
-            !isConnected ? "border-blue-200 bg-blue-50" : "border-slate-200 bg-slate-50"
-          }`}>
-            <div className="flex items-center gap-2.5 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <Wifi className="w-4 h-4 text-blue-600" />
-              </div>
+          <div className={`p-3.5 rounded-xl border-2 transition-all ${!isConnected ? "border-blue-200 bg-blue-50" : "border-slate-100 bg-slate-50"}`}>
+            <div className="flex items-center gap-2 mb-2.5">
+              <Wifi className="w-4 h-4 text-blue-600 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold text-slate-900">Browser Print</p>
-                  <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
-                    Works everywhere
-                  </span>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs font-semibold text-slate-900">Browser Print</p>
+                  <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">Works everywhere</span>
                 </div>
-                <p className="text-xs text-slate-500 mt-0.5">Any printer set as default — no setup needed</p>
+                <p className="text-[11px] text-slate-500">Any default printer — no setup needed</p>
               </div>
             </div>
             <button onClick={handleTestPrint} disabled={isBusy}
-              className="w-full mt-1 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition disabled:opacity-50">
+              className="w-full py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition disabled:opacity-50">
               {connectingType === "test" ? "Sending…" : "Test Print"}
             </button>
           </div>
 
           {/* USB Print */}
           {isWebUSBSupported() && (
-            <div className={`p-4 rounded-xl border-2 transition-all ${
-              usbDevice ? "border-emerald-300 bg-emerald-50" : "border-slate-200 bg-white"
-            }`}>
-              <div className="flex items-center gap-2.5 mb-2">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                  usbDevice ? "bg-emerald-100" : "bg-violet-50"
-                }`}>
-                  <Usb className={`w-4 h-4 ${usbDevice ? "text-emerald-600" : "text-violet-600"}`} />
-                </div>
+            <div className={`p-3.5 rounded-xl border-2 transition-all ${usbDevice ? "border-emerald-300 bg-emerald-50" : "border-slate-100 bg-white"}`}>
+              <div className="flex items-center gap-2 mb-2.5">
+                <Usb className={`w-4 h-4 flex-shrink-0 ${usbDevice ? "text-emerald-600" : "text-violet-600"}`} />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-slate-900">USB Direct</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-xs font-semibold text-slate-900">USB Direct</p>
                     {usbDevice
-                      ? <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold border border-emerald-200">Connected</span>
-                      : <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-semibold">Chrome / Edge</span>
-                    }
+                      ? <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">Connected</span>
+                      : <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">Chrome/Edge only</span>}
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {usbDevice ? (usbDevice.productName || "USB Printer") + " — ESC/POS direct"
-                               : "ESC/POS commands direct to USB printer"}
+                  <p className="text-[11px] text-slate-500">
+                    {usbDevice ? (usbDevice.productName || "USB Printer") : "ESC/POS direct to USB printer"}
                   </p>
                 </div>
               </div>
               <button onClick={handleConnectUSB} disabled={isBusy}
-                className={`w-full mt-1 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-50 ${
+                className={`w-full py-1.5 rounded-lg text-xs font-semibold transition disabled:opacity-50 ${
                   usbDevice ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200"
-                            : "bg-violet-600 text-white hover:bg-violet-700"
-                }`}>
-                {connectingType === "usb" ? "Connecting…"
-                  : usbDevice ? "Reconnect USB" : "Connect USB Printer"}
+                            : "bg-violet-600 text-white hover:bg-violet-700"}`}>
+                {connectingType === "usb" ? "Connecting…" : usbDevice ? "Reconnect USB" : "Connect USB Printer"}
               </button>
             </div>
           )}
 
           {/* Bluetooth Print */}
           {isWebBluetoothSupported() && (
-            <div className={`p-4 rounded-xl border-2 transition-all ${
-              btConn ? "border-emerald-300 bg-emerald-50" : "border-slate-200 bg-white"
-            }`}>
-              <div className="flex items-center gap-2.5 mb-2">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                  btConn ? "bg-emerald-100" : "bg-blue-50"
-                }`}>
-                  <Bluetooth className={`w-4 h-4 ${btConn ? "text-emerald-600" : "text-blue-500"}`} />
-                </div>
+            <div className={`p-3.5 rounded-xl border-2 transition-all ${btConn ? "border-emerald-300 bg-emerald-50" : "border-slate-100 bg-white"}`}>
+              <div className="flex items-center gap-2 mb-2.5">
+                <Bluetooth className={`w-4 h-4 flex-shrink-0 ${btConn ? "text-emerald-600" : "text-blue-500"}`} />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-slate-900">Bluetooth</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-xs font-semibold text-slate-900">Bluetooth</p>
                     {btConn
-                      ? <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold border border-emerald-200">Connected</span>
-                      : <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-semibold">Chrome / Edge</span>
-                    }
+                      ? <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">Connected</span>
+                      : <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">Chrome/Edge only</span>}
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {btConn ? (btConn.device.name || "BT Printer") + " — wireless ESC/POS"
-                            : "Wireless BLE thermal printer"}
+                  <p className="text-[11px] text-slate-500">
+                    {btConn ? (btConn.device.name || "BT Printer") : "Wireless BLE thermal printer"}
                   </p>
                 </div>
               </div>
               <button onClick={handleConnectBT} disabled={isBusy}
-                className={`w-full mt-1 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-50 ${
+                className={`w-full py-1.5 rounded-lg text-xs font-semibold transition disabled:opacity-50 ${
                   btConn ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200"
-                         : "bg-blue-600 text-white hover:bg-blue-700"
-                }`}>
-                {connectingType === "bt" ? "Connecting…"
-                  : btConn ? "Reconnect Bluetooth" : "Connect Bluetooth Printer"}
+                         : "bg-blue-600 text-white hover:bg-blue-700"}`}>
+                {connectingType === "bt" ? "Connecting…" : btConn ? "Reconnect Bluetooth" : "Connect Bluetooth"}
               </button>
             </div>
           )}
@@ -227,17 +219,16 @@ function PrinterSetupModal({ orgName, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="px-6 pb-6 flex items-center justify-between gap-3">
-          <p className="text-xs text-slate-400">USB/BT requires Chrome or Edge</p>
+        <div className="px-5 pb-5 flex items-center justify-between">
+          <p className="text-[10px] text-slate-400">USB/BT: Chrome or Edge only</p>
           <button onClick={onClose} disabled={isBusy}
-            className="px-5 py-2 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition disabled:opacity-40">
+            className="px-4 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition disabled:opacity-40">
             {isConnected ? "Done" : "Cancel"}
           </button>
         </div>
 
       </div>
-      </div>
-    </div>
+    </>
   );
 }
 
