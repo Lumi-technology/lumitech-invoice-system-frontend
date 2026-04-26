@@ -118,10 +118,16 @@ function buildReceiptHtml(receipt, orgName) {
 export const isWebUSBSupported = () => typeof navigator !== "undefined" && "usb" in navigator;
 export const isWebBluetoothSupported = () => typeof navigator !== "undefined" && "bluetooth" in navigator;
 
+/** Returns previously-authorised USB devices — no browser picker shown */
+export async function getAuthorizedUSBPrinters() {
+  if (!isWebUSBSupported()) return [];
+  try { return await navigator.usb.getDevices(); } catch { return []; }
+}
+
+/** Shows the browser picker to authorise a brand-new USB device */
 export async function connectUSBPrinter() {
   if (!isWebUSBSupported()) throw new Error("WebUSB not supported. Use Chrome or Edge.");
-  const device = await navigator.usb.requestDevice({ filters: [] });
-  return device;
+  return await navigator.usb.requestDevice({ filters: [] });
 }
 
 export async function printReceiptUSB(device, receipt, orgName) {
@@ -154,12 +160,14 @@ const BT_CHAR_UUID       = "00002af1-0000-1000-8000-00805f9b34fb"; // Common BLE
 const BT_SPP_SERVICE     = "00001101-0000-1000-8000-00805f9b34fb"; // Classic BT SPP
 const GENERIC_SERVICE    = 0x18f0;
 
-export async function connectBluetoothPrinter() {
-  if (!isWebBluetoothSupported()) throw new Error("Web Bluetooth not supported. Use Chrome or Edge.");
-  const device = await navigator.bluetooth.requestDevice({
-    filters: [{ services: [GENERIC_SERVICE] }],
-    optionalServices: [BT_SERVICE_UUID, "battery_service"],
-  });
+/** Returns previously-paired BT devices — no browser picker shown */
+export async function getAuthorizedBTPrinters() {
+  if (!isWebBluetoothSupported()) return [];
+  try { return await navigator.bluetooth.getDevices(); } catch { return []; }
+}
+
+/** Connect to an already-known BT device without showing the picker */
+export async function reconnectBluetoothPrinter(device) {
   const server = await device.gatt.connect();
   let service;
   try {
@@ -170,6 +178,16 @@ export async function connectBluetoothPrinter() {
   }
   const characteristic = await service.getCharacteristic(BT_CHAR_UUID);
   return { device, server, characteristic };
+}
+
+/** Shows the browser picker to pair a brand-new BT device */
+export async function connectBluetoothPrinter() {
+  if (!isWebBluetoothSupported()) throw new Error("Web Bluetooth not supported. Use Chrome or Edge.");
+  const device = await navigator.bluetooth.requestDevice({
+    filters: [{ services: [GENERIC_SERVICE] }],
+    optionalServices: [BT_SERVICE_UUID, "battery_service"],
+  });
+  return reconnectBluetoothPrinter(device);
 }
 
 export async function printReceiptBluetooth(connection, receipt, orgName) {
