@@ -504,7 +504,7 @@ export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white font-sans antialiased overflow-x-hidden">
+    <div className="min-h-screen bg-white font-sans antialiased" style={{ overflowX: "clip" }}>
       {/* ── NAV ──────────────────────────────────────────────────────────── */}
 
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100/80">
