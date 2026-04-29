@@ -396,56 +396,63 @@ export default function POS() {
 <html>
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Receipt ${receipt.receiptNumber}</title>
   <style>
-    @page { size: A5; margin: 16mm 14mm; }
+    @page { size: A5; margin: 12mm 10mm; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #fff; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #fff;
+           max-width: 540px; margin: 0 auto; }
 
     /* Header band */
     .header { background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #fff;
-               padding: 24px 28px 20px; border-radius: 10px 10px 0 0; }
-    .org-name { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
-    .receipt-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+               padding: 20px 20px 18px; border-radius: 10px 10px 0 0; }
+    .org-name { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
+    .receipt-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
                      opacity: 0.75; margin-top: 2px; }
-    .receipt-num { font-size: 13px; font-weight: 600; margin-top: 10px;
+    .receipt-num { font-size: 12px; font-weight: 600; margin-top: 10px;
                    background: rgba(255,255,255,0.15); display: inline-block;
                    padding: 3px 10px; border-radius: 4px; }
 
     /* Meta info */
-    .meta { padding: 16px 28px; background: #f8fafc; display: flex; gap: 32px;
+    .meta { padding: 12px 20px; background: #f8fafc; display: flex; flex-wrap: wrap; gap: 16px;
             border-left: 4px solid #2563eb; }
     .meta-item label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
                        color: #94a3b8; display: block; }
     .meta-item span { font-size: 13px; font-weight: 600; color: #1e293b; }
 
     /* Table */
-    .table-wrap { padding: 0 28px; margin-top: 16px; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .table-wrap { padding: 0 20px; margin-top: 16px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 280px; }
     thead tr { background: #1e40af; color: #fff; }
-    thead th { padding: 10px 10px; text-align: left; font-size: 11px;
-               letter-spacing: 0.5px; text-transform: uppercase; }
-    .td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; }
+    thead th { padding: 9px 8px; text-align: left; font-size: 11px;
+               letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+    .td { padding: 9px 8px; border-bottom: 1px solid #f1f5f9; word-break: break-word; }
     .td-center { text-align: center; }
-    .td-right { text-align: right; }
+    .td-right { text-align: right; white-space: nowrap; }
     .fw6 { font-weight: 600; }
-    tbody tr:hover { background: #f8fafc; }
 
     /* Totals */
-    .totals { padding: 0 28px; margin-top: 4px; }
+    .totals { padding: 0 20px; margin-top: 4px; }
     .total-row { display: flex; justify-content: space-between; align-items: center;
                  background: #eff6ff; border-radius: 8px; padding: 12px 16px; margin-top: 8px; }
     .total-row .label { font-size: 14px; font-weight: 700; color: #1e40af; }
     .total-row .amount { font-size: 18px; font-weight: 800; color: #1e40af; }
 
     /* Footer */
-    .footer { margin: 20px 28px 0; padding: 14px; border-top: 1px dashed #cbd5e1;
+    .footer { margin: 18px 20px 16px; padding: 14px; border-top: 1px dashed #cbd5e1;
                text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.8; }
     .footer strong { color: #475569; }
 
+    @media (max-width: 480px) {
+      .org-name { font-size: 17px; }
+      .meta { gap: 12px; }
+      table { font-size: 12px; }
+      .total-row .amount { font-size: 16px; }
+    }
     @media print {
-      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      @page { margin: 10mm; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; max-width: 100%; }
+      @page { margin: 8mm; }
     }
   </style>
 </head>
