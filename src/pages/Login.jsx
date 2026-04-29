@@ -56,12 +56,22 @@ function Login() {
       }
     } catch (err) {
       const status = err.response?.status;
-      const message = err.response?.data?.message || "";
+      const message = (err.response?.data?.message || "").toLowerCase();
 
-      if (status === 403 && message.toLowerCase().includes("verify")) {
+      if (!err.response) {
+        setError("Network error — please check your internet connection and try again.");
+      } else if (status === 403 && message.includes("verify")) {
         setNeedsVerification(true);
+      } else if (status === 403 && message.includes("suspend")) {
+        setError("Your account has been suspended. Please contact support.");
+      } else if (status === 401 || status === 400) {
+        setError("Incorrect username or password. Please try again.");
+      } else if (status === 404) {
+        setError("No account found with that username. Please register to get started.");
+      } else if (status >= 500) {
+        setError("Our server is currently unavailable. Please try again in a moment.");
       } else {
-        setError("Invalid username or password");
+        setError("Something went wrong. Please try again.");
       }
     } finally {
       setIsLoading(false);
