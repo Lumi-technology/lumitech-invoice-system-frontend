@@ -381,44 +381,128 @@ export default function POS() {
     });
     const rows = (receipt.items || []).map(i => `
       <tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9">${i.productName}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:center">${i.quantity}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:right">${fmt(i.unitPrice)}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:600">${fmt(i.subtotal)}</td>
+        <td class="td">${i.productName}</td>
+        <td class="td td-center">${i.quantity}</td>
+        <td class="td td-right">${fmt(i.unitPrice)}</td>
+        <td class="td td-right fw6">${fmt(i.subtotal)}</td>
       </tr>`).join("");
-    const html = `<!DOCTYPE html><html><head><title>Receipt ${receipt.receiptNumber}</title>
-    <style>body{font-family:Arial,sans-serif;max-width:520px;margin:32px auto;color:#0f172a}
-    h1{font-size:22px;margin:0 0 4px}p{margin:2px 0;color:#64748b;font-size:13px}
-    table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px}
-    th{background:#2563eb;color:#fff;padding:10px 12px;text-align:left}
-    .total-row td{font-weight:700;font-size:15px;color:#1d4ed8;background:#eff6ff}
-    .footer{margin-top:24px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;text-align:center}
-    @media print{body{margin:0}}</style></head><body>
-    <h1>Receipt</h1>
-    <p><strong>Receipt #:</strong> ${receipt.receiptNumber}</p>
-    <p><strong>Date:</strong> ${date}</p>
-    <p><strong>Payment:</strong> ${(receipt.paymentMethod || "").replace("_"," ")}</p>
-    ${receipt.customerName ? `<p><strong>Customer:</strong> ${receipt.customerName}</p>` : ""}
+    const discountRow = receipt.discount && receipt.discount > 0 ? `
+      <tr>
+        <td colspan="3" class="td td-right" style="color:#b45309">Discount</td>
+        <td class="td td-right" style="color:#b45309;font-weight:600">-${fmt(receipt.discount)}</td>
+      </tr>` : "";
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>Receipt ${receipt.receiptNumber}</title>
+  <style>
+    @page { size: A5; margin: 16mm 14mm; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #fff; }
+
+    /* Header band */
+    .header { background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #fff;
+               padding: 24px 28px 20px; border-radius: 10px 10px 0 0; }
+    .org-name { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+    .receipt-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+                     opacity: 0.75; margin-top: 2px; }
+    .receipt-num { font-size: 13px; font-weight: 600; margin-top: 10px;
+                   background: rgba(255,255,255,0.15); display: inline-block;
+                   padding: 3px 10px; border-radius: 4px; }
+
+    /* Meta info */
+    .meta { padding: 16px 28px; background: #f8fafc; display: flex; gap: 32px;
+            border-left: 4px solid #2563eb; }
+    .meta-item label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+                       color: #94a3b8; display: block; }
+    .meta-item span { font-size: 13px; font-weight: 600; color: #1e293b; }
+
+    /* Table */
+    .table-wrap { padding: 0 28px; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { background: #1e40af; color: #fff; }
+    thead th { padding: 10px 10px; text-align: left; font-size: 11px;
+               letter-spacing: 0.5px; text-transform: uppercase; }
+    .td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; }
+    .td-center { text-align: center; }
+    .td-right { text-align: right; }
+    .fw6 { font-weight: 600; }
+    tbody tr:hover { background: #f8fafc; }
+
+    /* Totals */
+    .totals { padding: 0 28px; margin-top: 4px; }
+    .total-row { display: flex; justify-content: space-between; align-items: center;
+                 background: #eff6ff; border-radius: 8px; padding: 12px 16px; margin-top: 8px; }
+    .total-row .label { font-size: 14px; font-weight: 700; color: #1e40af; }
+    .total-row .amount { font-size: 18px; font-weight: 800; color: #1e40af; }
+
+    /* Footer */
+    .footer { margin: 20px 28px 0; padding: 14px; border-top: 1px dashed #cbd5e1;
+               text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.8; }
+    .footer strong { color: #475569; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      @page { margin: 10mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="org-name">${orgName || "Receipt"}</div>
+    <div class="receipt-label">Official Receipt</div>
+    <div class="receipt-num">${receipt.receiptNumber}</div>
+  </div>
+
+  <div class="meta">
+    <div class="meta-item"><label>Date</label><span>${date}</span></div>
+    <div class="meta-item"><label>Payment</label><span>${(receipt.paymentMethod || "").replace(/_/g, " ")}</span></div>
+    ${receipt.customerName ? `<div class="meta-item"><label>Customer</label><span>${receipt.customerName}</span></div>` : ""}
+  </div>
+
+  <div class="table-wrap">
     <table>
-      <thead><tr>
-        <th>Item</th><th style="text-align:center">Qty</th>
-        <th style="text-align:right">Unit Price</th><th style="text-align:right">Subtotal</th>
-      </tr></thead>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th style="text-align:center">Qty</th>
+          <th style="text-align:right">Unit Price</th>
+          <th style="text-align:right">Subtotal</th>
+        </tr>
+      </thead>
       <tbody>${rows}</tbody>
-      <tfoot><tr class="total-row">
-        <td colspan="3" style="padding:10px 12px;text-align:right">Total</td>
-        <td style="padding:10px 12px;text-align:right">${fmt(receipt.total)}</td>
-      </tr></tfoot>
     </table>
-    <div class="footer">Thank you for your purchase!</div>
-    </body></html>`;
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `Receipt-${receipt.receiptNumber}.html`;
-    a.click();
-    URL.revokeObjectURL(url);
+  </div>
+
+  <div class="totals">
+    ${discountRow ? `<div style="display:flex;justify-content:space-between;padding:6px 10px;font-size:13px;color:#b45309"><span>Discount</span><span>-${fmt(receipt.discount)}</span></div>` : ""}
+    <div class="total-row">
+      <span class="label">TOTAL</span>
+      <span class="amount">${fmt(receipt.total)}</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <strong>Thank you for your purchase!</strong><br/>
+    Please keep this receipt for your records.<br/>
+    Powered by LumiLedger
+  </div>
+</body>
+</html>`;
+
+    const win = window.open("", "_blank", "width=600,height=800");
+    if (!win) { alert("Please allow popups to download the receipt."); return; }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    win.addEventListener("load", () => {
+      setTimeout(() => {
+        win.focus();
+        win.print(); // browser "Save as PDF" dialog
+      }, 300);
+    });
   };
 
   const handleCheckout = async () => {
