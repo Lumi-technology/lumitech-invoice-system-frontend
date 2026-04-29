@@ -279,7 +279,7 @@ export default function POS() {
   const [showPrinterSetup, setShowPrinterSetup] = useState(false);
   const [usbDevice, setUsbDevice]   = useState(null);
   const [btConn, setBtConn]         = useState(null);
-  const [orgName, setOrgName]       = useState("My Shop");
+  const [orgName, setOrgName]       = useState("");
   const barcodeRef                  = useRef(null);
 
   const notify = (message, type = "success") => setToast({ visible: true, message, type });
@@ -289,7 +289,7 @@ export default function POS() {
     api.get("/api/inventory/products?page=0&size=200")
       .then(r => setProducts(r.data.content || []))
       .catch(() => {});
-    api.get("/api/org/settings").then(r => {
+    api.get("/api/org").then(r => {
       if (r.data?.name) setOrgName(r.data.name);
     }).catch(() => {});
   }, []);
