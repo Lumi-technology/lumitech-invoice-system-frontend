@@ -4,6 +4,7 @@ import api, { getUserFromToken } from "../services/api";
 import {
   Building2, Mail, Phone, MapPin, Globe, Save, FileText, Sun, Moon, Monitor,
   Upload, Trash2, CreditCard, Landmark, Eye, EyeOff, SlidersHorizontal,
+  Lock, CheckCircle2, Pencil,
 } from "lucide-react";
 import Toast from "../components/Toast";
 import { useTheme } from "../context/ThemeContext";
@@ -27,6 +28,7 @@ const EMPTY_FORM = {
   name: "", email: "", phone: "", address: "", website: "", taxId: "",
   bankName: "", bankAccountNumber: "", bankAccountName: "",
   paystackPublicKey: "", paystackSecretKey: "",
+  paystackSecretKeyConfigured: false,
   acceptPaystack: false, acceptBankTransfer: true, acceptCash: false,
 };
 
@@ -40,7 +42,13 @@ function OrgSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  // Secret key reveal — password-gated
   const [showSecret, setShowSecret] = useState(false);
+  const [editingSecret, setEditingSecret] = useState(false);
+  const [pwModal, setPwModal] = useState(false);
+  const [pwInput, setPwInput] = useState("");
+  const [pwError, setPwError] = useState("");
+  const [pwChecking, setPwChecking] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
   const { theme, setTheme } = useTheme();
   const fileInputRef = useRef(null);
@@ -92,12 +100,38 @@ function OrgSettings() {
     e.preventDefault();
     try {
       setSaving(true);
-      await api.put("/api/org", form);
+      // Only send paystackSecretKey if the user is actively editing it
+      const payload = { ...form };
+      if (!editingSecret) delete payload.paystackSecretKey;
+      delete payload.paystackSecretKeyConfigured;
+      await api.put("/api/org", payload);
       setToast({ visible: true, message: "Organisation settings saved", type: "success" });
+      setEditingSecret(false);
+      setShowSecret(false);
+      // Refresh configured flag
+      api.get("/api/org").then(res => setForm(f => ({ ...f, paystackSecretKeyConfigured: res.data.paystackSecretKeyConfigured })));
     } catch (err) {
       setToast({ visible: true, message: err.response?.data?.message || "Failed to save settings.", type: "error" });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleRevealSecret = () => {
+    if (showSecret) { setShowSecret(false); return; }
+    setPwInput(""); setPwError(""); setPwModal(true);
+  };
+
+  const handleConfirmPassword = async () => {
+    if (!pwInput) { setPwError("Please enter your password"); return; }
+    setPwChecking(true); setPwError("");
+    try {
+      await api.post("/api/auth/confirm-password", { password: pwInput });
+      setPwModal(false); setShowSecret(true);
+    } catch {
+      setPwError("Incorrect password. Please try again.");
+    } finally {
+      setPwChecking(false);
     }
   };
 
@@ -335,17 +369,34 @@ function OrgSettings() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Secret Key</label>
-                <div className="relative">
-                  <input
-                    type={showSecret ? "text" : "password"} value={form.paystackSecretKey || ""}
-                    onChange={e => set("paystackSecretKey", e.target.value)}
-                    placeholder="sk_live_..."
-                    className="w-full px-4 pr-10 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-                  />
-                  <button type="button" onClick={() => setShowSecret(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
-                    {showSecret ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
+
+                {/* Configured + not editing → show badge with Change button */}
+                {form.paystackSecretKeyConfigured && !editingSecret ? (
+                  <div className="flex items-center gap-3 px-4 py-2.5 border border-emerald-200 dark:border-emerald-800 rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    <span className="text-sm font-mono text-emerald-700 dark:text-emerald-400 flex-1">sk_•••••••••••••••••••••••</span>
+                    <button type="button" onClick={() => { setEditingSecret(true); set("paystackSecretKey", ""); }}
+                      className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                      <Pencil size={12} /> Change
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <input
+                      type={showSecret ? "text" : "password"}
+                      value={form.paystackSecretKey || ""}
+                      onChange={e => set("paystackSecretKey", e.target.value)}
+                      placeholder="sk_live_..."
+                      autoFocus={editingSecret}
+                      className="w-full px-4 pr-10 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                    />
+                    <button type="button" onClick={handleRevealSecret}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition"
+                      title={showSecret ? "Hide" : "Requires password to reveal"}>
+                      {showSecret ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                )}
                 <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">Keep your secret key private. It is never shown to clients.</p>
               </div>
             </div>
@@ -401,6 +452,42 @@ function OrgSettings() {
       </div>
 
       <Toast {...toast} onClose={() => setToast({ ...toast, visible: false })} />
+
+      {/* Password confirmation modal */}
+      {pwModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 w-full max-w-sm p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-blue-50 dark:bg-blue-900/30 rounded-xl">
+                <Lock className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Confirm your password</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Enter your password to reveal the secret key</p>
+              </div>
+            </div>
+            <input
+              type="password" value={pwInput}
+              onChange={e => { setPwInput(e.target.value); setPwError(""); }}
+              onKeyDown={e => e.key === "Enter" && handleConfirmPassword()}
+              placeholder="Your password"
+              autoFocus
+              className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 text-slate-900 dark:text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+            />
+            {pwError && <p className="text-xs text-rose-600">{pwError}</p>}
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setPwModal(false)}
+                className="flex-1 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                Cancel
+              </button>
+              <button type="button" onClick={handleConfirmPassword} disabled={pwChecking}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-xl hover:scale-[1.02] transition disabled:opacity-50">
+                {pwChecking ? "Checking…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
