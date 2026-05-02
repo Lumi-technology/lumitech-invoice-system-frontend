@@ -282,9 +282,15 @@ export default function POS() {
   const [orgName, setOrgName]       = useState("");
   const barcodeRef                  = useRef(null);
 
+  // Client search
+  const [clients, setClients]             = useState([]);
+  const [clientSearch, setClientSearch]   = useState("");
+  const [clientSuggestions, setClientSuggestions] = useState([]);
+  const [selectedClient, setSelectedClient] = useState(null);
+
   const notify = (message, type = "success") => setToast({ visible: true, message, type });
 
-  // Load all products on mount + org name
+  // Load all products on mount + org name + clients
   useEffect(() => {
     api.get("/api/inventory/products?page=0&size=200")
       .then(r => setProducts(r.data.content || []))
@@ -292,7 +298,22 @@ export default function POS() {
     api.get("/api/org").then(r => {
       if (r.data?.name) setOrgName(r.data.name);
     }).catch(() => {});
+    api.get("/api/clients?page=0&size=200")
+      .then(r => setClients(r.data.content || []))
+      .catch(() => {});
   }, []);
+
+  // Client autocomplete
+  useEffect(() => {
+    if (!clientSearch.trim() || selectedClient) { setClientSuggestions([]); return; }
+    const q = clientSearch.toLowerCase();
+    setClientSuggestions(
+      clients.filter(c =>
+        c.name.toLowerCase().includes(q) ||
+        (c.email && c.email.toLowerCase().includes(q))
+      ).slice(0, 6)
+    );
+  }, [clientSearch, clients, selectedClient]);
 
   // Live search
   const [filtered, setFiltered] = useState([]);
@@ -361,6 +382,7 @@ export default function POS() {
   const clearSale = () => {
     setCart([]); setDiscount(""); setMethod("CASH");
     setCustName(""); setCustEmail(""); setNotes("");
+    setSelectedClient(null); setClientSearch("");
   };
 
   const handlePrint = async (receipt) => {
@@ -520,8 +542,9 @@ export default function POS() {
         items: cart.map(i => ({ productId: i.productId, quantity: i.quantity })),
         discount: discountAmt > 0 ? discountAmt : null,
         paymentMethod,
-        customerName: customerName || null,
-        customerEmail: customerEmail || null,
+        clientId: selectedClient?.id || null,
+        customerName: selectedClient ? null : (customerName || null),
+        customerEmail: selectedClient ? null : (customerEmail || null),
         notes: notes || null,
       });
       setLastReceipt(res.data);
@@ -678,17 +701,56 @@ export default function POS() {
             {/* Customer info */}
             <div className="px-4 pb-3 space-y-2 border-t border-slate-100 dark:border-slate-700 pt-3">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Customer (optional)</p>
-              <div className="relative">
-                <User className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                <input value={customerName} onChange={e => setCustName(e.target.value)}
-                  placeholder="Customer name" className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white" />
-              </div>
-              <div className="relative">
-                <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                <input value={customerEmail} onChange={e => setCustEmail(e.target.value)}
-                  placeholder="Email for receipt (optional)" type="email"
-                  className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white" />
-              </div>
+
+              {/* Client picker */}
+              {selectedClient ? (
+                <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg text-sm">
+                  <User className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-blue-700 dark:text-blue-300 truncate">{selectedClient.name}</p>
+                    {selectedClient.email && <p className="text-xs text-blue-500 truncate">{selectedClient.email}</p>}
+                  </div>
+                  <button onClick={() => { setSelectedClient(null); setClientSearch(""); }}
+                    className="text-blue-400 hover:text-rose-500 transition">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                  <input value={clientSearch} onChange={e => setClientSearch(e.target.value)}
+                    placeholder="Search existing client…"
+                    className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white" />
+                  {clientSuggestions.length > 0 && (
+                    <div className="absolute z-20 left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden">
+                      {clientSuggestions.map(c => (
+                        <button key={c.id} onMouseDown={() => { setSelectedClient(c); setClientSearch(""); }}
+                          className="w-full text-left px-3 py-2 hover:bg-blue-50 dark:hover:bg-slate-700 text-sm transition">
+                          <p className="font-medium text-slate-800 dark:text-white">{c.name}</p>
+                          {c.email && <p className="text-xs text-slate-400">{c.email}</p>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Free-text fields — only shown when no client selected */}
+              {!selectedClient && (
+                <>
+                  <div className="relative">
+                    <User className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                    <input value={customerName} onChange={e => setCustName(e.target.value)}
+                      placeholder="Or type customer name" className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white" />
+                  </div>
+                  <div className="relative">
+                    <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                    <input value={customerEmail} onChange={e => setCustEmail(e.target.value)}
+                      placeholder="Email for receipt (optional)" type="email"
+                      className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white" />
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Payment method */}
@@ -746,6 +808,11 @@ export default function POS() {
               <div className="border-t border-slate-200 dark:border-slate-600 pt-2 flex justify-between font-bold text-slate-900 dark:text-white">
                 <span>Total</span><span className="text-blue-600">{fmt(lastReceipt.total)}</span>
               </div>
+              {(lastReceipt.clientName || lastReceipt.customerName) && (
+                <p className="text-xs text-slate-500 pt-1 flex items-center gap-1">
+                  <User className="w-3 h-3" /> {lastReceipt.clientName || lastReceipt.customerName}
+                </p>
+              )}
               {lastReceipt.customerEmail && (
                 <p className="text-xs text-emerald-600 pt-1 flex items-center gap-1">
                   <Mail className="w-3 h-3" /> Receipt sent to {lastReceipt.customerEmail}
