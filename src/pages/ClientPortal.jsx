@@ -1,6 +1,6 @@
 // ClientPortal.jsx — public, no auth required
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import {
   FileText, CreditCard, Download, CheckCircle, Clock, XCircle,
@@ -15,6 +15,7 @@ const baseURL =
 
 function ClientPortal() {
   const { token } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -22,6 +23,8 @@ function ClientPortal() {
   const [payingInvoice, setPayingInvoice] = useState(null); // {inv, mode} where mode = "paystack"|"bank"|"cash"
   const [payingLinkId, setPayingLinkId] = useState(null);
   const [paymentError, setPaymentError] = useState(null);
+  const [verifyingPayment, setVerifyingPayment] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(null); // invoice number string on success
 
   const invoices = data?.invoices || [];
   const summary = data;
@@ -37,6 +40,31 @@ function ClientPortal() {
   useEffect(() => {
     reload();
   }, [token]);
+
+  // Handle Paystack redirect-back: ?reference=xxx&trxref=xxx
+  useEffect(() => {
+    const reference = searchParams.get("reference") || searchParams.get("trxref");
+    if (!reference || !data) return;
+
+    // Find the invoice that was being paid
+    const invoice = data.invoices?.find(inv => inv.paystackReference === reference);
+    if (!invoice) return;
+
+    setVerifyingPayment(true);
+    // Clear the query params so a page refresh doesn't re-trigger
+    setSearchParams({}, { replace: true });
+
+    axios
+      .post(`${baseURL}/api/public/clients/${token}/invoices/${invoice.id}/verify-payment?reference=${reference}`)
+      .then(() => {
+        setPaymentSuccess(invoice.invoiceNumber);
+        reload();
+      })
+      .catch(e => {
+        setPaymentError(e.response?.data?.message || "Payment could not be verified. Please contact support.");
+      })
+      .finally(() => setVerifyingPayment(false));
+  }, [searchParams, data]);
 
   const downloadPdf = async (inv) => {
     try {
@@ -153,6 +181,29 @@ function ClientPortal() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+        {/* Paystack callback — verifying payment */}
+        {verifyingPayment && (
+          <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-2xl px-5 py-4">
+            <Loader2 className="w-5 h-5 text-blue-600 animate-spin flex-shrink-0" />
+            <p className="text-sm font-medium text-blue-800">Verifying your payment, please wait…</p>
+          </div>
+        )}
+
+        {/* Payment success banner */}
+        {paymentSuccess && (
+          <div className="flex items-center justify-between gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-4">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+              <p className="text-sm font-medium text-emerald-800">
+                Payment for <span className="font-semibold">{paymentSuccess}</span> recorded successfully!
+              </p>
+            </div>
+            <button onClick={() => setPaymentSuccess(null)} className="text-emerald-600 hover:text-emerald-800">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         {/* Summary Cards */}
         {summary && (
