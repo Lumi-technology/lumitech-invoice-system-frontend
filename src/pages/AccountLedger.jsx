@@ -197,7 +197,7 @@ export default function AccountLedger() {
           <BookOpen size={40} className="opacity-20" />
           <p className="text-sm">
             {selectedAccountId
-              ? "Click "Load Ledger" to view transactions."
+              ? 'Click "Load Ledger" to view transactions.'
               : "Select an account above to view its ledger."}
           </p>
         </div>
