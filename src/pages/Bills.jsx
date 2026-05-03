@@ -12,7 +12,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 const inDays = (d) => new Date(Date.now() + d * 86400000).toISOString().slice(0, 10);
 
 const STATUS_CFG = {
-  PENDING:        { label: "Pending",        cls: "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400" },
+  UNPAID:         { label: "Unpaid",         cls: "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400" },
   PARTIALLY_PAID: { label: "Partially Paid", cls: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400" },
   PAID:           { label: "Paid",           cls: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400" },
   CANCELLED:      { label: "Cancelled",      cls: "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400" },
@@ -184,7 +184,7 @@ export default function Bills() {
           <div className="divide-y divide-slate-100 dark:divide-slate-700">
             {filtered.map(b => {
               const isExpanded = expandedId === b.id;
-              const sc = STATUS_CFG[b.status] ?? STATUS_CFG.PENDING;
+              const sc = STATUS_CFG[b.status] ?? STATUS_CFG.UNPAID;
               return (
                 <div key={b.id}>
                   <div
