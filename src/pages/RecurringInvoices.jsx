@@ -22,9 +22,9 @@ const STATUS_CFG = {
 
 const inputCls = "w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition";
 
-const emptyForm = () => ({
+const emptyForm = (defaultVatRate = 7.5) => ({
   clientId: "", frequency: "MONTHLY", startDate: today(), dueDays: 30,
-  vatRate: "", whtRate: "", whtType: "INCLUSIVE", notes: "",
+  vatRate: defaultVatRate, whtRate: "", whtType: "INCLUSIVE", notes: "",
   items: [{ description: "", quantity: "1", unitPrice: "" }],
 });
 
@@ -34,6 +34,7 @@ export default function RecurringInvoices() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm());
+  const [defaultVatRate, setDefaultVatRate] = useState(7.5);
   const [saving, setSaving] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState("");
@@ -57,7 +58,14 @@ export default function RecurringInvoices() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    api.get("/api/org").then(res => {
+      const vat = res.data?.defaultVatRate ?? 7.5;
+      setDefaultVatRate(vat);
+      setForm(emptyForm(vat));
+    }).catch(() => {});
+  }, [load]);
 
   const handleItemChange = (idx, field, value) => {
     setForm(f => {
@@ -89,7 +97,7 @@ export default function RecurringInvoices() {
       });
       notify("Recurring invoice template created");
       setShowForm(false);
-      setForm(emptyForm());
+      setForm(emptyForm(defaultVatRate));
       load();
     } catch (err) {
       notify(err.response?.data?.message || "Failed to create recurring invoice", "error");
@@ -144,7 +152,7 @@ export default function RecurringInvoices() {
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Automate invoices that repeat on a schedule</p>
         </div>
         <button
-          onClick={() => { setShowForm(true); setForm(emptyForm()); }}
+          onClick={() => { setShowForm(true); setForm(emptyForm(defaultVatRate)); }}
           className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/20 hover:shadow-xl hover:scale-[1.02] transition-all"
         >
           <Plus size={16} /> New Template

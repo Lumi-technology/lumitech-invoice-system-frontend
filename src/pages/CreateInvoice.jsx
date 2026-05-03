@@ -34,7 +34,8 @@ function CreateInvoice() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [ccInput, setCcInput] = useState("");
-  const [baseCurrency, setBaseCurrency] = useState("KES");
+  const [baseCurrency, setBaseCurrency] = useState("NGN");
+  const [defaultVatRate, setDefaultVatRate] = useState(7.5);
   const navigate = useNavigate();
 
   const today = new Date().toISOString().split("T")[0];
@@ -46,12 +47,12 @@ function CreateInvoice() {
     issueDate: today,
     dueDate: "",
     tax: 0,
-    vatRate: 0,
+    vatRate: 7.5,
     whtRate: 0,
     whtType: "",
     ccEmails: [],
     items: [{ description: "", quantity: 1, unitPrice: 0 }],
-    currency: "KES",
+    currency: "NGN",
     exchangeRate: 1,
   });
 
@@ -64,9 +65,11 @@ function CreateInvoice() {
       .catch(() => {});
     api.get("/api/org")
       .then(res => {
-        const bc = res.data?.baseCurrency || "KES";
+        const bc = res.data?.baseCurrency || "NGN";
+        const vat = res.data?.defaultVatRate ?? 7.5;
         setBaseCurrency(bc);
-        setForm(f => ({ ...f, currency: bc, exchangeRate: 1 }));
+        setDefaultVatRate(vat);
+        setForm(f => ({ ...f, currency: bc, exchangeRate: 1, vatRate: vat }));
       })
       .catch(() => {});
   }, []);

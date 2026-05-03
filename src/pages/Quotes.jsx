@@ -22,9 +22,9 @@ const STATUS_CFG = {
 
 const inputCls = "w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition";
 
-const emptyForm = (baseCurrency = "KES") => ({
+const emptyForm = (baseCurrency = "NGN", defaultVatRate = 7.5) => ({
   clientId: "", issueDate: today(), expiryDate: inDays(30),
-  vatRate: "", whtRate: "", whtType: "INCLUSIVE", notes: "",
+  vatRate: defaultVatRate, whtRate: "", whtType: "INCLUSIVE", notes: "",
   items: [{ description: "", quantity: 1, unitPrice: "" }],
   currency: baseCurrency,
 });
@@ -38,7 +38,8 @@ export default function Quotes() {
   const [saving, setSaving] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState("");
-  const [baseCurrency, setBaseCurrency] = useState("KES");
+  const [baseCurrency, setBaseCurrency] = useState("NGN");
+  const [defaultVatRate, setDefaultVatRate] = useState(7.5);
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
 
   const notify = (message, type = "success") => setToast({ visible: true, message, type });
@@ -62,9 +63,11 @@ export default function Quotes() {
   useEffect(() => {
     load();
     api.get("/api/org").then(res => {
-      const bc = res.data?.baseCurrency || "KES";
+      const bc = res.data?.baseCurrency || "NGN";
+      const vat = res.data?.defaultVatRate ?? 7.5;
       setBaseCurrency(bc);
-      setForm(emptyForm(bc));
+      setDefaultVatRate(vat);
+      setForm(emptyForm(bc, vat));
     }).catch(() => {});
   }, [load]);
 
@@ -93,7 +96,7 @@ export default function Quotes() {
       });
       notify("Quote created");
       setShowForm(false);
-      setForm(emptyForm(baseCurrency));
+      setForm(emptyForm(baseCurrency, defaultVatRate));
       load();
     } catch (err) {
       notify(err.response?.data?.message || "Failed to create quote", "error");
@@ -137,7 +140,7 @@ export default function Quotes() {
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Create and send quotes to clients, convert to invoices when accepted</p>
         </div>
         <button
-          onClick={() => { setShowForm(true); setForm(emptyForm(baseCurrency)); }}
+          onClick={() => { setShowForm(true); setForm(emptyForm(baseCurrency, defaultVatRate)); }}
           className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/20 hover:shadow-xl hover:scale-[1.02] transition-all"
         >
           <Plus size={16} /> New Quote
