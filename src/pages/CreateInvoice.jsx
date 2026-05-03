@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
 import {
   ArrowLeft, Plus, Trash2, Calendar, User, Save,
-  Mail, X, FolderOpen, FileText, Receipt,
+  Mail, X, FolderOpen, FileText, Receipt, Info,
 } from "lucide-react";
 import NumericInput from "../components/NumericInput";
+import { CURRENCIES } from "../utils/currencies";
 
 const inputCls = "w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm";
 const labelCls = "block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5";
@@ -33,6 +34,7 @@ function CreateInvoice() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [ccInput, setCcInput] = useState("");
+  const [baseCurrency, setBaseCurrency] = useState("KES");
   const navigate = useNavigate();
 
   const today = new Date().toISOString().split("T")[0];
@@ -49,6 +51,8 @@ function CreateInvoice() {
     whtType: "",
     ccEmails: [],
     items: [{ description: "", quantity: 1, unitPrice: 0 }],
+    currency: "KES",
+    exchangeRate: 1,
   });
 
   useEffect(() => {
@@ -57,6 +61,13 @@ function CreateInvoice() {
       .catch(() => {});
     api.get("/api/projects", { params: { page: 0, size: 100 } })
       .then(res => setProjects(res.data.content ?? res.data ?? []))
+      .catch(() => {});
+    api.get("/api/org")
+      .then(res => {
+        const bc = res.data?.baseCurrency || "KES";
+        setBaseCurrency(bc);
+        setForm(f => ({ ...f, currency: bc, exchangeRate: 1 }));
+      })
       .catch(() => {});
   }, []);
 
@@ -179,7 +190,44 @@ function CreateInvoice() {
               />
             </div>
 
+            <div>
+              <label className={labelCls}>Currency</label>
+              <select
+                value={form.currency}
+                onChange={e => setForm({ ...form, currency: e.target.value, exchangeRate: e.target.value === baseCurrency ? 1 : form.exchangeRate })}
+                className={inputCls}
+              >
+                {CURRENCIES.map(c => (
+                  <option key={c.code} value={c.code}>{c.code} — {c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {form.currency !== baseCurrency && (
+              <div>
+                <label className={labelCls}>Exchange Rate to {baseCurrency}</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="any"
+                  placeholder="e.g. 0.0077"
+                  value={form.exchangeRate}
+                  onChange={e => setForm({ ...form, exchangeRate: Number(e.target.value) })}
+                  className={inputCls}
+                />
+              </div>
+            )}
+
           </div>
+
+          {form.currency !== baseCurrency && (
+            <div className="mt-4 flex items-start gap-2.5 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl text-sm text-blue-700 dark:text-blue-300">
+              <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <span>
+                Invoice amounts are in <strong>{form.currency}</strong>. Journal entries will be posted in <strong>{baseCurrency}</strong> at rate <strong>{form.exchangeRate}</strong>.
+              </span>
+            </div>
+          )}
         </Section>
 
         {/* Section 2 — Line Items */}

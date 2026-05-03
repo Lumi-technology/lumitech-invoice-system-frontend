@@ -5,6 +5,7 @@ import {
   Search, RefreshCw, Trash2, Banknote,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import { CURRENCIES } from "../utils/currencies";
 
 const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
 const today = () => new Date().toISOString().slice(0, 10);
@@ -22,6 +23,7 @@ const inputCls = "w-full px-3 py-2.5 border border-slate-200 dark:border-slate-6
 const emptyBillForm = () => ({
   supplierName: "", supplierEmail: "", issueDate: today(), dueDate: inDays(30), notes: "",
   items: [{ description: "", quantity: 1, unitPrice: "" }],
+  currency: "KES", exchangeRate: 1,
 });
 
 const emptyPayForm = () => ({ amount: "", paymentDate: today(), paymentMethod: "BANK_TRANSFER", reference: "" });
@@ -36,6 +38,7 @@ export default function Bills() {
   const [saving, setSaving] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState("");
+  const [baseCurrency, setBaseCurrency] = useState("KES");
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
 
   const notify = (message, type = "success") => setToast({ visible: true, message, type });
@@ -52,7 +55,14 @@ export default function Bills() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    api.get("/api/org").then(res => {
+      const bc = res.data?.baseCurrency || "KES";
+      setBaseCurrency(bc);
+      setBillForm(f => ({ ...f, currency: bc, exchangeRate: 1 }));
+    }).catch(() => {});
+  }, [load]);
 
   const handleItemChange = (idx, field, value) => {
     setBillForm(f => {
@@ -190,7 +200,12 @@ export default function Bills() {
                     </div>
                     <div className="flex items-center gap-4 sm:gap-6">
                       <div className="text-right">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{fmt(b.total)}</p>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                          {b.currency && b.currency !== baseCurrency && (
+                            <span className="text-xs font-medium text-slate-400 dark:text-slate-500 mr-1">{b.currency}</span>
+                          )}
+                          {fmt(b.total)}
+                        </p>
                         <p className="text-xs text-slate-400">Due {b.dueDate}</p>
                       </div>
                       <div className="text-right hidden sm:block">
@@ -303,6 +318,36 @@ export default function Bills() {
               <div>
                 <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Notes</label>
                 <textarea rows={2} value={billForm.notes} onChange={e => setBillForm(f => ({ ...f, notes: e.target.value }))} placeholder="Optional notes…" className={inputCls} />
+              </div>
+
+              {/* Currency */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Currency</label>
+                  <select
+                    value={billForm.currency}
+                    onChange={e => setBillForm(f => ({ ...f, currency: e.target.value, exchangeRate: e.target.value === baseCurrency ? 1 : f.exchangeRate }))}
+                    className={inputCls}
+                  >
+                    {CURRENCIES.map(c => (
+                      <option key={c.code} value={c.code}>{c.code} — {c.name}</option>
+                    ))}
+                  </select>
+                </div>
+                {billForm.currency !== baseCurrency && (
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Exchange Rate to {baseCurrency}</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="any"
+                      placeholder="e.g. 0.0077"
+                      value={billForm.exchangeRate}
+                      onChange={e => setBillForm(f => ({ ...f, exchangeRate: Number(e.target.value) }))}
+                      className={inputCls}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Items */}

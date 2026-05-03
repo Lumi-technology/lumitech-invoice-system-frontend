@@ -4,10 +4,11 @@ import api, { getUserFromToken } from "../services/api";
 import {
   Building2, Mail, Phone, MapPin, Globe, Save, FileText, Sun, Moon, Monitor,
   Upload, Trash2, CreditCard, Landmark, Eye, EyeOff, SlidersHorizontal,
-  Lock, CheckCircle2, Pencil,
+  Lock, CheckCircle2, Pencil, DollarSign,
 } from "lucide-react";
 import Toast from "../components/Toast";
 import { useTheme } from "../context/ThemeContext";
+import { CURRENCIES } from "../utils/currencies";
 
 const FIELDS = [
   { key: "name",    label: "Organisation Name", type: "text",  icon: Building2, placeholder: "e.g. Phoenix Plus Ltd" },
@@ -30,6 +31,7 @@ const EMPTY_FORM = {
   paystackPublicKey: "", paystackSecretKey: "",
   paystackSecretKeyConfigured: false,
   acceptPaystack: false, acceptBankTransfer: true, acceptCash: false,
+  baseCurrency: "KES",
 };
 
 function OrgSettings() {
@@ -283,6 +285,24 @@ function OrgSettings() {
                 </div>
               </div>
             ))}
+
+            {/* Base Currency */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Base Currency</label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
+                <select
+                  value={form.baseCurrency || "KES"}
+                  onChange={e => set("baseCurrency", e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition appearance-none"
+                >
+                  {CURRENCIES.map(c => (
+                    <option key={c.code} value={c.code}>{c.code} — {c.name}</option>
+                  ))}
+                </select>
+              </div>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">All financial documents will default to this currency.</p>
+            </div>
           </div>
         </div>
 

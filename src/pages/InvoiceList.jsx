@@ -350,7 +350,11 @@ function InvoiceList() {
                           {inv.issueDate ? new Date(inv.issueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "—"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-900 dark:text-white">
-                          ₦ {inv.total.toLocaleString()}
+                          {inv.currency ? (
+                            <span>{inv.currency} {inv.total.toLocaleString()}</span>
+                          ) : (
+                            <span>₦ {inv.total.toLocaleString()}</span>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                           {inv.projectName ? (

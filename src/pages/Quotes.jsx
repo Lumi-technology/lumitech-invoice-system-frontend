@@ -5,6 +5,7 @@ import {
   ChevronDown, ChevronUp, Trash2, Search, RefreshCw,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import { CURRENCIES } from "../utils/currencies";
 
 const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
 const today = () => new Date().toISOString().slice(0, 10);
@@ -21,10 +22,11 @@ const STATUS_CFG = {
 
 const inputCls = "w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition";
 
-const emptyForm = () => ({
+const emptyForm = (baseCurrency = "KES") => ({
   clientId: "", issueDate: today(), expiryDate: inDays(30),
   vatRate: "", whtRate: "", whtType: "INCLUSIVE", notes: "",
   items: [{ description: "", quantity: 1, unitPrice: "" }],
+  currency: baseCurrency,
 });
 
 export default function Quotes() {
@@ -36,6 +38,7 @@ export default function Quotes() {
   const [saving, setSaving] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState("");
+  const [baseCurrency, setBaseCurrency] = useState("KES");
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
 
   const notify = (message, type = "success") => setToast({ visible: true, message, type });
@@ -56,7 +59,14 @@ export default function Quotes() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    api.get("/api/org").then(res => {
+      const bc = res.data?.baseCurrency || "KES";
+      setBaseCurrency(bc);
+      setForm(emptyForm(bc));
+    }).catch(() => {});
+  }, [load]);
 
   const handleItemChange = (idx, field, value) => {
     setForm(f => {
@@ -83,7 +93,7 @@ export default function Quotes() {
       });
       notify("Quote created");
       setShowForm(false);
-      setForm(emptyForm());
+      setForm(emptyForm(baseCurrency));
       load();
     } catch (err) {
       notify(err.response?.data?.message || "Failed to create quote", "error");
@@ -127,7 +137,7 @@ export default function Quotes() {
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Create and send quotes to clients, convert to invoices when accepted</p>
         </div>
         <button
-          onClick={() => { setShowForm(true); setForm(emptyForm()); }}
+          onClick={() => { setShowForm(true); setForm(emptyForm(baseCurrency)); }}
           className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/20 hover:shadow-xl hover:scale-[1.02] transition-all"
         >
           <Plus size={16} /> New Quote
@@ -180,7 +190,12 @@ export default function Quotes() {
                     </div>
                     <div className="flex items-center gap-4 sm:gap-6">
                       <div className="text-right">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{fmt(q.total)}</p>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                          {q.currency && (
+                            <span className="text-xs font-medium text-slate-400 dark:text-slate-500 mr-1">{q.currency}</span>
+                          )}
+                          {fmt(q.total)}
+                        </p>
                         <p className="text-xs text-slate-400">Issued {q.issueDate}</p>
                       </div>
                       {isExpanded ? <ChevronUp size={16} className="text-slate-400 flex-shrink-0" /> : <ChevronDown size={16} className="text-slate-400 flex-shrink-0" />}
@@ -305,6 +320,20 @@ export default function Quotes() {
               <div>
                 <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Notes</label>
                 <textarea rows={2} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Optional notes for client…" className={inputCls} />
+              </div>
+
+              {/* Currency */}
+              <div>
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Currency</label>
+                <select
+                  value={form.currency}
+                  onChange={e => setForm(f => ({ ...f, currency: e.target.value }))}
+                  className={inputCls}
+                >
+                  {CURRENCIES.map(c => (
+                    <option key={c.code} value={c.code}>{c.code} — {c.name}</option>
+                  ))}
+                </select>
               </div>
 
               {/* Items */}
