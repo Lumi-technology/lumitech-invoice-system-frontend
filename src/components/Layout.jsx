@@ -36,6 +36,8 @@ const PAGE_TITLES = {
   "/credit-notes":                       "Credit Notes",
   "/invoices/recurring":                 "Recurring Invoices",
   "/accounting/opening-balances":        "Opening Balances",
+  "/debit-notes":                        "Debit Notes",
+  "/purchase-orders":                    "Purchase Orders",
 };
 
 function Layout({ children }) {

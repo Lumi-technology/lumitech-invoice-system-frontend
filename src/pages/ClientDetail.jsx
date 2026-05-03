@@ -64,6 +64,13 @@ function ClientDetail() {
   const [ccList, setCcList] = useState([]);
   const [isSendingStatement, setIsSendingStatement] = useState(false);
 
+  // View statement state
+  const [showViewStatement, setShowViewStatement] = useState(false);
+  const [statement, setStatement] = useState(null);
+  const [stmtFrom, setStmtFrom] = useState(() => new Date(new Date().getFullYear(), 0, 1).toISOString().slice(0, 10));
+  const [stmtTo, setStmtTo] = useState(() => new Date().toISOString().slice(0, 10));
+  const [stmtLoading, setStmtLoading] = useState(false);
+
   useEffect(() => {
     api
       .get(`/api/clients/${id}`)
@@ -107,6 +114,18 @@ function ClientDetail() {
     const email = ccInput.trim();
     if (email && !ccList.includes(email)) setCcList([...ccList, email]);
     setCcInput("");
+  };
+
+  const loadStatement = async () => {
+    setStmtLoading(true);
+    try {
+      const res = await api.get(`/api/clients/${id}/statement?from=${stmtFrom}&to=${stmtTo}`);
+      setStatement(res.data);
+    } catch (err) {
+      setToast({ visible: true, message: err.response?.data?.message || "Failed to load statement", type: "error" });
+    } finally {
+      setStmtLoading(false);
+    }
   };
 
   const handleSendStatement = async () => {
@@ -185,6 +204,13 @@ function ClientDetail() {
           <span className="text-sm font-medium">Back</span>
         </button>
         <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => { setStatement(null); setShowViewStatement(true); loadStatement(); }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition shadow-sm text-sm font-medium"
+          >
+            <RefreshCw size={16} />
+            View Statement
+          </button>
           {client?.email && (
             <button
               onClick={() => { setCcList([]); setCcInput(""); setShowStatementModal(true); }}
@@ -530,6 +556,113 @@ function ClientDetail() {
       )}
 
       <Toast {...toast} onClose={() => setToast({ ...toast, visible: false })} />
+
+      {/* View Statement Modal */}
+      {showViewStatement && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-3xl max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700 shrink-0">
+              <h2 className="font-semibold text-slate-900 dark:text-white">Account Statement — {client?.name}</h2>
+              <button onClick={() => setShowViewStatement(false)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                <X size={18} className="text-slate-500 dark:text-slate-400" />
+              </button>
+            </div>
+
+            {/* Date filters */}
+            <div className="flex items-center gap-3 px-5 py-3 border-b border-slate-100 dark:border-slate-700 shrink-0">
+              <div className="flex items-center gap-2 text-sm">
+                <label className="text-slate-500 dark:text-slate-400 whitespace-nowrap">From</label>
+                <input type="date" value={stmtFrom} onChange={e => setStmtFrom(e.target.value)}
+                  className="px-2 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition" />
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <label className="text-slate-500 dark:text-slate-400 whitespace-nowrap">To</label>
+                <input type="date" value={stmtTo} onChange={e => setStmtTo(e.target.value)}
+                  className="px-2 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition" />
+              </div>
+              <button onClick={loadStatement}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                <RefreshCw size={13} className={stmtLoading ? "animate-spin" : ""} /> Refresh
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-5">
+              {stmtLoading ? (
+                <div className="flex items-center justify-center py-12 gap-2 text-slate-400">
+                  <RefreshCw size={18} className="animate-spin" /> Loading statement…
+                </div>
+              ) : !statement ? (
+                <div className="flex items-center justify-center py-12 text-slate-400 text-sm">No data</div>
+              ) : (
+                <>
+                  {/* Summary cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                    {[
+                      { label: "Opening Balance", value: statement.openingBalance, color: "text-slate-700 dark:text-slate-300" },
+                      { label: "Total Charged",   value: statement.totalCharged,   color: "text-rose-600 dark:text-rose-400" },
+                      { label: "Total Paid",      value: statement.totalPaid,      color: "text-emerald-600 dark:text-emerald-400" },
+                      { label: "Closing Balance", value: statement.closingBalance, color: statement.closingBalance > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400" },
+                    ].map(card => (
+                      <div key={card.label} className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-3">
+                        <p className="text-xs text-slate-400 mb-1">{card.label}</p>
+                        <p className={`text-sm font-bold ${card.color}`}>
+                          {new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(card.value || 0)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Transactions table */}
+                  {statement.transactions?.length === 0 ? (
+                    <p className="text-center text-sm text-slate-400 py-8">No transactions in this period</p>
+                  ) : (
+                    <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-slate-50 dark:bg-slate-700/50 text-left text-xs text-slate-400 uppercase tracking-wider">
+                            <th className="px-4 py-2.5">Date</th>
+                            <th className="px-4 py-2.5">Type</th>
+                            <th className="px-4 py-2.5">Reference</th>
+                            <th className="px-4 py-2.5 text-right">Debit</th>
+                            <th className="px-4 py-2.5 text-right">Credit</th>
+                            <th className="px-4 py-2.5 text-right">Balance</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                          {statement.transactions.map((tx, i) => {
+                            const typeCls = tx.type === "INVOICE" ? "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400"
+                              : tx.type === "PAYMENT" ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                              : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400";
+                            const f = (v) => v > 0 ? new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v) : "—";
+                            return (
+                              <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-700/40">
+                                <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 whitespace-nowrap">{tx.date}</td>
+                                <td className="px-4 py-2.5">
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeCls}`}>
+                                    {tx.type.replace("_", " ")}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-medium">{tx.reference}</td>
+                                <td className="px-4 py-2.5 text-right text-rose-600 dark:text-rose-400">{f(tx.debit)}</td>
+                                <td className="px-4 py-2.5 text-right text-emerald-600 dark:text-emerald-400">{f(tx.credit)}</td>
+                                <td className={`px-4 py-2.5 text-right font-semibold ${tx.balance > 0 ? "text-amber-600 dark:text-amber-400" : "text-slate-700 dark:text-slate-300"}`}>
+                                  {new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(tx.balance || 0)}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <ConfirmModal
         visible={showDeleteModal}

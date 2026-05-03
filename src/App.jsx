@@ -47,6 +47,8 @@ import Bills from "./pages/Bills";
 import CreditNotes from "./pages/CreditNotes";
 import RecurringInvoices from "./pages/RecurringInvoices";
 import OpeningBalances from "./pages/OpeningBalances";
+import DebitNotes from "./pages/DebitNotes";
+import PurchaseOrders from "./pages/PurchaseOrders";
 
 function App() {
   const [planLimitMessage, setPlanLimitMessage] = useState(null);
@@ -484,6 +486,12 @@ function App() {
 
           {/* OPENING BALANCES */}
           <Route path="/accounting/opening-balances" element={<ProtectedRoute><Layout><OpeningBalances /></Layout></ProtectedRoute>} />
+
+          {/* DEBIT NOTES */}
+          <Route path="/debit-notes" element={<ProtectedRoute><Layout><DebitNotes /></Layout></ProtectedRoute>} />
+
+          {/* PURCHASE ORDERS */}
+          <Route path="/purchase-orders" element={<ProtectedRoute><Layout><PurchaseOrders /></Layout></ProtectedRoute>} />
 
           {/* CLIENT PORTAL — public, no auth */}
           <Route path="/portal/:token" element={<ClientPortal />} />

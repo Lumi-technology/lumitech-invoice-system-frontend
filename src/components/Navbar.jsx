@@ -6,7 +6,7 @@ import {
   CreditCard, Wallet, UsersRound, X, BookOpen, BookOpenCheck, Scale, TrendingUp, LayoutList, Landmark, ClipboardList,
   ChevronDown, Briefcase, Calculator, ArrowLeftRight, Banknote, PiggyBank, Lock, Receipt, Home,
   Info, SlidersHorizontal, Package, ShoppingCart, BarChart2,
-  FileCheck, Repeat, Undo2, FileMinus,
+  FileCheck, Repeat, Undo2, FileMinus, ClipboardCheck,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
@@ -130,8 +130,9 @@ function Navbar({ onClose }) {
     ...(!isAdminOrStaff ? [{ path: "/dashboard",   label: "Dashboard",            icon: LayoutDashboard, info: "Real-time snapshot of your business — revenue, unpaid invoices and recent activity" }] : []),
     { path: "/invoices",          label: "Invoices",             icon: FileText,    info: "View and manage all your invoices, track payment status" },
     { path: "/create",            label: "New Invoice",          icon: PlusCircle,  info: "Create and send a new invoice to a client" },
-    { path: "/quotes",            label: "Quotes",               icon: FileCheck,   info: "Create and send estimates to clients, convert to invoices when accepted" },
-    { path: "/invoices/recurring",label: "Recurring Invoices",   icon: Repeat,      info: "Set up invoices that auto-send on a schedule" },
+    { path: "/quotes",            label: "Quotes",               icon: FileCheck,      info: "Create and send estimates to clients, convert to invoices when accepted" },
+    { path: "/invoices/recurring",label: "Recurring Invoices",   icon: Repeat,         info: "Set up invoices that auto-send on a schedule" },
+    { path: "/purchase-orders",   label: "Purchase Orders",      icon: ClipboardCheck, info: "Raise POs for suppliers and convert to bills when approved" },
     { path: "/clients",           label: "Customers",            icon: Users,       info: "Manage your clients and view their full payment history" },
     { path: "/projects",          label: "Projects",             icon: FolderOpen,  info: "Track billable projects and link them to invoices" },
     { path: "/finance",           label: paymentLabel("module"), icon: Banknote,    info: "Track incoming payments and manage collections" },
@@ -143,8 +144,9 @@ function Navbar({ onClose }) {
     { path: "/accounting/accounts",              label: "Chart of Accounts", icon: BookOpen,      info: "Master list of all accounts used for bookkeeping" },
     { path: "/accounting/entries",               label: "Journal Entries",   icon: BookOpenCheck, info: "Record financial transactions — use Quick Entry for simplicity" },
     { path: "/accounting/opening-balances",      label: "Opening Balances",  icon: Scale,         info: "Set starting account balances when you begin using LumiLedger" },
-    { path: "/bills",                            label: "Bills & Payables",  icon: FileMinus,     info: "Track supplier bills and record payments" },
-    { path: "/credit-notes",                     label: "Credit Notes",      icon: Undo2,         info: "Issue credit notes to reduce invoice balances" },
+    { path: "/bills",                            label: "Bills & Payables",  icon: FileMinus,      info: "Track supplier bills and record payments" },
+    { path: "/debit-notes",                      label: "Debit Notes",       icon: FileMinus,      info: "Issue debit notes to suppliers to reduce bill balances" },
+    { path: "/credit-notes",                     label: "Credit Notes",      icon: Undo2,          info: "Issue credit notes to reduce invoice balances" },
     { path: "/invoices/reports/aging",           label: "Aging Report",      icon: ClipboardList, info: "See overdue invoices and how long they have been unpaid" },
     ...(isAccountantPro ? [{ path: "/invoices/reports/tax", label: "Tax Report", icon: Calculator, info: "VAT and WHT breakdown for tax filing" }] : []),
     { path: "/accounting/reports/trial-balance", label: "Trial Balance",     icon: TrendingUp,    info: "Check that your total debits and credits are balanced" },
@@ -314,6 +316,7 @@ function Navbar({ onClose }) {
                         { path: "/accounting/entries",          label: "Journal Entries",   icon: BookOpenCheck },
                         { path: "/accounting/opening-balances", label: "Opening Balances",  icon: Scale },
                         { path: "/bills",                       label: "Bills & Payables",  icon: FileMinus },
+                        { path: "/debit-notes",                 label: "Debit Notes",       icon: FileMinus },
                         { path: "/credit-notes",                label: "Credit Notes",      icon: Undo2 },
                         ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark }] : []),
                       ].map(item => (
@@ -329,6 +332,7 @@ function Navbar({ onClose }) {
                     { path: "/accounting/entries",          label: "Journal Entries",   icon: BookOpenCheck },
                     { path: "/accounting/opening-balances", label: "Opening Balances",  icon: Scale },
                     { path: "/bills",                       label: "Bills & Payables",  icon: FileMinus },
+                    { path: "/debit-notes",                 label: "Debit Notes",       icon: FileMinus },
                     { path: "/credit-notes",                label: "Credit Notes",      icon: Undo2 },
                   ].map(item => (
                     <NavLink key={item.path} item={item} collapsed={true} onClick={onClose} isActive={isActive} isMobile={isMobile} />
