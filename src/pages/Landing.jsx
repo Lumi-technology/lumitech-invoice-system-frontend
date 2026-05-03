@@ -668,7 +668,7 @@ export default function Landing() {
           </h2>
           <div className="space-y-5 text-left max-w-2xl mx-auto">
             <p className="text-slate-600 text-base leading-relaxed">
-              Most Nigerian business owners fund their own business — rent, equipment, stock, salaries — straight from their pocket. You do this month after month because you believe in what you're building.
+              Most African business owners fund their own business — rent, equipment, stock, salaries — straight from their pocket. You do this month after month because you believe in what you're building.
             </p>
             <p className="text-slate-600 text-base leading-relaxed">
               Then money starts coming in. Clients pay. Sales happen. But without tracking it properly, you never really know the answer to the most important question:{" "}
@@ -731,7 +731,7 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-100 mb-5">
-              Built for Nigerian businesses
+              Built for African businesses
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 leading-tight">
               Send invoices. Get paid.{" "}
@@ -777,7 +777,7 @@ export default function Landing() {
                 Your account number on every invoice. Clients transfer and you confirm — no friction, no middleman.
               </p>
               <div className="space-y-2">
-                {["Your account on every invoice", "Works with all Nigerian banks", "Manual confirmation flow", "Auto-records in your books"].map(f => (
+                {["Your account on every invoice", "Works with local banks across Africa", "Manual confirmation flow", "Auto-records in your books"].map(f => (
                   <div key={f} className="flex items-center gap-2 text-xs text-slate-600">
                     <CheckCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> {f}
                   </div>
@@ -1174,9 +1174,9 @@ export default function Landing() {
               </span>
             </h2>
             <p className="text-slate-400 text-lg leading-relaxed max-w-2xl mx-auto">
-              From Alaba Market to Computer Village, from Onitsha Main Market to your boutique on the high street —
-              every sale you make deserves to be counted. Every naira deserves a record.
-              LumiLedger POS is built for how Nigerian retail actually works.
+              From Alaba Market to Accra's Makola Market, from Cape Town's CBD to Lagos Island —
+              every sale you make deserves to be counted. Every unit of currency deserves a record.
+              LumiLedger POS is built for how African retail actually works.
             </p>
           </div>
 
@@ -1326,6 +1326,88 @@ export default function Landing() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── BUILT FOR AFRICA ─────────────────────────────────────────────── */}
+      <section className="py-24 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-xs font-semibold rounded-full border border-white/20 mb-6">
+              <Globe className="w-3.5 h-3.5" /> Pan-African
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+              Built for Africa.<br className="hidden sm:block" />
+              <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+                Starting with where you are.
+              </span>
+            </h2>
+            <p className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">
+              LumiLedger is expanding across Africa — with local currencies, local tax rules, and local compliance built in.
+              Pick your country and everything adapts.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {[
+              {
+                flag: "🇳🇬",
+                country: "Nigeria",
+                currency: "NGN — Naira",
+                tax: "VAT 7.5% · FIRS",
+                payroll: "PAYE · Pension · NHF",
+                status: "Live",
+                statusCls: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+                borderCls: "border-emerald-500/30",
+              },
+              {
+                flag: "🇬🇭",
+                country: "Ghana",
+                currency: "GHS — Cedi",
+                tax: "VAT 15% · GRA",
+                payroll: "PAYE · SSNIT",
+                status: "Coming Soon",
+                statusCls: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+                borderCls: "border-amber-500/30",
+              },
+              {
+                flag: "🇿🇦",
+                country: "South Africa",
+                currency: "ZAR — Rand",
+                tax: "VAT 15% · SARS",
+                payroll: "PAYE · UIF · SDL",
+                status: "Coming Soon",
+                statusCls: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+                borderCls: "border-amber-500/30",
+              },
+            ].map(c => (
+              <div key={c.country} className={`bg-white/5 backdrop-blur-sm rounded-2xl p-6 border ${c.borderCls} hover:bg-white/10 transition-all group`}>
+                <div className="flex items-center justify-between mb-5">
+                  <span className="text-5xl">{c.flag}</span>
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${c.statusCls}`}>
+                    {c.status}
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-white mb-1">{c.country}</h3>
+                <p className="text-slate-400 text-sm mb-4">{c.currency}</p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <Receipt className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" /> {c.tax}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <Users className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" /> {c.payroll}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <Globe className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" /> Multi-currency support
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-center text-slate-500 text-sm mt-10">
+            More countries coming — Rwanda, Tanzania, Zambia, and beyond.
+          </p>
         </div>
       </section>
 
