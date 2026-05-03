@@ -42,6 +42,11 @@ import BankReconciliation from "./pages/BankReconciliation";
 import Inventory from "./pages/Inventory";
 import POS from "./pages/POS";
 import SalesReport from "./pages/SalesReport";
+import Quotes from "./pages/Quotes";
+import Bills from "./pages/Bills";
+import CreditNotes from "./pages/CreditNotes";
+import RecurringInvoices from "./pages/RecurringInvoices";
+import OpeningBalances from "./pages/OpeningBalances";
 
 function App() {
   const [planLimitMessage, setPlanLimitMessage] = useState(null);
@@ -464,6 +469,21 @@ function App() {
           <Route path="/inventory" element={<ProtectedRoute><Layout><Inventory /></Layout></ProtectedRoute>} />
           <Route path="/pos" element={<ProtectedRoute><Layout><POS /></Layout></ProtectedRoute>} />
           <Route path="/sales/report" element={<ProtectedRoute><Layout><SalesReport /></Layout></ProtectedRoute>} />
+
+          {/* QUOTES */}
+          <Route path="/quotes" element={<ProtectedRoute><Layout><Quotes /></Layout></ProtectedRoute>} />
+
+          {/* BILLS */}
+          <Route path="/bills" element={<ProtectedRoute><Layout><Bills /></Layout></ProtectedRoute>} />
+
+          {/* CREDIT NOTES */}
+          <Route path="/credit-notes" element={<ProtectedRoute><Layout><CreditNotes /></Layout></ProtectedRoute>} />
+
+          {/* RECURRING INVOICES */}
+          <Route path="/invoices/recurring" element={<ProtectedRoute><Layout><RecurringInvoices /></Layout></ProtectedRoute>} />
+
+          {/* OPENING BALANCES */}
+          <Route path="/accounting/opening-balances" element={<ProtectedRoute><Layout><OpeningBalances /></Layout></ProtectedRoute>} />
 
           {/* CLIENT PORTAL — public, no auth */}
           <Route path="/portal/:token" element={<ClientPortal />} />

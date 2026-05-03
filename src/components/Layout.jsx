@@ -31,6 +31,11 @@ const PAGE_TITLES = {
   "/invoices/reports/aging":             "Aging Report",
   "/invoices/reports/tax":               "Tax Report",
   "/admin":                              "Platform Admin",
+  "/quotes":                             "Quotes & Estimates",
+  "/bills":                              "Bills & Payables",
+  "/credit-notes":                       "Credit Notes",
+  "/invoices/recurring":                 "Recurring Invoices",
+  "/accounting/opening-balances":        "Opening Balances",
 };
 
 function Layout({ children }) {
