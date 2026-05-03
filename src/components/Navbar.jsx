@@ -7,6 +7,7 @@ import {
   ChevronDown, Briefcase, Calculator, ArrowLeftRight, Banknote, PiggyBank, Lock, Receipt, Home,
   Info, SlidersHorizontal, Package, ShoppingCart, BarChart2,
   FileCheck, Repeat, Undo2, FileMinus, ClipboardCheck,
+  Warehouse, Target,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
@@ -154,6 +155,8 @@ function Navbar({ onClose }) {
     { path: "/accounting/reports/balance-sheet", label: "Balance Sheet",     icon: LayoutList,    info: "Snapshot of your assets, liabilities, and equity" },
     ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark, info: "Upload a bank statement to auto-create journal entries" }] : []),
     { path: "/accounting/reconciliation",        label: "Reconciliation",    icon: ArrowLeftRight, info: "Match bank transactions to your recorded journal entries" },
+    { path: "/fixed-assets",                      label: "Fixed Assets",      icon: Warehouse,      info: "Track and depreciate your fixed assets over their useful life" },
+    { path: "/accounting/budget",                 label: "Budget vs Actual",  icon: Target,         info: "Compare budgeted amounts to actual spend by account and period" },
   ];
 
   // ── Reports visible in primary nav for business owners ──────────────────
@@ -318,6 +321,8 @@ function Navbar({ onClose }) {
                         { path: "/bills",                       label: "Bills & Payables",  icon: FileMinus },
                         { path: "/debit-notes",                 label: "Debit Notes",       icon: FileMinus },
                         { path: "/credit-notes",                label: "Credit Notes",      icon: Undo2 },
+                        { path: "/fixed-assets",                label: "Fixed Assets",      icon: Warehouse },
+                        { path: "/accounting/budget",           label: "Budget vs Actual",  icon: Target },
                         ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark }] : []),
                       ].map(item => (
                         <NavLink key={item.path} item={item} collapsed={false} onClick={onClose} isActive={isActive} isMobile={isMobile} />
@@ -334,6 +339,8 @@ function Navbar({ onClose }) {
                     { path: "/bills",                       label: "Bills & Payables",  icon: FileMinus },
                     { path: "/debit-notes",                 label: "Debit Notes",       icon: FileMinus },
                     { path: "/credit-notes",                label: "Credit Notes",      icon: Undo2 },
+                    { path: "/fixed-assets",                label: "Fixed Assets",      icon: Warehouse },
+                    { path: "/accounting/budget",           label: "Budget vs Actual",  icon: Target },
                   ].map(item => (
                     <NavLink key={item.path} item={item} collapsed={true} onClick={onClose} isActive={isActive} isMobile={isMobile} />
                   ))}

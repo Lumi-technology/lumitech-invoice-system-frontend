@@ -38,6 +38,8 @@ const PAGE_TITLES = {
   "/accounting/opening-balances":        "Opening Balances",
   "/debit-notes":                        "Debit Notes",
   "/purchase-orders":                    "Purchase Orders",
+  "/fixed-assets":                       "Fixed Assets",
+  "/accounting/budget":                  "Budget vs Actual",
 };
 
 function Layout({ children }) {
