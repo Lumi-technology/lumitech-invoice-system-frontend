@@ -25,13 +25,24 @@ const THEMES = [
   { value: "auto",  label: "System", icon: Monitor, desc: "Follow your device setting" },
 ];
 
+const COUNTRIES = [
+  { code: "NG", flag: "🇳🇬", name: "Nigeria",      currency: "NGN", vat: "7.5%",  authority: "FIRS" },
+  { code: "GH", flag: "🇬🇭", name: "Ghana",        currency: "GHS", vat: "15%",   authority: "GRA"  },
+  { code: "ZA", flag: "🇿🇦", name: "South Africa", currency: "ZAR", vat: "15%",   authority: "SARS" },
+  { code: "KE", flag: "🇰🇪", name: "Kenya",        currency: "KES", vat: "16%",   authority: "KRA"  },
+  { code: "TZ", flag: "🇹🇿", name: "Tanzania",     currency: "TZS", vat: "18%",   authority: "TRA"  },
+  { code: "RW", flag: "🇷🇼", name: "Rwanda",       currency: "RWF", vat: "18%",   authority: "RRA"  },
+  { code: "UG", flag: "🇺🇬", name: "Uganda",       currency: "UGX", vat: "18%",   authority: "URA"  },
+  { code: "ZM", flag: "🇿🇲", name: "Zambia",       currency: "ZMW", vat: "16%",   authority: "ZRA"  },
+];
+
 const EMPTY_FORM = {
   name: "", email: "", phone: "", address: "", website: "", taxId: "",
   bankName: "", bankAccountNumber: "", bankAccountName: "",
   paystackPublicKey: "", paystackSecretKey: "",
   paystackSecretKeyConfigured: false,
   acceptPaystack: false, acceptBankTransfer: true, acceptCash: false,
-  baseCurrency: "KES",
+  baseCurrency: "NGN", country: "NG", defaultVatRate: 7.5, taxAuthorityLabel: "FIRS",
 };
 
 function OrgSettings() {
@@ -286,13 +297,40 @@ function OrgSettings() {
               </div>
             ))}
 
-            {/* Base Currency */}
+            {/* Country */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Base Currency</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Country</label>
+              <div className="relative">
+                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
+                <select
+                  value={form.country || "NG"}
+                  onChange={e => set("country", e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition appearance-none"
+                >
+                  {COUNTRIES.map(c => (
+                    <option key={c.code} value={c.code}>{c.flag} {c.name} — {c.currency} · VAT {c.vat} · {c.authority}</option>
+                  ))}
+                </select>
+              </div>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
+                Changing country automatically updates your currency, VAT rate, and tax authority label.
+              </p>
+              {form.country && (
+                <div className="mt-2 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                  <span><span className="font-medium text-slate-700 dark:text-slate-200">Currency:</span> {form.baseCurrency}</span>
+                  <span><span className="font-medium text-slate-700 dark:text-slate-200">VAT:</span> {form.defaultVatRate}%</span>
+                  <span><span className="font-medium text-slate-700 dark:text-slate-200">Authority:</span> {form.taxAuthorityLabel}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Base Currency (manual override) */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Base Currency <span className="text-slate-400 font-normal">(override)</span></label>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
                 <select
-                  value={form.baseCurrency || "KES"}
+                  value={form.baseCurrency || "NGN"}
                   onChange={e => set("baseCurrency", e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition appearance-none"
                 >
@@ -301,7 +339,7 @@ function OrgSettings() {
                   ))}
                 </select>
               </div>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">All financial documents will default to this currency.</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">Only change this if you operate in a different currency than your country default.</p>
             </div>
           </div>
         </div>

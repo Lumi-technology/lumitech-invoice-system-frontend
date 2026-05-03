@@ -3,8 +3,19 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import {
   Briefcase, Calculator, Building2, Mail, User,
-  Lock, Eye, EyeOff, CheckCircle, ArrowRight, ArrowLeft, Phone
+  Lock, Eye, EyeOff, CheckCircle, ArrowRight, ArrowLeft, Phone, Globe
 } from "lucide-react";
+
+const COUNTRIES = [
+  { code: "NG", flag: "🇳🇬", name: "Nigeria",      currency: "NGN", vat: "7.5%" },
+  { code: "GH", flag: "🇬🇭", name: "Ghana",        currency: "GHS", vat: "15%" },
+  { code: "ZA", flag: "🇿🇦", name: "South Africa", currency: "ZAR", vat: "15%" },
+  { code: "KE", flag: "🇰🇪", name: "Kenya",        currency: "KES", vat: "16%" },
+  { code: "TZ", flag: "🇹🇿", name: "Tanzania",     currency: "TZS", vat: "18%" },
+  { code: "RW", flag: "🇷🇼", name: "Rwanda",       currency: "RWF", vat: "18%" },
+  { code: "UG", flag: "🇺🇬", name: "Uganda",       currency: "UGX", vat: "18%" },
+  { code: "ZM", flag: "🇿🇲", name: "Zambia",       currency: "ZMW", vat: "16%" },
+];
 import { setUserType, setRegisteredAs } from "../utils/userType";
 
 const STEPS = ["Role", "Business", "Account"];
@@ -37,7 +48,7 @@ export default function Register() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [selectedUserType, setSelectedUserType] = useState("");
-  const [form, setForm] = useState({ orgName: "", email: "", phone: "", username: "", password: "" });
+  const [form, setForm] = useState({ orgName: "", email: "", phone: "", username: "", password: "", country: "NG" });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -192,11 +203,28 @@ export default function Register() {
                   </label>
                   <input
                     type="tel"
-                    placeholder="+254 700 000 000"
+                    placeholder="+234 800 000 0000"
                     value={form.phone}
                     onChange={e => setForm({ ...form, phone: e.target.value })}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
                   />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <Globe size={14} className="text-slate-400" /> Country
+                  </label>
+                  <select
+                    value={form.country}
+                    onChange={e => setForm({ ...form, country: e.target.value })}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                  >
+                    {COUNTRIES.map(c => (
+                      <option key={c.code} value={c.code}>
+                        {c.flag} {c.name} — {c.currency} · VAT {c.vat}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-slate-400">Sets your default currency and VAT rate automatically.</p>
                 </div>
               </div>
               <button
