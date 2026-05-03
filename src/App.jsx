@@ -51,6 +51,7 @@ import DebitNotes from "./pages/DebitNotes";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import FixedAssets from "./pages/FixedAssets";
 import BudgetVsActual from "./pages/BudgetVsActual";
+import Payroll from "./pages/Payroll";
 
 function App() {
   const [planLimitMessage, setPlanLimitMessage] = useState(null);
@@ -500,6 +501,9 @@ function App() {
 
           {/* BUDGET VS ACTUAL */}
           <Route path="/accounting/budget" element={<ProtectedRoute><Layout><BudgetVsActual /></Layout></ProtectedRoute>} />
+
+          {/* PAYROLL */}
+          <Route path="/payroll" element={<ProtectedRoute><Layout><Payroll /></Layout></ProtectedRoute>} />
 
           {/* CLIENT PORTAL — public, no auth */}
           <Route path="/portal/:token" element={<ClientPortal />} />

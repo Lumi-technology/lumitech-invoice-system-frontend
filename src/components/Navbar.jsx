@@ -7,7 +7,7 @@ import {
   ChevronDown, Briefcase, Calculator, ArrowLeftRight, Banknote, PiggyBank, Lock, Receipt, Home,
   Info, SlidersHorizontal, Package, ShoppingCart, BarChart2,
   FileCheck, Repeat, Undo2, FileMinus, ClipboardCheck,
-  Warehouse, Target,
+  Warehouse, Target, UserCog,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
@@ -157,6 +157,7 @@ function Navbar({ onClose }) {
     { path: "/accounting/reconciliation",        label: "Reconciliation",    icon: ArrowLeftRight, info: "Match bank transactions to your recorded journal entries" },
     { path: "/fixed-assets",                      label: "Fixed Assets",      icon: Warehouse,      info: "Track and depreciate your fixed assets over their useful life" },
     { path: "/accounting/budget",                 label: "Budget vs Actual",  icon: Target,         info: "Compare budgeted amounts to actual spend by account and period" },
+    { path: "/payroll",                           label: "Payroll & PAYE",    icon: UserCog,        info: "Manage employee salaries, calculate PAYE, NHIF, NSSF and Housing Levy" },
   ];
 
   // ── Reports visible in primary nav for business owners ──────────────────
@@ -323,6 +324,7 @@ function Navbar({ onClose }) {
                         { path: "/credit-notes",                label: "Credit Notes",      icon: Undo2 },
                         { path: "/fixed-assets",                label: "Fixed Assets",      icon: Warehouse },
                         { path: "/accounting/budget",           label: "Budget vs Actual",  icon: Target },
+                        { path: "/payroll",                     label: "Payroll & PAYE",    icon: UserCog },
                         ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark }] : []),
                       ].map(item => (
                         <NavLink key={item.path} item={item} collapsed={false} onClick={onClose} isActive={isActive} isMobile={isMobile} />
@@ -341,6 +343,7 @@ function Navbar({ onClose }) {
                     { path: "/credit-notes",                label: "Credit Notes",      icon: Undo2 },
                     { path: "/fixed-assets",                label: "Fixed Assets",      icon: Warehouse },
                     { path: "/accounting/budget",           label: "Budget vs Actual",  icon: Target },
+                    { path: "/payroll",                     label: "Payroll & PAYE",    icon: UserCog },
                   ].map(item => (
                     <NavLink key={item.path} item={item} collapsed={true} onClick={onClose} isActive={isActive} isMobile={isMobile} />
                   ))}

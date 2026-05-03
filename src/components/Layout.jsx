@@ -40,6 +40,7 @@ const PAGE_TITLES = {
   "/purchase-orders":                    "Purchase Orders",
   "/fixed-assets":                       "Fixed Assets",
   "/accounting/budget":                  "Budget vs Actual",
+  "/payroll":                            "Payroll & PAYE",
 };
 
 function Layout({ children }) {
