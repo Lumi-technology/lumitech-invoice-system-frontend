@@ -45,10 +45,10 @@ export default function RecurringInvoices() {
     setLoading(true);
     try {
       const [rRes, cRes] = await Promise.all([
-        api.get("/api/invoices/recurring"),
+        api.get("/api/invoices/recurring?size=100&sort=nextRunDate,asc"),
         api.get("/api/clients?size=200"),
       ]);
-      setItems(rRes.data ?? []);
+      setItems(rRes.data.content ?? []);
       setClients(cRes.data.content ?? []);
     } catch {
       notify("Failed to load recurring invoices", "error");
