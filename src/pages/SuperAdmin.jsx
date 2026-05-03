@@ -123,6 +123,7 @@ function OrgRow({ org, isOwnOrg, onSuspend, onUnsuspend, onDelete, onPlanChange 
             <div>
               <p className="font-medium text-slate-900 dark:text-white">{org.name}</p>
               {org.email && <p className="text-xs text-slate-400 dark:text-slate-500">{org.email}</p>}
+              {org.ownerPhone && <p className="text-xs text-slate-400 dark:text-slate-500">{org.ownerPhone}</p>}
             </div>
           </div>
         </td>
@@ -478,6 +479,7 @@ function SuperAdmin() {
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-800/50">
                 <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Organisation</th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Phone</th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Joined</th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Plan</th>
                 <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Users</th>
@@ -486,7 +488,7 @@ function SuperAdmin() {
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
               {loading ? (
-                <tr><td colSpan={5} className="px-6 py-10 text-center"><div className="inline-block animate-spin rounded-full h-6 w-6 border-4 border-slate-200 border-t-blue-600" /></td></tr>
+                <tr><td colSpan={6} className="px-6 py-10 text-center"><div className="inline-block animate-spin rounded-full h-6 w-6 border-4 border-slate-200 border-t-blue-600" /></td></tr>
               ) : recent.map(org => (
                 <tr key={org.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                   <td className="px-6 py-3">
@@ -499,6 +501,9 @@ function SuperAdmin() {
                         {org.email && <p className="text-xs text-slate-400">{org.email}</p>}
                       </div>
                     </div>
+                  </td>
+                  <td className="px-6 py-3 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                    {org.ownerPhone || <span className="text-slate-300 dark:text-slate-600">—</span>}
                   </td>
                   <td className="px-6 py-3 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">{fmtDate(org.createdAt)}</td>
                   <td className="px-6 py-3">

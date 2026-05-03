@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import {
   Briefcase, Calculator, Building2, Mail, User,
-  Lock, Eye, EyeOff, CheckCircle, ArrowRight, ArrowLeft
+  Lock, Eye, EyeOff, CheckCircle, ArrowRight, ArrowLeft, Phone
 } from "lucide-react";
 import { setUserType, setRegisteredAs } from "../utils/userType";
 
@@ -37,7 +37,7 @@ export default function Register() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [selectedUserType, setSelectedUserType] = useState("");
-  const [form, setForm] = useState({ orgName: "", email: "", username: "", password: "" });
+  const [form, setForm] = useState({ orgName: "", email: "", phone: "", username: "", password: "" });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -183,6 +183,18 @@ export default function Register() {
                     placeholder="admin@company.com"
                     value={form.email}
                     onChange={e => setForm({ ...form, email: e.target.value })}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <Phone size={14} className="text-slate-400" /> Phone Number <span className="text-slate-400 font-normal">(optional)</span>
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="+254 700 000 000"
+                    value={form.phone}
+                    onChange={e => setForm({ ...form, phone: e.target.value })}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
                   />
                 </div>
