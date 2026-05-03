@@ -7,7 +7,7 @@ import {
   ChevronDown, Briefcase, Calculator, ArrowLeftRight, Banknote, PiggyBank, Lock, Receipt, Home,
   Info, SlidersHorizontal, Package, ShoppingCart, BarChart2,
   FileCheck, Repeat, Undo2, FileMinus, ClipboardCheck,
-  Warehouse, Target, UserCog,
+  Warehouse, Target, UserCog, GitBranch, BookMarked, TrendingDown, History,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import api, { getUserFromToken } from "../services/api";
@@ -132,6 +132,7 @@ function Navbar({ onClose }) {
     { path: "/invoices",          label: "Invoices",             icon: FileText,    info: "View and manage all your invoices, track payment status" },
     { path: "/create",            label: "New Invoice",          icon: PlusCircle,  info: "Create and send a new invoice to a client" },
     { path: "/quotes",            label: "Quotes",               icon: FileCheck,      info: "Create and send estimates to clients, convert to invoices when accepted" },
+    { path: "/proforma",          label: "Proforma Invoices",    icon: GitBranch,      info: "Issue preliminary invoices for customs or pre-delivery confirmation" },
     { path: "/invoices/recurring",label: "Recurring Invoices",   icon: Repeat,         info: "Set up invoices that auto-send on a schedule" },
     { path: "/purchase-orders",   label: "Purchase Orders",      icon: ClipboardCheck, info: "Raise POs for suppliers and convert to bills when approved" },
     { path: "/clients",           label: "Customers",            icon: Users,       info: "Manage your clients and view their full payment history" },
@@ -154,10 +155,13 @@ function Navbar({ onClose }) {
     { path: "/accounting/reports/profit-loss",   label: "Profit & Loss",     icon: TrendingUp,    info: "See your income, expenses, and net profit over a period" },
     { path: "/accounting/reports/balance-sheet", label: "Balance Sheet",     icon: LayoutList,    info: "Snapshot of your assets, liabilities, and equity" },
     ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark, info: "Upload a bank statement to auto-create journal entries" }] : []),
-    { path: "/accounting/reconciliation",        label: "Reconciliation",    icon: ArrowLeftRight, info: "Match bank transactions to your recorded journal entries" },
-    { path: "/fixed-assets",                      label: "Fixed Assets",      icon: Warehouse,      info: "Track and depreciate your fixed assets over their useful life" },
-    { path: "/accounting/budget",                 label: "Budget vs Actual",  icon: Target,         info: "Compare budgeted amounts to actual spend by account and period" },
-    { path: "/payroll",                           label: "Payroll & PAYE",    icon: UserCog,        info: "Manage employee salaries, calculate PAYE, NHIF, NSSF and Housing Levy" },
+    { path: "/accounting/reconciliation",            label: "Reconciliation",       icon: ArrowLeftRight, info: "Match bank transactions to your recorded journal entries" },
+    { path: "/accounting/reports/cash-flow",         label: "Cash Flow Statement",  icon: TrendingDown,   info: "Operating, investing, and financing cash flows for a period" },
+    { path: "/accounting/ledger",                    label: "Account Ledger",       icon: BookMarked,     info: "Full transaction history and running balance for any account" },
+    { path: "/accounting/reports/cash-flow-forecast",label: "Cash Flow Forecast",   icon: History,        info: "Project future cash inflows and outflows from open invoices and bills" },
+    { path: "/fixed-assets",                         label: "Fixed Assets",         icon: Warehouse,      info: "Track and depreciate your fixed assets over their useful life" },
+    { path: "/accounting/budget",                    label: "Budget vs Actual",     icon: Target,         info: "Compare budgeted amounts to actual spend by account and period" },
+    { path: "/payroll",                              label: "Payroll & PAYE",       icon: UserCog,        info: "Manage employee salaries, calculate PAYE, NHIF, NSSF and Housing Levy" },
   ];
 
   // ── Reports visible in primary nav for business owners ──────────────────
@@ -166,7 +170,10 @@ function Navbar({ onClose }) {
     ...(isAccountantPro ? [{ path: "/invoices/reports/tax", label: "Tax Report", icon: Calculator, info: "VAT and WHT breakdown for tax filing" }] : []),
     { path: "/accounting/reports/trial-balance", label: "Trial Balance", icon: Scale,         info: "Check that your total debits and credits are balanced" },
     { path: "/accounting/reports/profit-loss",   label: "Profit & Loss", icon: TrendingUp,    info: "See your income, expenses, and net profit over a period" },
-    { path: "/accounting/reports/balance-sheet", label: "Balance Sheet", icon: LayoutList,    info: "Snapshot of your assets, liabilities, and equity" },
+    { path: "/accounting/reports/balance-sheet",          label: "Balance Sheet",       icon: LayoutList,   info: "Snapshot of your assets, liabilities, and equity" },
+    { path: "/accounting/reports/cash-flow",              label: "Cash Flow Statement", icon: TrendingDown, info: "Operating, investing, and financing cash flows for a period" },
+    { path: "/accounting/reports/cash-flow-forecast",     label: "Cash Flow Forecast",  icon: History,      info: "Project future cash inflows and outflows from open invoices and bills" },
+    { path: "/accounting/ledger",                         label: "Account Ledger",      icon: BookMarked,   info: "Full transaction history and running balance for any account" },
   ];
 
   const staffItems = [
@@ -322,9 +329,12 @@ function Navbar({ onClose }) {
                         { path: "/bills",                       label: "Bills & Payables",  icon: FileMinus },
                         { path: "/debit-notes",                 label: "Debit Notes",       icon: FileMinus },
                         { path: "/credit-notes",                label: "Credit Notes",      icon: Undo2 },
-                        { path: "/fixed-assets",                label: "Fixed Assets",      icon: Warehouse },
-                        { path: "/accounting/budget",           label: "Budget vs Actual",  icon: Target },
-                        { path: "/payroll",                     label: "Payroll & PAYE",    icon: UserCog },
+                        { path: "/accounting/reports/cash-flow",          label: "Cash Flow Statement", icon: TrendingDown },
+                        { path: "/accounting/ledger",                     label: "Account Ledger",      icon: BookMarked },
+                        { path: "/accounting/reports/cash-flow-forecast", label: "Cash Flow Forecast",  icon: History },
+                        { path: "/fixed-assets",                          label: "Fixed Assets",        icon: Warehouse },
+                        { path: "/accounting/budget",                     label: "Budget vs Actual",    icon: Target },
+                        { path: "/payroll",                               label: "Payroll & PAYE",      icon: UserCog },
                         ...(["SUPER_ADMIN", "ADMIN"].includes(role) ? [{ path: "/accounting/import", label: "Import Statement", icon: Landmark }] : []),
                       ].map(item => (
                         <NavLink key={item.path} item={item} collapsed={false} onClick={onClose} isActive={isActive} isMobile={isMobile} />
@@ -341,9 +351,12 @@ function Navbar({ onClose }) {
                     { path: "/bills",                       label: "Bills & Payables",  icon: FileMinus },
                     { path: "/debit-notes",                 label: "Debit Notes",       icon: FileMinus },
                     { path: "/credit-notes",                label: "Credit Notes",      icon: Undo2 },
-                    { path: "/fixed-assets",                label: "Fixed Assets",      icon: Warehouse },
-                    { path: "/accounting/budget",           label: "Budget vs Actual",  icon: Target },
-                    { path: "/payroll",                     label: "Payroll & PAYE",    icon: UserCog },
+                    { path: "/accounting/reports/cash-flow",          label: "Cash Flow Statement", icon: TrendingDown },
+                    { path: "/accounting/ledger",                     label: "Account Ledger",      icon: BookMarked },
+                    { path: "/accounting/reports/cash-flow-forecast", label: "Cash Flow Forecast",  icon: History },
+                    { path: "/fixed-assets",                          label: "Fixed Assets",        icon: Warehouse },
+                    { path: "/accounting/budget",                     label: "Budget vs Actual",    icon: Target },
+                    { path: "/payroll",                               label: "Payroll & PAYE",      icon: UserCog },
                   ].map(item => (
                     <NavLink key={item.path} item={item} collapsed={true} onClick={onClose} isActive={isActive} isMobile={isMobile} />
                   ))}

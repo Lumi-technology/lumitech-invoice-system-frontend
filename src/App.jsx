@@ -52,6 +52,10 @@ import PurchaseOrders from "./pages/PurchaseOrders";
 import FixedAssets from "./pages/FixedAssets";
 import BudgetVsActual from "./pages/BudgetVsActual";
 import Payroll from "./pages/Payroll";
+import CashFlowStatement from "./pages/CashFlowStatement";
+import AccountLedger from "./pages/AccountLedger";
+import CashFlowForecast from "./pages/CashFlowForecast";
+import ProformaInvoices from "./pages/ProformaInvoices";
 
 function App() {
   const [planLimitMessage, setPlanLimitMessage] = useState(null);
@@ -504,6 +508,18 @@ function App() {
 
           {/* PAYROLL */}
           <Route path="/payroll" element={<ProtectedRoute><Layout><Payroll /></Layout></ProtectedRoute>} />
+
+          {/* CASH FLOW STATEMENT */}
+          <Route path="/accounting/reports/cash-flow" element={<ProtectedRoute><Layout><CashFlowStatement /></Layout></ProtectedRoute>} />
+
+          {/* ACCOUNT LEDGER */}
+          <Route path="/accounting/ledger" element={<ProtectedRoute><Layout><AccountLedger /></Layout></ProtectedRoute>} />
+
+          {/* CASH FLOW FORECAST */}
+          <Route path="/accounting/reports/cash-flow-forecast" element={<ProtectedRoute><Layout><CashFlowForecast /></Layout></ProtectedRoute>} />
+
+          {/* PROFORMA INVOICES */}
+          <Route path="/proforma" element={<ProtectedRoute><Layout><ProformaInvoices /></Layout></ProtectedRoute>} />
 
           {/* CLIENT PORTAL — public, no auth */}
           <Route path="/portal/:token" element={<ClientPortal />} />

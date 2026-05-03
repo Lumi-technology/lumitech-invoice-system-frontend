@@ -41,6 +41,10 @@ const PAGE_TITLES = {
   "/fixed-assets":                       "Fixed Assets",
   "/accounting/budget":                  "Budget vs Actual",
   "/payroll":                            "Payroll & PAYE",
+  "/accounting/reports/cash-flow":       "Cash Flow Statement",
+  "/accounting/ledger":                  "Account Ledger",
+  "/accounting/reports/cash-flow-forecast": "Cash Flow Forecast",
+  "/proforma":                           "Proforma Invoices",
 };
 
 function Layout({ children }) {
