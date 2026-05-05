@@ -7,8 +7,7 @@ import {
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import Toast from "../components/Toast";
-
-const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
+import { useOrg } from "../context/OrgContext";
 const PERIODS = [
   { key: "today", label: "Today" },
   { key: "week",  label: "This Week" },
@@ -17,6 +16,7 @@ const PERIODS = [
 ];
 
 export default function SalesReport() {
+  const { fmt } = useOrg();
   const [period, setPeriod]   = useState("month");
   const [report, setReport]   = useState(null);
   const [sales, setSales]     = useState([]);
@@ -138,7 +138,7 @@ export default function SalesReport() {
                     <BarChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                       <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                      <YAxis tick={{ fontSize: 11 }} tickFormatter={v => fmt(v).replace("₦", "₦")} width={70} />
+                      <YAxis tick={{ fontSize: 11 }} tickFormatter={v => fmt(v)} width={70} />
                       <Tooltip formatter={v => fmt(v)} />
                       <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                     </BarChart>

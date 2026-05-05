@@ -13,6 +13,7 @@ import {
   FileText,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import { useOrg } from "../context/OrgContext";
 import ConfirmModal from "../components/ConfirmModal";
 import NumericInput from "../components/NumericInput";
 
@@ -30,7 +31,6 @@ const STATUS_STYLE = {
   COMPLETED: "bg-blue-100 text-blue-700",
 };
 
-const fmt = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 });
 const fmtDate = (d) => {
   if (!d) return "—";
   const dt = new Date(d);
@@ -38,6 +38,7 @@ const fmtDate = (d) => {
 };
 
 function ProjectDetail() {
+  const { fmt, fmtDate, currencySymbol } = useOrg();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -260,7 +261,7 @@ function ProjectDetail() {
           {financialCards.map(({ label, value, color }) => (
             <div key={label} className="bg-white dark:bg-slate-800 px-6 py-4">
               <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">{label}</p>
-              <p className={`text-base font-semibold ${color}`}>{fmt.format(value ?? 0)}</p>
+              <p className={`text-base font-semibold ${color}`}>{fmt(value ?? 0)}</p>
             </div>
           ))}
         </div>
@@ -291,7 +292,7 @@ function ProjectDetail() {
                   {co.createdAt && <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{fmtDate(co.createdAt)}</p>}
                 </div>
                 <span className={`text-sm font-semibold whitespace-nowrap ${co.amount >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-                  {co.amount >= 0 ? "+" : ""}{fmt.format(co.amount)}
+                  {co.amount >= 0 ? "+" : ""}{fmt(co.amount)}
                 </span>
               </div>
             ))}
@@ -332,7 +333,7 @@ function ProjectDetail() {
                         {inv.status}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-right font-medium text-slate-900 dark:text-white">{fmt.format(inv.total ?? inv.totalAmount ?? 0)}</td>
+                    <td className="px-6 py-3 text-right font-medium text-slate-900 dark:text-white">{fmt(inv.total ?? inv.totalAmount ?? 0)}</td>
                   </tr>
                 ))}
               </tbody>

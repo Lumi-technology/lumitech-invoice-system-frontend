@@ -4,6 +4,7 @@ import { Navigate } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
 import { BookOpen, Plus, Pencil, Trash2, X, ChevronDown, ChevronRight } from "lucide-react";
 import Toast from "../components/Toast";
+import { useOrg } from "../context/OrgContext";
 
 const ACCOUNT_TYPES = ["ASSET", "LIABILITY", "EQUITY", "INCOME", "EXPENSE"];
 
@@ -172,9 +173,9 @@ function AccountModal({ initial, onClose, onSaved }) {
 }
 
 function AccountGroup({ type, accounts, canEdit, onEdit, onDelete }) {
+  const { fmt } = useOrg();
   const [open, setOpen] = useState(true);
   const total = accounts.reduce((s, a) => s + (a.balance ?? 0), 0);
-  const fmt = (n) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(n ?? 0);
 
   return (
     <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">

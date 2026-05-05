@@ -4,13 +4,7 @@ import {
   BookOpen, TrendingUp, TrendingDown, RefreshCw,
 } from "lucide-react";
 import Toast from "../components/Toast";
-
-const fmt = (v) =>
-  new Intl.NumberFormat("en-KE", {
-    style: "currency",
-    currency: "KES",
-    minimumFractionDigits: 0,
-  }).format(v || 0);
+import { useOrg } from "../context/OrgContext";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const monthStart = () => {
@@ -46,6 +40,7 @@ const StatCard = ({ label, value, icon: Icon, color }) => (
 );
 
 export default function AccountLedger() {
+  const { fmt } = useOrg();
   const [accounts, setAccounts] = useState([]);
   const [accountsLoading, setAccountsLoading] = useState(true);
   const [selectedAccountId, setSelectedAccountId] = useState("");

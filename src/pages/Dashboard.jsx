@@ -13,8 +13,10 @@ import {
 import { getUserType, capitalLabel, USER_TYPES } from "../utils/userType";
 import TourOverlay from "../components/TourOverlay";
 import NumericInput from "../components/NumericInput";
+import { useOrg } from "../context/OrgContext";
 
 const Dashboard = () => {
+  const { fmt, currencySymbol } = useOrg();
   const user = getUserFromToken();
   const role = user?.role || (Array.isArray(user?.roles) ? user.roles[0] : null);
   if (role === "STAFF" || role === "ADMIN") return <Navigate to="/invoices" replace />;
@@ -69,8 +71,6 @@ const Dashboard = () => {
     }
   };
 
-  const fmt = (value) =>
-    new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(value || 0);
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -235,9 +235,9 @@ const Dashboard = () => {
           <BarChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis dataKey="name" stroke="#64748b" tick={{ fontSize: 12 }} />
-            <YAxis stroke="#64748b" tickFormatter={(v) => `₦${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 12 }} />
+            <YAxis stroke="#64748b" tickFormatter={(v) => `${currencySymbol}${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 12 }} />
             <Tooltip
-              formatter={(value) => [`₦${value.toLocaleString()}`, "Amount"]}
+              formatter={(value) => [fmt(value), "Amount"]}
               contentStyle={{ backgroundColor: "rgba(255,255,255,0.9)", backdropFilter: "blur(4px)", border: "1px solid #e2e8f0", borderRadius: "0.75rem", fontSize: "12px" }}
             />
             <Legend wrapperStyle={{ fontSize: "12px" }} />
@@ -358,9 +358,9 @@ const Dashboard = () => {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Amount (₦)</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Amount ({currencySymbol})</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₦</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">{currencySymbol}</span>
                   <NumericInput
                     value={loanAmount}
                     onChange={e => setLoanAmount(e.target.value)}

@@ -6,8 +6,8 @@ import {
 } from "lucide-react";
 import Toast from "../components/Toast";
 import { CURRENCIES } from "../utils/currencies";
+import { useOrg } from "../context/OrgContext";
 
-const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
 const today = () => new Date().toISOString().slice(0, 10);
 const inDays = (d) => new Date(Date.now() + d * 86400000).toISOString().slice(0, 10);
 
@@ -29,6 +29,7 @@ const emptyBillForm = () => ({
 const emptyPayForm = () => ({ amount: "", paymentDate: today(), paymentMethod: "BANK_TRANSFER", reference: "" });
 
 export default function Bills() {
+  const { fmt, baseCurrency } = useOrg();
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -38,7 +39,6 @@ export default function Bills() {
   const [saving, setSaving] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState("");
-  const [baseCurrency, setBaseCurrency] = useState("KES");
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
 
   const notify = (message, type = "success") => setToast({ visible: true, message, type });
@@ -55,14 +55,12 @@ export default function Bills() {
     }
   }, []);
 
+  useEffect(() => { load(); }, [load]);
+
+  // Sync bill form currency when org context loads
   useEffect(() => {
-    load();
-    api.get("/api/org").then(res => {
-      const bc = res.data?.baseCurrency || "KES";
-      setBaseCurrency(bc);
-      setBillForm(f => ({ ...f, currency: bc, exchangeRate: 1 }));
-    }).catch(() => {});
-  }, [load]);
+    setBillForm(f => ({ ...f, currency: baseCurrency, exchangeRate: 1 }));
+  }, [baseCurrency]);
 
   const handleItemChange = (idx, field, value) => {
     setBillForm(f => {
@@ -411,7 +409,7 @@ export default function Bills() {
 
             <form onSubmit={handlePaySubmit} className="p-5 space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Amount (₦) *</label>
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Amount ({currencySymbol}) *</label>
                 <input type="number" min="0.01" step="0.01" required value={payForm.amount} onChange={e => setPayForm(f => ({ ...f, amount: e.target.value }))} placeholder="0.00" className={inputCls} />
               </div>
               <div>

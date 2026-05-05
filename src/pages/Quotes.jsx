@@ -6,8 +6,8 @@ import {
 } from "lucide-react";
 import Toast from "../components/Toast";
 import { CURRENCIES } from "../utils/currencies";
+import { useOrg } from "../context/OrgContext";
 
-const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
 const today = () => new Date().toISOString().slice(0, 10);
 const inDays = (d) => new Date(Date.now() + d * 86400000).toISOString().slice(0, 10);
 
@@ -30,6 +30,7 @@ const emptyForm = (baseCurrency = "NGN", defaultVatRate = 7.5) => ({
 });
 
 export default function Quotes() {
+  const { fmt, baseCurrency, defaultVatRate } = useOrg();
   const [quotes, setQuotes] = useState([]);
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,8 +39,6 @@ export default function Quotes() {
   const [saving, setSaving] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState("");
-  const [baseCurrency, setBaseCurrency] = useState("NGN");
-  const [defaultVatRate, setDefaultVatRate] = useState(7.5);
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
 
   const notify = (message, type = "success") => setToast({ visible: true, message, type });
@@ -60,16 +59,12 @@ export default function Quotes() {
     }
   }, []);
 
+  useEffect(() => { load(); }, [load]);
+
+  // Re-init form when org context loads (async)
   useEffect(() => {
-    load();
-    api.get("/api/org").then(res => {
-      const bc = res.data?.baseCurrency || "NGN";
-      const vat = res.data?.defaultVatRate ?? 7.5;
-      setBaseCurrency(bc);
-      setDefaultVatRate(vat);
-      setForm(emptyForm(bc, vat));
-    }).catch(() => {});
-  }, [load]);
+    setForm(emptyForm(baseCurrency, defaultVatRate));
+  }, [baseCurrency, defaultVatRate]);
 
   const handleItemChange = (idx, field, value) => {
     setForm(f => {

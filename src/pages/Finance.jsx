@@ -4,9 +4,7 @@ import api from "../services/api";
 import { Download, Banknote, CheckCircle, Clock, AlertCircle, ArrowUpRight } from "lucide-react";
 import Toast from "../components/Toast";
 import { getUserType, USER_TYPES, paymentLabel } from "../utils/userType";
-
-const fmt = (n) =>
-  new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(n || 0);
+import { useOrg } from "../context/OrgContext";
 
 const fmtDate = (s) => {
   if (!s) return "—";
@@ -26,6 +24,7 @@ const exportCsv = async (endpoint, filename) => {
 };
 
 function Finance() {
+  const { fmt } = useOrg();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);

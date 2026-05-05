@@ -23,10 +23,12 @@ import {
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
 import { getUserFromToken } from "../services/api";
+import { useOrg } from "../context/OrgContext";
 
 function ClientDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { fmt } = useOrg();
   const [client, setClient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -338,7 +340,7 @@ function ClientDetail() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right font-medium text-slate-900 dark:text-white">
-                        {new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(p.revisedContractValue ?? p.contractValue ?? 0)}
+                        {fmt(p.revisedContractValue ?? p.contractValue ?? 0)}
                       </td>
                     </tr>
                   ))}
@@ -608,7 +610,7 @@ function ClientDetail() {
                       <div key={card.label} className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-3">
                         <p className="text-xs text-slate-400 mb-1">{card.label}</p>
                         <p className={`text-sm font-bold ${card.color}`}>
-                          {new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(card.value || 0)}
+                          {fmt(card.value || 0)}
                         </p>
                       </div>
                     ))}
@@ -635,7 +637,7 @@ function ClientDetail() {
                             const typeCls = tx.type === "INVOICE" ? "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400"
                               : tx.type === "PAYMENT" ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
                               : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400";
-                            const f = (v) => v > 0 ? new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v) : "—";
+                            const f = (v) => v > 0 ? fmt(v) : "—";
                             return (
                               <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-700/40">
                                 <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 whitespace-nowrap">{tx.date}</td>
@@ -648,7 +650,7 @@ function ClientDetail() {
                                 <td className="px-4 py-2.5 text-right text-rose-600 dark:text-rose-400">{f(tx.debit)}</td>
                                 <td className="px-4 py-2.5 text-right text-emerald-600 dark:text-emerald-400">{f(tx.credit)}</td>
                                 <td className={`px-4 py-2.5 text-right font-semibold ${tx.balance > 0 ? "text-amber-600 dark:text-amber-400" : "text-slate-700 dark:text-slate-300"}`}>
-                                  {new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(tx.balance || 0)}
+                                  {fmt(tx.balance || 0)}
                                 </td>
                               </tr>
                             );

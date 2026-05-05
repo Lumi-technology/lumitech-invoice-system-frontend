@@ -6,13 +6,8 @@ import {
   PlayCircle, ClipboardList, Pencil,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import { useOrg } from "../context/OrgContext";
 
-const fmt = (v) =>
-  new Intl.NumberFormat("en-KE", {
-    style: "currency",
-    currency: "KES",
-    minimumFractionDigits: 2,
-  }).format(v || 0);
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -69,6 +64,7 @@ function StatCard({ icon: Icon, label, value, sub, iconBg }) {
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function Payroll() {
+  const { fmt, currencySymbol } = useOrg();
   const [activeTab, setActiveTab] = useState("employees");
 
   // Employees state

@@ -5,8 +5,8 @@ import {
   Search, Package, Trash2, TrendingDown,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import { useOrg } from "../context/OrgContext";
 
-const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
 const today = () => new Date().toISOString().slice(0, 10);
 const pct = (v) => `${parseFloat(v || 0).toFixed(1)}%`;
 
@@ -32,6 +32,7 @@ const emptyForm = () => ({
 const emptyDisposeForm = () => ({ disposalAmount: "", disposalDate: today() });
 
 export default function FixedAssets() {
+  const { fmt, currencySymbol } = useOrg();
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -253,11 +254,11 @@ export default function FixedAssets() {
                   <input type="date" value={form.purchaseDate} onChange={e => setForm(f => ({ ...f, purchaseDate: e.target.value }))} required className={inputCls} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Purchase Cost (₦) *</label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Purchase Cost ({currencySymbol}) *</label>
                   <input type="number" min="0.01" step="0.01" required value={form.purchaseCost} onChange={e => setForm(f => ({ ...f, purchaseCost: e.target.value }))} placeholder="0.00" className={inputCls} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Salvage Value (₦)</label>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Salvage Value ({currencySymbol})</label>
                   <input type="number" min="0" step="0.01" value={form.salvageValue} onChange={e => setForm(f => ({ ...f, salvageValue: e.target.value }))} placeholder="0.00" className={inputCls} />
                 </div>
                 <div>
@@ -308,7 +309,7 @@ export default function FixedAssets() {
             </div>
             <form onSubmit={handleDispose} className="p-5 space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Disposal Amount (₦)</label>
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Disposal Amount ({currencySymbol})</label>
                 <input type="number" min="0" step="0.01" value={disposeForm.disposalAmount} onChange={e => setDisposeForm(f => ({ ...f, disposalAmount: e.target.value }))} placeholder="0.00" className={inputCls} />
               </div>
               <div>

@@ -5,9 +5,7 @@ import {
   Receipt, Plus, Clock, CheckCircle, XCircle, TrendingUp,
   ChevronRight, FolderOpen, AlertCircle,
 } from "lucide-react";
-
-const fmt = (v) =>
-  new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
+import { useOrg } from "../context/OrgContext";
 
 const STATUS_CFG = {
   PENDING:  { label: "Pending",  cls: "bg-amber-100 text-amber-700",   icon: Clock },
@@ -19,6 +17,7 @@ const CAT_LABEL = (c) =>
   (c || "").replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 
 export default function StaffHome() {
+  const { fmt } = useOrg();
   const user = getUserFromToken();
   const [expenses, setExpenses] = useState([]);
   const [reports, setReports] = useState([]);

@@ -4,9 +4,7 @@ import {
   FileText, TrendingUp, TrendingDown, RefreshCw, Calendar,
 } from "lucide-react";
 import Toast from "../components/Toast";
-
-const fmtCurrency = (v, currency) =>
-  (v || 0).toLocaleString("en-KE", { style: "currency", currency: currency || "KES" });
+import { useOrg } from "../context/OrgContext";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const inDays = (d) => new Date(Date.now() + d * 86400000).toISOString().slice(0, 10);
@@ -21,6 +19,7 @@ const dateCls =
   "px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition";
 
 export default function CashFlowForecast() {
+  const { fmt } = useOrg();
   const [fromDate, setFromDate] = useState(today());
   const [toDate, setToDate] = useState(inDays(30));
   const [report, setReport] = useState(null);
@@ -107,7 +106,7 @@ export default function CashFlowForecast() {
               <div className="min-w-0">
                 <p className="text-xs text-slate-500 dark:text-slate-400">Expected Inflow</p>
                 <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 truncate">
-                  {fmtCurrency(report.expectedInflow, "KES")}
+                  {fmt(report.expectedInflow)}
                 </p>
               </div>
             </div>
@@ -122,7 +121,7 @@ export default function CashFlowForecast() {
               <div className="min-w-0">
                 <p className="text-xs text-slate-500 dark:text-slate-400">Expected Outflow</p>
                 <p className="text-lg font-bold text-rose-600 dark:text-rose-400 truncate">
-                  {fmtCurrency(report.expectedOutflow, "KES")}
+                  {fmt(report.expectedOutflow)}
                 </p>
               </div>
             </div>
@@ -149,7 +148,7 @@ export default function CashFlowForecast() {
                       : "text-rose-600 dark:text-rose-400"
                   }`}
                 >
-                  {fmtCurrency(report.expectedNet, "KES")}
+                  {fmt(report.expectedNet)}
                 </p>
               </div>
             </div>
@@ -230,10 +229,7 @@ export default function CashFlowForecast() {
                         {item.description || "—"}
                       </td>
                       <td className="px-5 py-3 text-right font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap">
-                        {(item.amount || 0).toLocaleString("en-KE", {
-                          style: "currency",
-                          currency: item.currency || "KES",
-                        })}
+                        {fmt(item.amount)}
                       </td>
                       <td className="px-5 py-3 text-right text-xs text-slate-400 dark:text-slate-500 font-medium">
                         {item.currency || "KES"}

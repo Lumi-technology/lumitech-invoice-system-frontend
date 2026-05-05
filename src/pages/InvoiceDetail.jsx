@@ -27,8 +27,10 @@ import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
 import { getUserType, USER_TYPES, paymentLabel } from "../utils/userType";
 import NumericInput from "../components/NumericInput";
+import { useOrg } from "../context/OrgContext";
 
 function InvoiceDetail() {
+  const { currencySymbol } = useOrg();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -175,12 +177,11 @@ function InvoiceDetail() {
   };
 
 
-  const formatCurrency = (amount) =>
-    new Intl.NumberFormat("en-NG", {
-      style: "currency",
-      currency: "NGN",
-      minimumFractionDigits: 0,
-    }).format(amount || 0);
+  // Format using the invoice's own currency (set once invoice loads)
+  const formatCurrency = (amount) => {
+    const currency = invoice?.currency || "NGN";
+    return new Intl.NumberFormat("en", { style: "currency", currency, minimumFractionDigits: 0 }).format(amount || 0);
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return "—";
@@ -556,10 +557,10 @@ function InvoiceDetail() {
               {/* Amount */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
-                  Amount Received (₦)
+                  Amount Received ({currencySymbol})
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">₦</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">{currencySymbol}</span>
                   <NumericInput
                     value={paymentAmount}
                     onChange={(e) => {
@@ -625,16 +626,16 @@ function InvoiceDetail() {
                 {splitCapital && paymentAmount && (
                   <div className="mt-3 space-y-3">
                     <p className="text-xs text-amber-700 dark:text-amber-400">
-                      Split ₦{Number(paymentAmount).toLocaleString()} between revenue and capital recovery
+                      Split {formatCurrency(Number(paymentAmount).toLocaleString())} between revenue and capital recovery
                     </p>
                     <div className="grid grid-cols-2 gap-3">
                       {/* Capital Recovery */}
                       <div>
                         <label className="block text-xs font-medium text-amber-700 dark:text-amber-400 mb-1">
-                          {paymentLabel("capitalPart")} (₦)
+                          {paymentLabel("capitalPart")} ({currencySymbol})
                         </label>
                         <div className="relative">
-                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₦</span>
+                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">{currencySymbol}</span>
                           <NumericInput
                             value={capitalRecoveryAmount}
                             onChange={e => setCapitalRecoveryAmount(e.target.value)}
@@ -646,10 +647,10 @@ function InvoiceDetail() {
                       {/* Revenue (auto-calculated) */}
                       <div>
                         <label className="block text-xs font-medium text-emerald-700 dark:text-emerald-400 mb-1">
-                          {paymentLabel("revenuePart")} (₦)
+                          {paymentLabel("revenuePart")} ({currencySymbol})
                         </label>
                         <div className="px-3 py-2 text-sm bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 rounded-lg text-emerald-700 dark:text-emerald-300 font-medium">
-                          ₦{Math.max(0, Number(paymentAmount) - Number(capitalRecoveryAmount || 0)).toLocaleString()}
+                          {formatCurrency(Math.max(0, Number(paymentAmount) - Number(capitalRecoveryAmount || 0)))}
                         </div>
                       </div>
                     </div>
@@ -703,7 +704,7 @@ function InvoiceDetail() {
               <div className="hidden sm:grid grid-cols-12 gap-2 px-1 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 <div className="col-span-5">Description</div>
                 <div className="col-span-2">Qty</div>
-                <div className="col-span-3">Unit Price (₦)</div>
+                <div className="col-span-3">Unit Price ({currencySymbol})</div>
                 <div className="col-span-2" />
               </div>
               {editItems.map((item, i) => (
@@ -723,7 +724,7 @@ function InvoiceDetail() {
                     className="col-span-2 px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg dark:bg-slate-700/50 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   />
                   <div className="col-span-3 relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm">₦</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm">{currencySymbol}</span>
                     <NumericInput
                       value={item.unitPrice}
                       onChange={e => handleEditItemChange(i, "unitPrice", Number(e.target.value.replace(/,/g, "")))}
@@ -753,9 +754,9 @@ function InvoiceDetail() {
 
             {/* Tax */}
             <div className="flex items-center gap-3 border-t border-slate-100 dark:border-slate-700 pt-4 mb-6">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200 w-16">Tax (₦)</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200 w-16">Tax ({currencySymbol})</label>
               <div className="relative w-44">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm">₦</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm">{currencySymbol}</span>
                 <NumericInput
                   value={editTax}
                   onChange={e => setEditTax(e.target.value)}
@@ -803,9 +804,9 @@ function InvoiceDetail() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Amount (₦)</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Amount ({currencySymbol})</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₦</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">{currencySymbol}</span>
                   <NumericInput
                     value={markPaidAmount}
                     onChange={e => setMarkPaidAmount(e.target.value)}

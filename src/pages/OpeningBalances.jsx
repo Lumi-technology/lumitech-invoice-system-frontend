@@ -2,13 +2,14 @@ import { useEffect, useState, useCallback } from "react";
 import api from "../services/api";
 import { Plus, X, Save, RefreshCw, Scale, Trash2 } from "lucide-react";
 import Toast from "../components/Toast";
+import { useOrg } from "../context/OrgContext";
 
-const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
 const today = () => new Date().toISOString().slice(0, 10);
 
 const inputCls = "w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition";
 
 export default function OpeningBalances() {
+  const { fmt, currencySymbol } = useOrg();
   const [accounts, setAccounts] = useState([]);
   const [existing, setExisting] = useState(null); // null = not loaded, [] = none
   const [asOfDate, setAsOfDate] = useState(today());
@@ -222,8 +223,8 @@ export default function OpeningBalances() {
               {/* Column headers */}
               <div className="grid grid-cols-12 gap-2 mb-1 px-1">
                 <div className="col-span-6 text-xs text-slate-400 font-medium">Account</div>
-                <div className="col-span-3 text-xs text-slate-400 font-medium text-right">Debit (₦)</div>
-                <div className="col-span-3 text-xs text-slate-400 font-medium text-right">Credit (₦)</div>
+                <div className="col-span-3 text-xs text-slate-400 font-medium text-right">Debit ({currencySymbol})</div>
+                <div className="col-span-3 text-xs text-slate-400 font-medium text-right">Credit ({currencySymbol})</div>
               </div>
 
               <div className="space-y-2">

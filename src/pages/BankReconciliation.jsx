@@ -1,3 +1,4 @@
+import { useOrg } from "../context/OrgContext";
 import { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import {
@@ -5,11 +6,7 @@ import {
   X, Link2, Link2Off, ChevronDown, ChevronUp, ShieldCheck, Info,
 } from "lucide-react";
 
-const fmt = (v) =>
-  new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 2 }).format(v || 0);
 
-const fmtDate = (d) =>
-  d ? new Date(d).toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
 const STATUS_COLOR = {
   UNMATCHED:  "border-rose-400 bg-rose-50 dark:bg-rose-900/20",
@@ -28,6 +25,7 @@ const SAMPLE_CSV = `date,description,amount,type,reference
 2026-04-15,Service fee payment,35000.00,CREDIT,REF-002`;
 
 export default function BankReconciliation() {
+  const { fmt, fmtDate, currencySymbol } = useOrg();
   const [bankTxns, setBankTxns] = useState([]);
   const [systemTxns, setSystemTxns] = useState([]);
   const [summary, setSummary] = useState(null);

@@ -2,9 +2,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import { ClipboardList, ChevronDown, ChevronRight, AlertTriangle, RefreshCw, Download } from "lucide-react";
-
-const fmt = (n) =>
-  new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(n ?? 0);
+import { useOrg } from "../context/OrgContext";
 
 const fmtDate = (d) => {
   if (!d) return "—";
@@ -55,6 +53,7 @@ const BUCKETS = [
 ];
 
 function BucketSection({ bucket, rows }) {
+  const { fmt } = useOrg();
   const [open, setOpen] = useState(true);
   const total = rows.reduce((s, r) => s + (r.balanceDue ?? 0), 0);
   const hasRows = rows.length > 0;
@@ -139,6 +138,7 @@ function BucketSection({ bucket, rows }) {
 }
 
 function AgingReport() {
+  const { fmt } = useOrg();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

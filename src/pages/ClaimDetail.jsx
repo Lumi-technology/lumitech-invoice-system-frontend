@@ -8,6 +8,7 @@ import {
   Megaphone, Landmark, Plane, MapPin, MessageSquare,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import { useOrg } from "../context/OrgContext";
 
 // ── Expense type catalogue ────────────────────────────────────────────────────
 
@@ -36,7 +37,6 @@ const EXPENSE_TYPES = [
 
 const PAYMENT_TYPES = ["CASH","BANK_TRANSFER","CARD","MOBILE_MONEY","OTHER"];
 const PAY_LABEL  = (p) => (p||"").replace(/_/g," ").replace(/\b\w/g,l=>l.toUpperCase());
-const fmt        = (v) => new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(v||0);
 const fmtDate    = (d) => d ? new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"2-digit",month:"2-digit",year:"numeric"}) : "";
 
 const REPORT_STATUS_CFG = {
@@ -127,6 +127,7 @@ function TypePickerModal({ onSelect, onClose }) {
 // ── Expense Form Modal ────────────────────────────────────────────────────────
 
 function ExpenseFormModal({ expenseType, initial, mode, onSave, onClose, saving }) {
+  const { currencySymbol } = useOrg();
   const today = new Date().toISOString().slice(0,10);
   const [form, setForm] = useState(initial || {
     expenseDate: today, businessPurpose: "", vendorName: "",
@@ -170,7 +171,7 @@ function ExpenseFormModal({ expenseType, initial, mode, onSave, onClose, saving 
                   onChange={e=>set("expenseDate",e.target.value)} className={inputCls}/>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Amount (₦) <span className="text-rose-500">*</span></label>
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Amount ({currencySymbol}) <span className="text-rose-500">*</span></label>
                 <AmountInput value={form.amount} onChange={v=>set("amount",v)}/>
               </div>
             </div>
@@ -286,6 +287,7 @@ function RejectClaimModal({ onClose, onSubmit, submitting }) {
 // ── Main ClaimDetail ──────────────────────────────────────────────────────────
 
 export default function ClaimDetail() {
+  const { fmt } = useOrg();
   const { id } = useParams();
   const navigate = useNavigate();
   const user = getUserFromToken();

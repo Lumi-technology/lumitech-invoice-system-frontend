@@ -2,9 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import api from "../services/api";
 import { LayoutList, CheckCircle, AlertTriangle, RefreshCw, Download, Info } from "lucide-react";
-
-const fmt = (n) =>
-  new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(n ?? 0);
+import { useOrg } from "../context/OrgContext";
 
 const fmtDate = (d) => {
   if (!d) return "—";
@@ -14,6 +12,7 @@ const fmtDate = (d) => {
 const today = () => new Date().toISOString().slice(0, 10);
 
 function SubSection({ label, rows, total, totalLabel, accentColor }) {
+  const { fmt } = useOrg();
   if (!rows || rows.length === 0) return null;
   return (
     <div className="mb-1">
@@ -42,6 +41,7 @@ function SubSection({ label, rows, total, totalLabel, accentColor }) {
 }
 
 function SectionCard({ title, headerStyle, children, total, totalLabel, totalStyle }) {
+  const { fmt } = useOrg();
   return (
     <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
       <div className={`px-6 py-4 border-b border-slate-100 dark:border-slate-700 ${headerStyle}`}>
@@ -57,6 +57,7 @@ function SectionCard({ title, headerStyle, children, total, totalLabel, totalSty
 }
 
 function BalanceSheet() {
+  const { fmt } = useOrg();
   const [asOf, setAsOf] = useState(today());
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

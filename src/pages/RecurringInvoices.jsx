@@ -5,8 +5,8 @@ import {
   Calendar, Search, ChevronDown, ChevronUp,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import { useOrg } from "../context/OrgContext";
 
-const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
 const today = () => new Date().toISOString().slice(0, 10);
 
 const FREQ_LABELS = {
@@ -29,12 +29,12 @@ const emptyForm = (defaultVatRate = 7.5) => ({
 });
 
 export default function RecurringInvoices() {
+  const { fmt, currencySymbol, defaultVatRate } = useOrg();
   const [items, setItems] = useState([]);
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm());
-  const [defaultVatRate, setDefaultVatRate] = useState(7.5);
   const [saving, setSaving] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState("");
@@ -58,14 +58,11 @@ export default function RecurringInvoices() {
     }
   }, []);
 
+  useEffect(() => { load(); }, [load]);
+
   useEffect(() => {
-    load();
-    api.get("/api/org").then(res => {
-      const vat = res.data?.defaultVatRate ?? 7.5;
-      setDefaultVatRate(vat);
-      setForm(emptyForm(vat));
-    }).catch(() => {});
-  }, [load]);
+    setForm(emptyForm(defaultVatRate));
+  }, [defaultVatRate]);
 
   const handleItemChange = (idx, field, value) => {
     setForm(f => {

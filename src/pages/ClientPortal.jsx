@@ -104,8 +104,10 @@ function ClientPortal() {
     setPaymentError(null);
   };
 
-  const fmt = (amount) =>
-    new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(amount || 0);
+  // Use the org's currency from the portal data (set when first invoice loads)
+  const portalCurrency = data?.invoices?.[0]?.currency || "NGN";
+  const fmt = (amount, currency = portalCurrency) =>
+    new Intl.NumberFormat("en", { style: "currency", currency, minimumFractionDigits: 0 }).format(amount || 0);
 
   const fmtDate = (d) => {
     if (!d) return "—";

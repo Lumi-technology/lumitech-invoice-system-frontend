@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getUserFromToken } from "./services/api";
+import { OrgProvider } from "./context/OrgContext";
 
 import Dashboard from "./pages/Dashboard";
 import CreateInvoice from "./pages/CreateInvoice";
@@ -162,6 +163,7 @@ function App() {
         </div>
       )}
 
+      <OrgProvider>
       <BrowserRouter>
         <Routes>
 
@@ -529,6 +531,7 @@ function App() {
 
         </Routes>
       </BrowserRouter>
+      </OrgProvider>
     </>
   );
 }

@@ -14,8 +14,7 @@ import {
   isWebUSBSupported, isWebBluetoothSupported,
   getAuthorizedUSBPrinters, getAuthorizedBTPrinters,
 } from "../utils/thermalPrint";
-
-const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
+import { useOrg } from "../context/OrgContext";
 const PAYMENT_METHODS = ["CASH", "TRANSFER", "CARD", "POS_TERMINAL"];
 
 // ── Printer Setup Modal ───────────────────────────────────────────────────
@@ -264,6 +263,7 @@ function PrinterSetupModal({ orgName, onClose }) {
 }
 
 export default function POS() {
+  const { fmt, currencySymbol } = useOrg();
   const [products, setProducts]     = useState([]);
   const [cart, setCart]             = useState([]);
   const [search, setSearch]         = useState("");
@@ -688,7 +688,7 @@ export default function POS() {
                 <span>Subtotal</span><span>{fmt(subtotal)}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-slate-500 flex-1">Discount (₦)</span>
+                <span className="text-slate-500 flex-1">Discount ({currencySymbol})</span>
                 <input type="number" value={discount} onChange={e => setDiscount(e.target.value)}
                   placeholder="0" min="0" className="w-24 px-2 py-1 border border-slate-200 dark:border-slate-600 rounded-lg text-right text-sm bg-white dark:bg-slate-700 dark:text-white" />
               </div>

@@ -8,9 +8,7 @@ import {
 } from "lucide-react";
 import Toast from "../components/Toast";
 import NumericInput from "../components/NumericInput";
-
-const fmt = (n) =>
-  new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(n ?? 0);
+import { useOrg } from "../context/OrgContext";
 
 const fmtDate = (d) => {
   if (!d) return "—";
@@ -28,6 +26,7 @@ const VAT_OPTIONS = [
 
 // ── Quick Entry Modal ───────────────────────────────────────────────────────
 function QuickEntryModal({ accounts, onClose, onSaved }) {
+  const { fmt, currencySymbol } = useOrg();
   const today = new Date().toISOString().slice(0, 10);
 
   const [spendMode, setSpendMode] = useState(true); // true = Spend, false = Receive
@@ -237,7 +236,7 @@ function QuickEntryModal({ accounts, onClose, onSaved }) {
                   <tr>
                     <th className="text-left px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Category</th>
                     <th className="text-left px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hidden md:table-cell">Note</th>
-                    <th className="text-right px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Amount (₦)</th>
+                    <th className="text-right px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Amount ({currencySymbol})</th>
                     <th className="w-8" />
                   </tr>
                 </thead>
@@ -349,6 +348,7 @@ function QuickEntryModal({ accounts, onClose, onSaved }) {
 
 // ── Advanced (Full Double-Entry) Modal ──────────────────────────────────────
 function NewEntryModal({ accounts, onClose, onSaved }) {
+  const { fmt, currencySymbol } = useOrg();
   const [form, setForm] = useState({
     reference: "",
     description: "",
@@ -489,7 +489,7 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
                     <th className="text-left px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Account</th>
                     <th className="text-left px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hidden md:table-cell">Note</th>
                     <th className="px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 text-center">DR / CR</th>
-                    <th className="text-right px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Amount (₦)</th>
+                    <th className="text-right px-3 py-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Amount ({currencySymbol})</th>
                     <th className="w-8" />
                   </tr>
                 </thead>
@@ -631,6 +631,7 @@ function NewEntryModal({ accounts, onClose, onSaved }) {
 
 // ── Entry Row ───────────────────────────────────────────────────────────────
 function EntryRow({ entry, canDelete, onDelete }) {
+  const { fmt } = useOrg();
   const [expanded, setExpanded] = useState(false);
   const totalDebits = (entry.lines ?? []).reduce((s, l) => s + (l.debit ?? 0), 0);
 

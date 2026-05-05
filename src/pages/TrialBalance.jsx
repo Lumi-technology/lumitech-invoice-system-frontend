@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import { Scale, CheckCircle, AlertTriangle, RefreshCw, Download, Info } from "lucide-react";
+import { useOrg } from "../context/OrgContext";
 
 const ACCOUNT_TYPES = ["ASSET", "LIABILITY", "EQUITY", "INCOME", "EXPENSE"];
 
@@ -13,8 +14,6 @@ const TYPE_STYLE = {
   EXPENSE:   "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300",
 };
 
-const fmt = (n) =>
-  new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(n ?? 0);
 
 const fmtDate = (d) => {
   if (!d) return "—";
@@ -22,6 +21,7 @@ const fmtDate = (d) => {
 };
 
 function TrialBalance() {
+  const { fmt } = useOrg();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

@@ -4,13 +4,7 @@ import {
   TrendingUp, TrendingDown, RefreshCw, ChevronDown, ChevronUp,
 } from "lucide-react";
 import Toast from "../components/Toast";
-
-const fmt = (v) =>
-  new Intl.NumberFormat("en-KE", {
-    style: "currency",
-    currency: "KES",
-    minimumFractionDigits: 0,
-  }).format(v || 0);
+import { useOrg } from "../context/OrgContext";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const monthStart = () => {
@@ -59,6 +53,7 @@ const SectionCard = ({ title, inflow, outflow, net, colorAccent }) => (
 const CATEGORIES_ORDER = ["Operating", "Investing", "Financing"];
 
 export default function CashFlowStatement() {
+  const { fmt } = useOrg();
   const [from, setFrom] = useState(monthStart());
   const [to, setTo] = useState(today());
   const [loading, setLoading] = useState(false);

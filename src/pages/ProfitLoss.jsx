@@ -2,9 +2,7 @@
 import { useState } from "react";
 import api from "../services/api";
 import { TrendingUp, TrendingDown, RefreshCw, AlertTriangle, Download, Info } from "lucide-react";
-
-const fmt = (n) =>
-  new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(n ?? 0);
+import { useOrg } from "../context/OrgContext";
 
 const fmtDate = (d) => {
   if (!d) return "—";
@@ -18,6 +16,7 @@ const firstOfMonth = () => {
 };
 
 function AccountTable({ rows, emptyText }) {
+  const { fmt } = useOrg();
   if (!rows || rows.length === 0) {
     return <p className="px-6 py-6 text-sm text-slate-400 text-center">{emptyText}</p>;
   }
@@ -44,6 +43,7 @@ function AccountTable({ rows, emptyText }) {
 }
 
 function ProfitLoss() {
+  const { fmt } = useOrg();
   const [from, setFrom] = useState(firstOfMonth());
   const [to, setTo] = useState(today());
   const [data, setData] = useState(null);

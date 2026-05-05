@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Toast from "../components/Toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { useOrg } from "../context/OrgContext";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -37,7 +38,6 @@ const REPORT_STATUS_CFG = {
 
 const CAT_LABEL  = (c) => (c||"").replace(/_/g," ").replace(/\b\w/g,l=>l.toUpperCase());
 const PAY_LABEL  = (p) => (p||"").replace(/_/g," ").replace(/\b\w/g,l=>l.toUpperCase());
-const fmt        = (v) => new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:0}).format(v||0);
 const today      = () => new Date().toISOString().slice(0,10);
 const monthStart = () => new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().slice(0,10);
 
@@ -75,11 +75,12 @@ function AmountInput({ value, onChange, className }) {
 }
 
 function ExpenseFormFields({ form, setForm }) {
+  const { currencySymbol } = useOrg();
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Amount (₦) *</label>
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Amount ({currencySymbol}) *</label>
           <AmountInput
             value={form.amount}
             onChange={val => setForm(f => ({ ...f, amount: val }))}
@@ -185,6 +186,7 @@ function ReceiptUpload({ file, setFile, existingUrl }) {
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function Expenses({ view }) {
+  const { fmt } = useOrg();
   const navigate     = useNavigate();
   const userInfo     = getUserFromToken();
   const isStaff      = userInfo?.role === "STAFF" || userInfo?.role === "STAFF_EXPENSE";

@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
 import { Calculator, Download, RefreshCw, TrendingUp, TrendingDown, FileText, AlertCircle } from "lucide-react";
-
-const formatCurrency = (val) =>
-  new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 2 }).format(val || 0);
+import { useOrg } from "../context/OrgContext";
 
 const formatDate = (str) =>
   str ? new Date(str).toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric" }) : "—";
@@ -32,6 +30,7 @@ function currentQuarter() {
 }
 
 export default function TaxReport() {
+  const { fmt, taxAuthorityLabel } = useOrg();
   const { from: defaultFrom, to: defaultTo } = currentQuarter();
   const [from, setFrom] = useState(defaultFrom);
   const [to, setTo] = useState(defaultTo);
@@ -95,7 +94,7 @@ export default function TaxReport() {
             <Calculator className="w-6 h-6 text-blue-600" />
             Tax Report
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">VAT payable and WHT receivable — FIRS compliance</p>
+          <p className="text-sm text-slate-500 mt-0.5">VAT payable and WHT receivable — {taxAuthorityLabel} compliance</p>
         </div>
         <button
           onClick={handleExport}
@@ -103,7 +102,7 @@ export default function TaxReport() {
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl shadow-sm transition disabled:opacity-50"
         >
           <Download className="w-4 h-4" />
-          Export for FIRS (CSV)
+          Export for {taxAuthorityLabel} (CSV)
         </button>
       </div>
 
@@ -170,7 +169,7 @@ export default function TaxReport() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Revenue</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{formatCurrency(report.totalSubtotal)}</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{fmt(report.totalSubtotal)}</p>
               <p className="text-xs text-slate-400 mt-1">{report.invoiceCount} invoice{report.invoiceCount !== 1 ? "s" : ""}</p>
             </div>
 
@@ -179,8 +178,8 @@ export default function TaxReport() {
                 <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">VAT Payable</p>
                 <TrendingUp className="w-4 h-4 text-emerald-500" />
               </div>
-              <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{formatCurrency(report.totalVatPayable)}</p>
-              <p className="text-xs text-emerald-600/70 mt-1">Remit to FIRS</p>
+              <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{fmt(report.totalVatPayable)}</p>
+              <p className="text-xs text-emerald-600/70 mt-1">Remit to {taxAuthorityLabel}</p>
             </div>
 
             <div className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-200 dark:border-amber-700/40 p-5 shadow-sm">
@@ -188,7 +187,7 @@ export default function TaxReport() {
                 <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider">WHT Withheld</p>
                 <TrendingDown className="w-4 h-4 text-amber-500" />
               </div>
-              <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">{formatCurrency(report.totalWhtWithheld)}</p>
+              <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">{fmt(report.totalWhtWithheld)}</p>
               <p className="text-xs text-amber-600/70 mt-1">Receivable credit</p>
             </div>
           </div>
@@ -203,7 +202,7 @@ export default function TaxReport() {
                 {Object.entries(report.whtByType).map(([type, amount]) => (
                   <div key={type} className="flex items-center justify-between px-6 py-3">
                     <span className="text-sm text-slate-600 dark:text-slate-300">{WHT_LABELS[type] || type}</span>
-                    <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">{formatCurrency(amount)}</span>
+                    <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">{fmt(amount)}</span>
                   </div>
                 ))}
               </div>
@@ -245,22 +244,22 @@ export default function TaxReport() {
                         </td>
                         <td className="px-4 py-3 text-slate-700 dark:text-slate-200">{inv.clientName}</td>
                         <td className="px-4 py-3 text-slate-500">{formatDate(inv.issueDate)}</td>
-                        <td className="px-4 py-3 text-right text-slate-700 dark:text-slate-200">{formatCurrency(inv.subtotal)}</td>
+                        <td className="px-4 py-3 text-right text-slate-700 dark:text-slate-200">{fmt(inv.subtotal)}</td>
                         <td className="px-4 py-3 text-right">
                           {inv.vatAmount > 0
-                            ? <span className="text-emerald-700 dark:text-emerald-400 font-medium">{formatCurrency(inv.vatAmount)}</span>
+                            ? <span className="text-emerald-700 dark:text-emerald-400 font-medium">{fmt(inv.vatAmount)}</span>
                             : <span className="text-slate-300 dark:text-slate-600">—</span>}
                         </td>
                         <td className="px-4 py-3 text-right">
                           {inv.whtAmount > 0
-                            ? <span className="text-amber-700 dark:text-amber-400 font-medium">{formatCurrency(inv.whtAmount)}</span>
+                            ? <span className="text-amber-700 dark:text-amber-400 font-medium">{fmt(inv.whtAmount)}</span>
                             : <span className="text-slate-300 dark:text-slate-600">—</span>}
                         </td>
                         <td className="px-4 py-3 text-slate-500 text-xs">
                           {inv.whtType ? (WHT_LABELS[inv.whtType] || inv.whtType) : "—"}
                         </td>
                         <td className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">
-                          {formatCurrency(inv.total)}
+                          {fmt(inv.total)}
                         </td>
                       </tr>
                     ))}
@@ -268,12 +267,12 @@ export default function TaxReport() {
                   <tfoot>
                     <tr className="bg-slate-50 dark:bg-slate-700/40 font-semibold text-sm border-t-2 border-slate-200 dark:border-slate-600">
                       <td colSpan={3} className="px-6 py-3 text-slate-500">Totals</td>
-                      <td className="px-4 py-3 text-right text-slate-900 dark:text-white">{formatCurrency(report.totalSubtotal)}</td>
-                      <td className="px-4 py-3 text-right text-emerald-700 dark:text-emerald-400">{formatCurrency(report.totalVatPayable)}</td>
-                      <td className="px-4 py-3 text-right text-amber-700 dark:text-amber-400">{formatCurrency(report.totalWhtWithheld)}</td>
+                      <td className="px-4 py-3 text-right text-slate-900 dark:text-white">{fmt(report.totalSubtotal)}</td>
+                      <td className="px-4 py-3 text-right text-emerald-700 dark:text-emerald-400">{fmt(report.totalVatPayable)}</td>
+                      <td className="px-4 py-3 text-right text-amber-700 dark:text-amber-400">{fmt(report.totalWhtWithheld)}</td>
                       <td />
                       <td className="px-4 py-3 text-right text-slate-900 dark:text-white">
-                        {formatCurrency((report.totalSubtotal || 0) + (report.totalVatPayable || 0))}
+                        {fmt((report.totalSubtotal || 0) + (report.totalVatPayable || 0))}
                       </td>
                     </tr>
                   </tfoot>

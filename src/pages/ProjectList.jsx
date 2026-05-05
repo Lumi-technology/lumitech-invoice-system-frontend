@@ -10,6 +10,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import { useOrg } from "../context/OrgContext";
 import NumericInput from "../components/NumericInput";
 
 const CATEGORIES = [
@@ -27,11 +28,12 @@ const STATUS_STYLE = {
   COMPLETED: "bg-blue-100 text-blue-700",
 };
 
-const fmt = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 });
+
 
 const PAGE_SIZE = 10;
 
 function ProjectList() {
+  const { fmt, currencySymbol } = useOrg();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -155,7 +157,7 @@ function ProjectList() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right font-medium text-slate-900 dark:text-white">
-                          {fmt.format(p.revisedContractValue ?? p.contractValue ?? 0)}
+                          {fmt(p.revisedContractValue ?? p.contractValue ?? 0)}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex h-2 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-700 w-full">

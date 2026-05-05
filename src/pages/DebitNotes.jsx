@@ -2,8 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import api from "../services/api";
 import { Plus, X, FileText, Check, Ban, Undo2, ChevronDown, ChevronUp, Search, RefreshCw } from "lucide-react";
 import Toast from "../components/Toast";
-
-const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
+import { useOrg } from "../context/OrgContext";
 const today = () => new Date().toISOString().slice(0, 10);
 
 const STATUS_CFG = {
@@ -17,6 +16,7 @@ const inputCls = "w-full px-3 py-2.5 border border-slate-200 dark:border-slate-6
 const emptyForm = () => ({ billId: "", amount: "", reason: "", issueDate: today() });
 
 export default function DebitNotes() {
+  const { fmt, currencySymbol } = useOrg();
   const [notes, setNotes] = useState([]);
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -172,7 +172,7 @@ export default function DebitNotes() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Debit Amount (₦) *</label>
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">Debit Amount ({currencySymbol}) *</label>
                 <input type="number" min="0.01" step="0.01" required value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} placeholder="0.00" className={inputCls} />
               </div>
               <div>

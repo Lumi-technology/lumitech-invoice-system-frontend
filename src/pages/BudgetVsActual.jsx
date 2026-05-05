@@ -6,8 +6,7 @@ import {
   Trash2, BarChart2,
 } from "lucide-react";
 import Toast from "../components/Toast";
-
-const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
+import { useOrg } from "../context/OrgContext";
 const pct = (v) => `${parseFloat(v || 0).toFixed(1)}%`;
 
 const STATUS_CFG = {
@@ -23,6 +22,7 @@ const yearStart = () => `${currentYear}-01-01`;
 const yearEnd = () => `${currentYear}-12-31`;
 
 export default function BudgetVsActual() {
+  const { fmt, currencySymbol } = useOrg();
   const [budgets, setBudgets] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -305,7 +305,7 @@ export default function BudgetVsActual() {
                 </div>
                 <div className="grid grid-cols-12 gap-2 mb-1 px-1">
                   <div className="col-span-7 text-xs text-slate-400 font-medium">Account</div>
-                  <div className="col-span-4 text-xs text-slate-400 font-medium text-right">Annual Budget (₦)</div>
+                  <div className="col-span-4 text-xs text-slate-400 font-medium text-right">Annual Budget ({currencySymbol})</div>
                 </div>
                 <div className="space-y-2">
                   {form.lines.map((line, idx) => (

@@ -5,8 +5,8 @@ import {
   ChevronDown, ChevronUp, Search, RefreshCw, Trash2,
 } from "lucide-react";
 import Toast from "../components/Toast";
+import { useOrg } from "../context/OrgContext";
 
-const fmt = (v) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
 const today = () => new Date().toISOString().slice(0, 10);
 const inDays = (d) => new Date(Date.now() + d * 86400000).toISOString().slice(0, 10);
 
@@ -26,6 +26,7 @@ const emptyForm = () => ({
 });
 
 export default function PurchaseOrders() {
+  const { fmt, currencySymbol } = useOrg();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
