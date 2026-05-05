@@ -12,10 +12,10 @@ import { CURRENCIES } from "../utils/currencies";
 const inputCls = "w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/60 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm";
 const labelCls = "block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5";
 
-function Section({ icon: Icon, title, badge, action, children }) {
+function Section({ icon: Icon, title, badge, action, children, allowOverflow }) {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-      <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 flex items-center justify-between">
+    <div className={`bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm ${allowOverflow ? "" : "overflow-hidden"}`}>
+      <div className={`px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 flex items-center justify-between ${allowOverflow ? "rounded-t-2xl" : ""}`}>
         <div className="flex items-center gap-2">
           {Icon && <Icon className="w-4 h-4 text-blue-500" />}
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">{title}</h2>
@@ -296,6 +296,7 @@ function CreateInvoice() {
         <Section
           icon={Receipt}
           title="Line Items"
+          allowOverflow
           action={
             <button
               type="button"
@@ -343,7 +344,7 @@ function CreateInvoice() {
                       </button>
                     )}
                     {productOpen === index && (
-                      <div className="absolute top-full left-0 right-0 z-20 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl shadow-xl">
+                      <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl shadow-xl">
                         <div className="p-2 border-b border-slate-100 dark:border-slate-700">
                           <input
                             autoFocus
