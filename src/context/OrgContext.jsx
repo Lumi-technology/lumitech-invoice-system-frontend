@@ -15,18 +15,24 @@ const CURRENCY_SYMBOL = {
   USD: "$", GBP: "£", EUR: "€",
 };
 
+const DEFAULTS = {
+  baseCurrency: "NGN",
+  country: "NG",
+  defaultVatRate: 7.5,
+  taxAuthorityLabel: "FIRS",
+  orgName: "",
+};
+
 export function OrgProvider({ children }) {
-  const [org, setOrg] = useState({
-    baseCurrency: "NGN",
-    country: "NG",
-    defaultVatRate: 7.5,
-    taxAuthorityLabel: "FIRS",
-    orgName: "",
-  });
+  const [org, setOrg] = useState(DEFAULTS);
+  const [ready, setReady] = useState(false);
 
   const loadOrg = useCallback(() => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      setReady(true);
+      return;
+    }
     api.get("/api/org")
       .then(res => {
         const d = res.data;
@@ -38,10 +44,17 @@ export function OrgProvider({ children }) {
           orgName: d.name || "",
         });
       })
-      .catch(() => {/* not logged in yet — keep defaults */});
+      .catch(() => {/* keep defaults on error */})
+      .finally(() => setReady(true));
   }, []);
 
   useEffect(() => { loadOrg(); }, [loadOrg]);
+
+  if (!ready) return (
+    <div className="min-h-screen bg-white dark:bg-slate-900 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600" />
+    </div>
+  );
 
   const currency = org.baseCurrency || "NGN";
   const locale = CURRENCY_LOCALE[currency] || "en";
