@@ -6,6 +6,7 @@ import {
   Users, Plus, Trash2, Mail, Phone, MapPin, MoreVertical,
   AlertCircle, CheckCircle, Download, Bell, BellOff, X, Settings2,
 } from "lucide-react";
+import { useOrg } from "../context/OrgContext";
 
 const exportCsv = async (endpoint, filename) => {
   const res = await api.get(endpoint, { responseType: "blob" });
@@ -35,6 +36,7 @@ function ClientList() {
   const [totalPages, setTotalPages] = useState(0);
   const PAGE_SIZE = 20;
   const navigate = useNavigate();
+  const { fmt } = useOrg();
   const user = getUserFromToken();
   const isAdmin = user && (user.role === "ADMIN" || (Array.isArray(user.roles) && user.roles.includes("ADMIN")));
 
@@ -187,6 +189,9 @@ function ClientList() {
                   <th className="hidden lg:table-cell px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Address
                   </th>
+                  <th className="hidden sm:table-cell px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Outstanding
+                  </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Actions
                   </th>
@@ -220,6 +225,13 @@ function ClientList() {
                         <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />
                         <span className="truncate max-w-xs">{client.address || "—"}</span>
                       </div>
+                    </td>
+                    <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-right">
+                      {client.outstandingBalance > 0 ? (
+                        <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">{fmt(client.outstandingBalance)}</span>
+                      ) : (
+                        <span className="text-sm text-emerald-600 dark:text-emerald-400">—</span>
+                      )}
                     </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-1">

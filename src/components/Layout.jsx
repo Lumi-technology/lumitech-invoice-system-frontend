@@ -33,6 +33,7 @@ const PAGE_TITLES = {
   "/admin":                              "Platform Admin",
   "/quotes":                             "Quotes & Estimates",
   "/bills":                              "Bills & Payables",
+  "/suppliers":                          "Suppliers",
   "/credit-notes":                       "Credit Notes",
   "/invoices/recurring":                 "Recurring Invoices",
   "/accounting/opening-balances":        "Opening Balances",

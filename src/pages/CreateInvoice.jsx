@@ -1,10 +1,10 @@
 // CreateInvoice.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
 import {
   ArrowLeft, Plus, Trash2, Calendar, User, Save,
-  Mail, X, FolderOpen, FileText, Receipt, Info,
+  Mail, X, FolderOpen, FileText, Receipt, Info, Search,
 } from "lucide-react";
 import NumericInput from "../components/NumericInput";
 import { CURRENCIES } from "../utils/currencies";
@@ -31,12 +31,56 @@ function Section({ icon: Icon, title, badge, action, children }) {
 function CreateInvoice() {
   const [clients, setClients] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [productOpen, setProductOpen] = useState(null); // item index with picker open
+  const [productQuery, setProductQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [ccInput, setCcInput] = useState("");
   const [baseCurrency, setBaseCurrency] = useState("NGN");
   const [defaultVatRate, setDefaultVatRate] = useState(7.5);
   const navigate = useNavigate();
+
+  // Product picker state: one entry per line item index
+  const [pickerQueries, setPickerQueries] = useState({});       // { [i]: string }
+  const [pickerResults, setPickerResults] = useState({});       // { [i]: Product[] }
+  const [pickerOpen, setPickerOpen] = useState({});             // { [i]: boolean }
+  const pickerDebounceRefs = useRef({});                        // { [i]: timeoutId }
+  const pickerContainerRefs = useRef({});                       // { [i]: DOM node }
+
+  const handlePickerQueryChange = useCallback((i, query) => {
+    setPickerQueries(prev => ({ ...prev, [i]: query }));
+    setPickerOpen(prev => ({ ...prev, [i]: true }));
+    clearTimeout(pickerDebounceRefs.current[i]);
+    if (!query.trim()) {
+      setPickerResults(prev => ({ ...prev, [i]: [] }));
+      return;
+    }
+    pickerDebounceRefs.current[i] = setTimeout(async () => {
+      try {
+        const res = await api.get("/api/inventory/products/search", { params: { q: query } });
+        setPickerResults(prev => ({ ...prev, [i]: res.data ?? [] }));
+      } catch {
+        setPickerResults(prev => ({ ...prev, [i]: [] }));
+      }
+    }, 300);
+  }, []);
+
+  // handlePickerSelect is defined after handleItemChange below
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      Object.keys(pickerContainerRefs.current).forEach(i => {
+        const node = pickerContainerRefs.current[i];
+        if (node && !node.contains(e.target)) {
+          setPickerOpen(prev => ({ ...prev, [i]: false }));
+        }
+      });
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const today = new Date().toISOString().split("T")[0];
   const isAccountantPro = getUserFromToken()?.plan === "ACCOUNTANT_PRO";
@@ -72,6 +116,9 @@ function CreateInvoice() {
         setForm(f => ({ ...f, currency: bc, exchangeRate: 1, vatRate: vat }));
       })
       .catch(() => {});
+    api.get("/api/inventory/products", { params: { page: 0, size: 200 } })
+      .then(res => setProducts(res.data?.content ?? []))
+      .catch(() => {});
   }, []);
 
   const subtotal = form.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
@@ -97,6 +144,18 @@ function CreateInvoice() {
 
   const fmt = (v) =>
     new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(v || 0);
+
+  const filteredProducts = products.filter(p =>
+    !productQuery || p.name?.toLowerCase().includes(productQuery.toLowerCase()) ||
+    p.sku?.toLowerCase().includes(productQuery.toLowerCase())
+  );
+
+  const pickProduct = (index, product) => {
+    handleItemChange(index, "description", product.name);
+    handleItemChange(index, "unitPrice", product.price ?? 0);
+    setProductOpen(null);
+    setProductQuery("");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -264,14 +323,58 @@ function CreateInvoice() {
               >
                 <div className="sm:col-span-5">
                   <label className="sm:hidden text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 block">Description</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Website design, Consulting…"
-                    value={item.description}
-                    onChange={e => handleItemChange(index, "description", e.target.value)}
-                    required
-                    className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="e.g. Website design, Consulting…"
+                      value={item.description}
+                      onChange={e => handleItemChange(index, "description", e.target.value)}
+                      required
+                      className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition text-sm"
+                    />
+                    {products.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => { setProductOpen(productOpen === index ? null : index); setProductQuery(""); }}
+                        title="Pick from inventory"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
+                      >
+                        <Search size={13} />
+                      </button>
+                    )}
+                    {productOpen === index && (
+                      <div className="absolute top-full left-0 right-0 z-20 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl shadow-xl">
+                        <div className="p-2 border-b border-slate-100 dark:border-slate-700">
+                          <input
+                            autoFocus
+                            type="text"
+                            placeholder="Search products…"
+                            value={productQuery}
+                            onChange={e => setProductQuery(e.target.value)}
+                            className="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          />
+                        </div>
+                        <div className="max-h-44 overflow-y-auto">
+                          {filteredProducts.length === 0 ? (
+                            <p className="px-3 py-3 text-xs text-slate-400 text-center">No products found</p>
+                          ) : filteredProducts.map(p => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => pickProduct(index, p)}
+                              className="w-full text-left px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center justify-between gap-2 transition"
+                            >
+                              <div>
+                                <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{p.name}</p>
+                                {p.sku && <p className="text-xs text-slate-400">SKU: {p.sku}</p>}
+                              </div>
+                              <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 shrink-0">{fmt(p.price)}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="sm:col-span-2">

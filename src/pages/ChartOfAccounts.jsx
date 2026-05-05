@@ -172,10 +172,48 @@ function AccountModal({ initial, onClose, onSaved }) {
   );
 }
 
+function AccountRows({ accounts, type, canEdit, onEdit, onDelete }) {
+  const { fmt } = useOrg();
+  if (accounts.length === 0) return null;
+  return accounts.map(acc => (
+    <tr key={acc.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+      <td className="px-6 py-4">
+        <span className={`inline-block px-2 py-0.5 rounded text-xs font-mono font-semibold ${TYPE_STYLE[type]}`}>
+          {acc.code}
+        </span>
+      </td>
+      <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{acc.name}</td>
+      <td className="px-6 py-4 text-slate-500 dark:text-slate-400 hidden md:table-cell">{acc.description || "—"}</td>
+      <td className="px-6 py-4 text-right font-medium text-slate-700 dark:text-slate-200">{fmt(acc.balance)}</td>
+      {canEdit && (
+        <td className="px-6 py-4 text-right">
+          <div className="flex items-center justify-end gap-2">
+            <button onClick={() => onEdit(acc)} disabled={acc.isDefault}
+              title={acc.isDefault ? "System account — cannot edit" : "Edit"}
+              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition disabled:opacity-30 disabled:cursor-not-allowed">
+              <Pencil size={13} />
+            </button>
+            <button onClick={() => onDelete(acc)} disabled={acc.isDefault}
+              title={acc.isDefault ? "System account — cannot delete" : "Delete"}
+              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition disabled:opacity-30 disabled:cursor-not-allowed">
+              <Trash2 size={13} />
+            </button>
+          </div>
+        </td>
+      )}
+    </tr>
+  ));
+}
+
 function AccountGroup({ type, accounts, canEdit, onEdit, onDelete }) {
   const { fmt } = useOrg();
   const [open, setOpen] = useState(true);
   const total = accounts.reduce((s, a) => s + (a.balance ?? 0), 0);
+
+  const cogsAccounts = type === "EXPENSE" ? accounts.filter(a => a.subType === "DIRECT_COST") : [];
+  const opexAccounts = type === "EXPENSE" ? accounts.filter(a => a.subType !== "DIRECT_COST") : accounts;
+
+  const colSpan = canEdit ? 5 : 4;
 
   return (
     <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -204,46 +242,46 @@ function AccountGroup({ type, accounts, canEdit, onEdit, onDelete }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-              {accounts.length === 0 ? (
-                <tr>
-                  <td colSpan={canEdit ? 5 : 4} className="px-6 py-8 text-center text-sm text-slate-400">
-                    No {type.toLowerCase()} accounts yet.
-                  </td>
-                </tr>
-              ) : accounts.map(acc => (
-                <tr key={acc.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <span className={`inline-block px-2 py-0.5 rounded text-xs font-mono font-semibold ${TYPE_STYLE[type]}`}>
-                      {acc.code}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{acc.name}</td>
-                  <td className="px-6 py-4 text-slate-500 dark:text-slate-400 hidden md:table-cell">{acc.description || "—"}</td>
-                  <td className="px-6 py-4 text-right font-medium text-slate-700 dark:text-slate-200">{fmt(acc.balance)}</td>
-                  {canEdit && (
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => onEdit(acc)}
-                          disabled={acc.isDefault}
-                          title={acc.isDefault ? "System account — cannot edit" : "Edit"}
-                          className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                          <Pencil size={13} />
-                        </button>
-                        <button
-                          onClick={() => onDelete(acc)}
-                          disabled={acc.isDefault}
-                          title={acc.isDefault ? "System account — cannot delete" : "Delete"}
-                          className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                    </td>
+              {type === "EXPENSE" ? (
+                <>
+                  {cogsAccounts.length > 0 && (
+                    <>
+                      <tr className="bg-orange-50/60 dark:bg-orange-900/10">
+                        <td colSpan={colSpan} className="px-6 py-2 text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
+                          Cost of Goods Sold (COGS)
+                        </td>
+                      </tr>
+                      <AccountRows accounts={cogsAccounts} type={type} canEdit={canEdit} onEdit={onEdit} onDelete={onDelete} />
+                    </>
                   )}
-                </tr>
-              ))}
+                  {cogsAccounts.length > 0 && opexAccounts.length > 0 && (
+                    <tr className="bg-amber-50/60 dark:bg-amber-900/10">
+                      <td colSpan={colSpan} className="px-6 py-2 text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                        Operating Expenses
+                      </td>
+                    </tr>
+                  )}
+                  {opexAccounts.length > 0 ? (
+                    <AccountRows accounts={opexAccounts} type={type} canEdit={canEdit} onEdit={onEdit} onDelete={onDelete} />
+                  ) : accounts.length === 0 ? (
+                    <tr>
+                      <td colSpan={colSpan} className="px-6 py-8 text-center text-sm text-slate-400">
+                        No expense accounts yet.
+                      </td>
+                    </tr>
+                  ) : null}
+                </>
+              ) : (
+                accounts.length === 0 ? (
+                  <tr>
+                    <td colSpan={colSpan} className="px-6 py-8 text-center text-sm text-slate-400">
+                      No {type.toLowerCase()} accounts yet.
+                    </td>
+                  </tr>
+                ) : (
+                  <AccountRows accounts={accounts} type={type} canEdit={canEdit} onEdit={onEdit} onDelete={onDelete} />
+                )
+              )}
             </tbody>
           </table>
         </div>

@@ -45,6 +45,7 @@ import POS from "./pages/POS";
 import SalesReport from "./pages/SalesReport";
 import Quotes from "./pages/Quotes";
 import Bills from "./pages/Bills";
+import Suppliers from "./pages/Suppliers";
 import CreditNotes from "./pages/CreditNotes";
 import RecurringInvoices from "./pages/RecurringInvoices";
 import OpeningBalances from "./pages/OpeningBalances";
@@ -486,6 +487,9 @@ function App() {
 
           {/* BILLS */}
           <Route path="/bills" element={<ProtectedRoute><Layout><Bills /></Layout></ProtectedRoute>} />
+
+          {/* SUPPLIERS */}
+          <Route path="/suppliers" element={<ProtectedRoute><Layout><Suppliers /></Layout></ProtectedRoute>} />
 
           {/* CREDIT NOTES */}
           <Route path="/credit-notes" element={<ProtectedRoute><Layout><CreditNotes /></Layout></ProtectedRoute>} />
