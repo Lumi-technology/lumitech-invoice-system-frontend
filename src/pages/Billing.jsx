@@ -4,9 +4,12 @@ import api from "../services/api";
 import { CreditCard, CheckCircle, Clock, ArrowRight, Zap, Calculator, Shield, Lock } from "lucide-react";
 import Toast from "../components/Toast";
 import { setUserType, setRegisteredAs, USER_TYPES } from "../utils/userType";
+import { useOrg } from "../context/OrgContext";
 
 function Billing() {
+  const { country, fmt, currencySymbol } = useOrg();
   const [billing, setBilling] = useState(null);
+  const [planPricing, setPlanPricing] = useState({}); // { STARTER: {amount, currency}, ... }
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(null);
   const [cancelling, setCancelling] = useState(false);
@@ -14,17 +17,22 @@ function Billing() {
   const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
 
   useEffect(() => {
-    api.get("/api/billing/status")
-      .then(res => {
-        setBilling(res.data);
-        // If on Accountant Pro, ensure the user is in accountant mode
-        if (res.data?.currentPlan === "ACCOUNTANT_PRO") {
-          setRegisteredAs(USER_TYPES.ACCOUNTANT);
-          setUserType(USER_TYPES.ACCOUNTANT);
-        }
-      })
-      .catch(() => setToast({ visible: true, message: "Failed to load billing info", type: "error" }))
-      .finally(() => setLoading(false));
+    Promise.all([
+      api.get("/api/billing/status"),
+      api.get("/api/billing/plans").catch(() => ({ data: [] })),
+    ]).then(([statusRes, plansRes]) => {
+      setBilling(statusRes.data);
+      if (statusRes.data?.currentPlan === "ACCOUNTANT_PRO") {
+        setRegisteredAs(USER_TYPES.ACCOUNTANT);
+        setUserType(USER_TYPES.ACCOUNTANT);
+      }
+      // Build a plan → {amount, currency} lookup
+      const pricing = {};
+      (plansRes.data || []).forEach(p => { pricing[p.plan] = { amount: p.amount, currency: p.currency }; });
+      setPlanPricing(pricing);
+    })
+    .catch(() => setToast({ visible: true, message: "Failed to load billing info", type: "error" }))
+    .finally(() => setLoading(false));
   }, []);
 
   const handleUpgrade = async (planKey) => {
@@ -63,6 +71,18 @@ function Billing() {
   const currentPlan = billing?.currentPlan ?? "FREE";
   const currentStatus = billing?.subscriptionStatus ?? (currentPlan === "FREE" ? "TRIAL" : "ACTIVE");
   const isTrial = currentPlan === "FREE";
+
+  const fmtPrice = (planKey) => {
+    const p = planPricing[planKey];
+    if (!p) return null;
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency", currency: p.currency, minimumFractionDigits: 0, maximumFractionDigits: 0,
+      }).format(p.amount);
+    } catch {
+      return `${p.currency} ${p.amount}`;
+    }
+  };
 
   const PLAN_DISPLAY = {
     FREE:           "Free Trial",
@@ -157,7 +177,7 @@ function Billing() {
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
                 Free Trial
               </div>
-              <p className="text-3xl font-bold text-slate-900 mb-1">₦0</p>
+              <p className="text-3xl font-bold text-slate-900 mb-1">{currencySymbol}0</p>
               <p className="text-slate-500 text-sm mb-2">for 30 days</p>
               <p className="text-xs text-slate-400 mb-5 leading-relaxed">
                 Full access to every feature. No restrictions. No card needed.
@@ -205,7 +225,7 @@ function Billing() {
                 Essential
               </div>
               <div className="mb-2">
-                <span className="text-4xl font-extrabold text-white">₦9,900</span>
+                <span className="text-4xl font-extrabold text-white">{fmtPrice("STARTER") ?? "—"}</span>
                 <span className="text-blue-200 text-sm ml-1">/month</span>
               </div>
               <p className="text-blue-200 text-xs mb-5">
@@ -252,7 +272,7 @@ function Billing() {
                 Business
               </div>
               <div className="mb-2">
-                <span className="text-3xl font-extrabold text-white">₦24,900</span>
+                <span className="text-3xl font-extrabold text-white">{fmtPrice("GROWTH") ?? "—"}</span>
                 <span className="text-slate-400 text-sm ml-1">/month</span>
               </div>
               <p className="text-slate-400 text-xs mb-5">
@@ -300,7 +320,7 @@ function Billing() {
                 Accountant Pro
               </div>
               <div className="mb-2">
-                <span className="text-3xl font-extrabold text-slate-900">₦59,900</span>
+                <span className="text-3xl font-extrabold text-slate-900">{fmtPrice("ACCOUNTANT_PRO") ?? "—"}</span>
                 <span className="text-slate-400 text-sm ml-1">/month</span>
               </div>
               <p className="text-slate-500 text-xs mb-5">
@@ -346,7 +366,7 @@ function Billing() {
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 py-3 px-4 bg-slate-50 border border-slate-200 rounded-2xl">
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <Lock className="w-3.5 h-3.5 text-slate-400" />
-              Secured by <span className="font-semibold text-slate-700">Paystack</span> — Nigeria's most trusted payment platform
+              Secured by <span className="font-semibold text-slate-700">Paystack</span> — trusted payment platform
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <Shield className="w-3.5 h-3.5 text-slate-400" />

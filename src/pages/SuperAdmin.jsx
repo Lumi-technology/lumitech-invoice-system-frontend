@@ -5,7 +5,7 @@ import api, { getUserFromToken } from "../services/api";
 import {
   ShieldCheck, Building2, Users, FileText, CheckCircle, XCircle,
   ChevronDown, FolderOpen, AlertTriangle, X,
-  Trash2, UserCircle, Clock,
+  Trash2, UserCircle, Clock, CreditCard, Save,
 } from "lucide-react";
 import Toast from "../components/Toast";
 import ConfirmModal from "../components/ConfirmModal";
@@ -258,6 +258,9 @@ function SuperAdmin() {
   const [orgs, setOrgs] = useState([]);
   const [recent, setRecent] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pricingRows, setPricingRows] = useState([]); // [{ id, country, plan, amount, currency }]
+  const [pricingEdits, setPricingEdits] = useState({}); // { "NG-STARTER": "9900", ... }
+  const [savingPricing, setSavingPricing] = useState(false);
   const [suspendTarget, setSuspendTarget] = useState(null);
   const [suspending, setSuspending] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -274,14 +277,38 @@ function SuperAdmin() {
       api.get("/api/superadmin/stats"),
       api.get("/api/superadmin/organisations"),
       api.get("/api/superadmin/recent-registrations?limit=8"),
+      api.get("/api/superadmin/billing/pricing").catch(() => ({ data: [] })),
     ])
-      .then(([statsRes, orgsRes, recentRes]) => {
+      .then(([statsRes, orgsRes, recentRes, pricingRes]) => {
         setStats(statsRes.data);
         setOrgs(orgsRes.data.content ?? orgsRes.data ?? []);
         setRecent(recentRes.data ?? []);
+        const rows = pricingRes.data ?? [];
+        setPricingRows(rows);
+        const edits = {};
+        rows.forEach(r => { edits[`${r.country}-${r.plan}`] = String(r.amount); });
+        setPricingEdits(edits);
       })
       .catch(() => showToast("Failed to load platform data", "error"))
       .finally(() => setLoading(false));
+  };
+
+  const savePricingRow = async (row) => {
+    const key = `${row.country}-${row.plan}`;
+    const newAmount = pricingEdits[key];
+    if (!newAmount || isNaN(Number(newAmount))) return;
+    setSavingPricing(true);
+    try {
+      await api.put("/api/superadmin/billing/pricing", {
+        country: row.country, plan: row.plan,
+        amount: Number(newAmount), currency: row.currency,
+      });
+      showToast(`${row.country} ${row.plan} pricing updated`);
+    } catch {
+      showToast("Failed to save pricing", "error");
+    } finally {
+      setSavingPricing(false);
+    }
   };
 
   useEffect(() => { fetchAll(); }, []);
@@ -561,6 +588,67 @@ function SuperAdmin() {
                     onPlanChange={changePlan}
                   />
                 ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* ── Plan Pricing Management ── */}
+      <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center gap-2">
+          <CreditCard className="w-4 h-4 text-blue-600" />
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Plan Pricing by Country</h2>
+          <span className="text-xs text-slate-400 ml-1">— edit prices per country, then save each row</span>
+        </div>
+        {pricingRows.length === 0 ? (
+          <p className="px-6 py-8 text-sm text-slate-400 text-center">No pricing configured yet — pricing will appear after first backend startup.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 dark:bg-slate-800/50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Country</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Plan</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Currency</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Amount / month</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                {[...pricingRows]
+                  .sort((a, b) => a.country.localeCompare(b.country) || a.plan.localeCompare(b.plan))
+                  .map(row => {
+                    const key = `${row.country}-${row.plan}`;
+                    return (
+                      <tr key={key} className="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
+                        <td className="px-4 py-3 font-mono font-semibold text-slate-700 dark:text-slate-200">{row.country}</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-0.5 rounded text-xs font-semibold ${PLAN_STYLE[row.plan] ?? ""}`}>{PLAN_LABEL[row.plan] ?? row.plan}</span>
+                        </td>
+                        <td className="px-4 py-3 text-slate-500 dark:text-slate-400 font-mono">{row.currency}</td>
+                        <td className="px-4 py-3">
+                          <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            value={pricingEdits[key] ?? row.amount}
+                            onChange={e => setPricingEdits(prev => ({ ...prev, [key]: e.target.value }))}
+                            className="w-32 px-3 py-1.5 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                          />
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <button
+                            onClick={() => savePricingRow(row)}
+                            disabled={savingPricing}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition disabled:opacity-50"
+                          >
+                            <Save size={12} /> Save
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </table>
           </div>

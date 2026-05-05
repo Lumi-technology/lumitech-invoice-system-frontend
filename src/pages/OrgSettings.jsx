@@ -297,15 +297,20 @@ function OrgSettings() {
               </div>
             ))}
 
-            {/* Country */}
+            {/* Country — locked after registration */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Country</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5 flex items-center gap-1.5">
+                Country
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-xs rounded-full font-normal">
+                  <Lock className="w-3 h-3" /> Locked
+                </span>
+              </label>
               <div className="relative">
                 <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
                 <select
                   value={form.country || "NG"}
-                  onChange={e => set("country", e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700/50 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition appearance-none"
+                  disabled
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-700/30 text-slate-400 dark:text-slate-500 text-sm cursor-not-allowed appearance-none"
                 >
                   {COUNTRIES.map(c => (
                     <option key={c.code} value={c.code}>{c.flag} {c.name} — {c.currency} · VAT {c.vat} · {c.authority}</option>
@@ -313,7 +318,7 @@ function OrgSettings() {
                 </select>
               </div>
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
-                Changing country automatically updates your currency, VAT rate, and tax authority label.
+                Country cannot be changed after registration. Contact <a href="mailto:support@lumitechsystems.com" className="text-blue-500 hover:underline">support@lumitechsystems.com</a> if you need to update this.
               </p>
               {form.country && (
                 <div className="mt-2 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-700/40 rounded-lg px-3 py-2">
