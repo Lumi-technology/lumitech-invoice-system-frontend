@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api, { getUserFromToken } from "../services/api";
+import { useOrg } from "../context/OrgContext";
 import { setUserType, setRegisteredAs } from "../utils/userType";
 import posthog from 'posthog-js';
 import axios from "axios";
@@ -20,6 +21,7 @@ function Login() {
   const [resendDone, setResendDone] = useState(false);
 
   const navigate = useNavigate();
+  const { reloadOrg } = useOrg();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,6 +48,10 @@ function Login() {
           role: role,
         });
       }
+
+      // Load org data (currency, VAT, country) before navigating so the
+      // correct region is shown immediately without a flash of NGN defaults
+      await reloadOrg();
 
       if (role === "STAFF" || role === "STAFF_EXPENSE") {
         navigate("/staff-home");

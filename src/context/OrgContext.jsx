@@ -31,9 +31,9 @@ export function OrgProvider({ children }) {
     const token = localStorage.getItem("token");
     if (!token) {
       setReady(true);
-      return;
+      return Promise.resolve();
     }
-    api.get("/api/org")
+    return api.get("/api/org")
       .then(res => {
         const d = res.data;
         setOrg({
