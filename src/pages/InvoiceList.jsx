@@ -208,7 +208,7 @@ function InvoiceList() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Revenue"
-            value={`{fmt(stats.total)}`}
+            value={fmt(stats.total)}
             icon={DollarSign}
             color="bg-gradient-to-br from-blue-600 to-indigo-600"
             trend="12"
